@@ -1,0 +1,13 @@
+<form role="form" name="form.addPerso">
+<div class="modal-body">
+	<label>Label</label>
+	<input class="form-control" ng-model="d.label" required/>
+	<label>Type de champ</label>
+	<select class="form-control" ng-model="d.type"  ng-options="t.type as t.display for t in types"></select>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">Ajouter</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>
+

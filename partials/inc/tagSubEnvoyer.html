@@ -1,0 +1,11 @@
+<div>
+	<span ng-if="hasChild(tag)" class="cursor petit">
+		<span class="glyphicon glyphicon-minus" ng-if="tagsOpen.indexOf(tag.id)>=0" ng-click="tagsOpen.splice(tagsOpen.indexOf(tag.id),1)"></span>
+		<span class="glyphicon glyphicon-plus" ng-if="tagsOpen.indexOf(tag.id)==-1" ng-click="tagsOpen.push(tag.id)"></span>
+	</span>
+	<span ng-class="{'selected':res.liste.indexOf(tag.id)>=0}" class="cursor" ng-click="res.liste.indexOf(tag.id)==-1 ? res.liste.push(tag.id) : res.liste.splice(res.liste.indexOf(tag.id),1)" style="color:{{tag.color}};">{{tag.nom}}</span>
+</div>
+<ul ng-if="hasChild(tag) && tagsOpen.indexOf(tag.id)>=0"class="list-group">
+<li class="list-group-item tag-list" ng-include="'partials/inc/tagSubEnvoyer.html'" ng-repeat="tag in children(tag) | orderBy:'nom'"></li>
+</ul>
+

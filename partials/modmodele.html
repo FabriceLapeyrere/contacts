@@ -1,0 +1,19 @@
+<div loading="key" data="Data">
+	<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+		<p><button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button></p>
+		<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+		    <span class="pull-right mini" ng-show="p">Enregistré</span>
+		    <span class="pull-right mini" ng-show="!p">Non enregistré</span>
+	    </p>
+	    <p>
+			<label>
+				<span>Nom</span>
+			</label>
+			<input class="form-control" type="text" ng-model="Data.modele[key].nom" required/>
+			<label>
+				<span>Modele</span>
+			</label>
+			<textarea style="height:500px;" class="form-control autoFocus" ng-model="Data.modele[key].modele" ng-allow-tab></textarea>
+		</p>
+	</div>
+</div>

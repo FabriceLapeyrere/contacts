@@ -1,0 +1,16 @@
+<div loading="'mails'" data="Data">
+	<div class="col-sm-6 col-sm-offset-3">
+		<h1>Mails</h1>
+		<p><span class="btn btn-primary"ng-click="addMailMod()">Nouveau Mail</span></p>
+		<input type="text" ng-model="filtre.sujet" class="form-control" placeholder="filtre"/>
+        <uib-pagination boundary-links="true" total-items="mails.length" ng-model="pageCourante.mails" items-per-page="itemsParPage" max-size="maxSize"class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<ul class="list-group">
+			<li class="list-group-item" ng-repeat="mail in (mails=(Data.modele.mails | toArray | filter:filtre | orderBy:'creationdate':true)) | startFrom:(pageCourante.mails-1)*itemsParPage | limitTo:itemsParPage">
+            <locked verrou="mail.verrou" data="Data">
+				<a href="modmail/{{mail.id}}">{{mail.sujet ? mail.sujet : '(sans titre)'}}</a> - {{calendar(mail.modificationdate)}} par {{Data.modele.users[mail.modifiedby].name}}
+				<span style="font-size:0.8em;" class="glyphicon glyphicon-trash pull-right cursor" ng-confirm-click="delMail(mail)" ng-confirm-message="Sûr?"></span> 
+            </locked>
+			</li>
+		</ul>
+	</div>
+</div>

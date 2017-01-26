@@ -1,0 +1,18 @@
+<locked verrou="tag.verrou" data="Data">
+<div ui-on-Drop="dropOnTag($event,$data,$channel,tag,$ctrl)" drop-channel="tag,panier">
+	<span ng-if="hasChild(tag)" class="cursor petit">
+		<span class="glyphicon glyphicon-minus" ng-if="tagsOpen.indexOf(tag.id)>=0" ng-click="tagsOpen.splice(tagsOpen.indexOf(tag.id),1)"></span>
+		<span class="glyphicon glyphicon-plus" ng-if="tagsOpen.indexOf(tag.id)==-1" ng-click="tagsOpen.push(tag.id)"></span>
+	</span>
+	<span ui-draggable="true" drag="tag" drag-channel="tag" style="color:{{tag.color}};">{{tag.nom}}</span> 
+	<span ng-if="ht=hasChild(tag)" class="glyphicon glyphicon-trash pull-right" style="opacity:0.2;margin-right:5px;font-size:0.7em;"></span>
+	<span ng-if="!ht" class="glyphicon glyphicon-trash pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-confirm-click="delTag(tag)" ng-confirm-message="Sûr? Attention cela effacera tous les liens entre les contacts et ce tag !"></span>
+    <span class="glyphicon glyphicon-pencil pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-click="modTagMod(tag)"></span>
+    <span class="mini idtag">#{{tag.id}}</span>
+</div>
+</locked>
+<ul ng-if="hasChild(tag) && tagsOpen.indexOf(tag.id)>=0"class="list-group">
+<li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in children(tag) | orderBy:'nom'"></li>
+</ul>
+<div class="racine" ui-on-Drop="dropOnTag($event,$data,$channel,{id_parent:tag.id_parent,id:tag.id_parent},$ctrl)" drop-channel="tag"></div>
+

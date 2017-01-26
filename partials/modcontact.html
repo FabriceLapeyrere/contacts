@@ -1,0 +1,136 @@
+<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3" loading="key" data="Data">
+	<div ng-if="(Data.modele[key].casquettes | toArray).length==0">
+		Ce contact n'existe pas.
+	</div>
+	<div ng-if="(Data.modele[key].casquettes | toArray).length>0">
+		<span ng-if="Data.modele[key].type==1" class="pull-right individu">Individu</span>
+		<span ng-if="Data.modele[key].type==2" class="pull-right structure">Structure</span>
+		<locked verrou="Data.modele[key].verrou_contact" data="Data">
+			<h3 ng-click="modContactMod()" class="cursor" ng-class="{'individu':Data.modele[key].type==1, 'structure':Data.modele[key].type==2}">{{Data.modele[key].prenom}} {{Data.modele[key].nom}}<span class="mini" ng-if="Data.modele[key].prenom+Data.modele[key].nom==''">(sans nom)</span></h3>
+		</locked>
+		<p><span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.usersall[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.usersall[Data.modele[key].modifiedby].name}}.</span>
+		</p>
+		<ul class="list-group">
+			<li class="list-group-item" ng-repeat="cas in Data.modele[key].casquettes">
+			<locked verrou="cas.verrou" data="Data">
+			    <div class="col-xs-12">
+					<span class="pull-right cursor mini">
+						<span ng-click="modCasquetteMod(cas)">modifier</span> |
+						<span ng-click="addSuivi(cas)">suivre</span>
+						<span ng-if="(Data.modele[key].casquettes | toArray).length>1" ng-confirm-click="delCasquette(cas)" ng-confirm-message="Sûr ? Cela supprimera également les fiches de suivi de cette casquette.">| supprimer</span>
+					</span>
+					<p>{{cas.nom_cas}}  <span class="mini">#{{cas.id}}</span></p>
+					<div ng-repeat-start="d in cas.donnees | notNote" class="col-xs-6" style="overflow:hidden;">
+						<div ng-if="d.type!='adresse'">
+							<span class="label-contact cursor" ng-class="{'erreur':d.type=='email_erreur'}" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+							{{d.value}}
+						</div>
+						<div ng-if="d.type=='adresse'">
+							<span class="label-contact cursor" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+							<span ng-bind-html="d.value.adresse | nl2br"></span><br />
+							{{d.value.cp}} {{d.value.ville}}<br />
+							{{d.value.pays}}
+						</div>
+					</div>
+					<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
+					<div ng-repeat="d in cas.donnees" class="col-xs-12" style="overflow:hidden;" ng-if="d.type=='note'">
+						<div>
+							<span class="label-contact cursor" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+							<div ng-bind-html="d.value | nl2br"></div>
+						</div>
+					</div>
+					<div class="col-xs-12 clearfix inter"></div>
+					<div class="col-xs-12 clearfix" ng-if="cas.type==1">
+						<span class="cursor pull-right mini">
+							<span ng-if="!cas.id_etab || cas.id_etab==0" ng-click="assEtablissement(cas)">associer à une structure</span>
+							<span ng-if="cas.id_etab>0" ng-click="assEtablissement(cas)">associer à une autre structure</span>
+							<span ng-if="cas.id_etab>0" ng-confirm-click="desAssEtablissement(cas)" ng-confirm-message="Sûr ?"> | désassocier</span>
+						</span>
+					</div>
+					<div ng-if="cas.etab" class="list-group-item col-xs-12">
+						<div class="col-xs-12">
+							<span class="structure"><a href="modcontact/{{cas.etab.id_contact}}">{{cas.etab.nom!='' ? cas.etab.nom : '(sans nom)'}}</a> <small>/ {{cas.etab.nom_cas}}</small></span>
+							<span class="mini"> ({{calendar(lastMod(cas.etab).date)}} par {{byId(users,lastMod(cas.etab).by).name}})</span>
+						</div>
+						<div class="col-xs-12">
+							<div ng-repeat-start="d in cas.etab.donnees | notNote" class="col-xs-6" style="overflow:hidden;" >
+								<div ng-if="d.type!='adresse' && d.type!='note'">
+									<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+									{{d.value}}
+								</div>
+								<div ng-if="d.type=='adresse'">
+									<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+								<span ng-bind-html="d.value.adresse | nl2br"></span><br />
+								{{d.value.cp}} {{d.value.ville}}<br />
+									{{d.value.pays}}
+								</div>
+							</div>
+							<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
+							<div ng-repeat="d in cas.etab.donnees" class="col-xs-12" style="overflow:hidden;" ng-if="d.type=='note'">
+								<div>
+									<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+									<div ng-bind-html="d.value | nl2br"></div>
+								</div>
+							</div>
+							<div class="clearfix inter" ng-if="cas.etab.cols.length>0"></div>
+								<div class="clearfix col-xs-12" ng-if="cas.etab.cols.length>0">
+									<span class="pull-right mini">
+										contacts de la structure
+									</span>
+								</div>
+								<div ng-show="cas.etab.cols.length>0" class="list-group-item col-xs-12">
+									<div class="col-sm-12" ng-repeat="c in cas.etab.cols" class="individu">
+										<a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom!='' ? c.nom : '(sans nom)'}}</a> <small>{{c.fonction}}</small>
+									</div>
+								</div>
+
+							</div>
+					</div>
+					<div class="clearfix inter clearfix"></div>
+					<div class="clearfix col-xs-12" ng-if="cas.type==2 && cas.cols.length>0">
+						<span class="cursor pull-right mini">
+							contacts de la structure
+						</span>
+					</div>
+					<div ng-show="cas.type==2 && cas.cols.length>0" class="list-group-item col-xs-12">
+						<div class="col-sm-12" ng-repeat="c in cas.cols" class="individu">
+							<a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom!='' ? c.nom : '(sans nom)'}}</a> <small>{{c.fonction}}</small>
+						</div>
+					</div>
+					<div class="col-xs-12 inter clearfix"></div>
+					<div ng-if="envoisContact[cas.id].length>0" class="col-xs-12 clearfix list-group-item">
+						<small class="mini">Envois associés</small>
+						<div ng-repeat="e in envoisContact[cas.id]"><small><a href='modenvoi/{{e.id}}'>{{e.sujet}}</a></small> <small class="mini">{{calendar(e.date)}}</small></div>
+					</div>
+					<div class="col-xs-12 inter clearfix"></div>
+					<div ng-show="suivisCas.length>0" class="list-group-item col-xs-12">
+						<span class="label-contact">Suivi (<b>{{(suivisCas.length-suivisTermines.length)}}</b>, {{(suivisTermines=(suivisCas|termines)).length}})</span>
+						<span class="cursor mini" ng-if="!sv[cas.id]" ng-click="voir(cas)">voir</span>
+						<span class="cursor mini" ng-if="sv[cas.id]" ng-click="cacher(cas)">cacher</span>
+						<div ng-if="sv[cas.id]" ng-repeat="suivi in (suivisCas=(Data.modele.suivis | toArray | suivisCas:cas.id | orderBy:'date':true))">
+							<locked verrou="suivi.verrou" data="Data">
+                            <i>{{calendarSansHeure(suivi.date)}} - <a ng-class="{termine:suivi.statut==1}" href="modsuivi/{{suivi.id}}">{{suivi.titre}} <span ng-if="!suivi.titre">(sans-titre)</span></a> <span class="mini">({{Data.modele.usersall[suivi.createdby].name}}/{{Data.modele.usersall[suivi.modifiedby].name}})</span> <span class="cursor" ng-if="suivi.desc && !svDesc[suivi.id]" ng-click="svDesc[suivi.id]=true">voir</span><span class="cursor" ng-if="suivi.desc && svDesc[suivi.id]" ng-click="svDesc[suivi.id]=false">cacher</span></i>
+							<div class="list-group-item suivi-desc" ng-if="svDesc[suivi.id]" ng-bind-html="trust(suivi.desc)"></div>
+                            </locked>
+						</div>
+					</div>
+					<div ng-show="suivisCas.length>0" class="col-xs-12 inter"></div>
+					<div class="col-sm-12"><span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in parNomTag(cas.tags)" ng-confirm-click="delCasTag(Data.modele.tags[id],cas)" ng-confirm-message="Supprimer ?"></span></div>
+						<div class="col-xs-12 clearfix">
+							<span class="cursor pull-right mini">
+								<span ng-click="assTag(cas)">associer un Tag</span>
+							</span>
+						</div>
+					</div>
+					<div class="clearfix"></div>
+	    	</locked>
+			</li>
+		</ul>
+		<p><span class="pull-right cursor mini" ng-click="addCasquetteMod()">
+			<span ng-if="Data.modele[key].type==1">nouvelle casquette</span>
+			<span ng-if="Data.modele[key].type==2">nouvel établissement</span>
+		</span></p>
+        <p>&nbsp;</p><p>&nbsp;</p>
+	</div>
+</div>
+

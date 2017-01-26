@@ -1,0 +1,37 @@
+<form name="frm" class="col-xs-12 col-md-8">
+	
+	<p><button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button> <button class="btn btn-default" ng-click="envoyer(mail)"  ng-disabled="!p">Envoyer à</button></p>
+	<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[mail.createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+		<span class="pull-right mini" ng-show="p">Enregistré</span>
+		<span class="pull-right mini" ng-show="!p">Non enregistré</span>
+	</p>
+	<input placeholder="Sujet" ng-model="Data.modele[key].sujet" class="form-control" type="text"/><br />
+	<textarea ckeditor="editorOptions" name="editor" ng-model="Data.modele[key].html" ckeditor-images="Data.modele[key].pjs"></textarea>
+	</div>
+
+</form>
+<div class="col-xs-12 col-md-4">
+	<h3>Pièces jointes</h3>
+	<ul class="list-group">
+		<li ng-if="Data.modele[key].pjs.length==0" class="list-group-item">Aucun fichier</li>
+		<li class="list-group-item" ng-repeat="pj in Data.modele[key].pjs"><a href="{{pj.path}}" target="_blank">{{pj.filename}}</a>
+			<button ng-confirm-click="delPj(pj)" ng-confirm-message="Sûr ?" class='btn btn-default btn-xs pull-right'>x</button>
+			<div class="clearfix"></div>
+		</li>
+	</ul>
+	    <div ng-show="uploaders[key].queue.length>0 && uploaders[key].progress<100">
+                <div>
+                    <div class="progress" style="">
+                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploaders[key].progress + '%' }"></div>
+                    </div>
+                </div>
+            </div>
+
+	<div ng-show="uploaders[key].isHTML5">
+		<div class="well my-drop-zone" nv-file-over="" uploader="uploaders[key]" nv-file-drop="">
+		    Déposer les fichiers ici
+		</div>
+	</div>
+	<input type="file" nv-file-select uploader="uploaders[key]" multiple/>
+</div>
+

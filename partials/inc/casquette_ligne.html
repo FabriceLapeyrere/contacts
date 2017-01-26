@@ -1,0 +1,35 @@
+<div class="col-sm-12 cas">
+	<div class="col-xs-6">
+		<span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="cas.prenom+cas.nom==''">(sans nom)</span></span>
+	</div>
+    <div class="col-xs-6 light">
+        <div ng-if="d.type=='adresse'" ng-repeat="d in cas.donnees">
+            <span>
+            {{d.value.cp}} {{d.value.ville}}
+            </span>&nbsp;
+        </div>
+    </div>
+    <div class="col-xs-6" style="overflow:hidden;">
+        <div ng-class="{'erreur':d.type=='email_erreur'}" ng-if="d.type=='email' || d.type=='email_erreur'" ng-repeat="d in cas.donnees">
+            {{d.value}}
+        </div>
+    </div>
+    <div class="col-xs-6" style="overflow:hidden;">
+        <div ng-if="d.type=='tel'" ng-repeat="d in cas.donnees">
+            {{d.value}}
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div  class="col-xs-12 light">
+        <span ng-if="cas.id_etab>0" class="structure"><a href="modcontact/{{cas.id_contact_etab}}" class="structure">> {{cas.nom_etab}}</a></span>
+        <span class='individu' ng-show="cas.cols.length>0 && cas.type==2" ng-repeat="c in cas.cols">
+	        <span ng-if="$first">> </span><a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}</a><span class="mini" ng-if="c.fonction"> {{c.fonction}}</span><span ng-if="!$last">, </span>
+        </span>
+    </div>
+    <div class="col-sm-12">
+        <span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in parNomTag(cas.tags)" ng-confirm-click="delCasTag(Data.modele.tags[id],cas)" ng-confirm-message="Supprimer ?"></span>
+    </div>
+	<div class="clearfix"></div>
+</div>
+<div class="clearfix"></div>
+

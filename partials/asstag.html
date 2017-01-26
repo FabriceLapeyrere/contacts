@@ -1,0 +1,20 @@
+<div class="modal-body">
+	<div>
+		<form>
+			<p><input class="form-control autoFocus" placeholder="rechercher parmis les tags" ng-model="q.nom"/></p>
+		</form>
+		<ul class="list-group">
+			<li class="list-group-item cursor" ng-repeat="tag in Data.modele.tags | toArray | filter:q | orderBy:'modificationdate':true" ng-click="assTag(tag)">
+				<span class="tag">
+					<span  ng-repeat="t in descTag(tag)">
+						<span ng-if="!$last" style="color:{{t.color}};">{{t.nom}}></span><span ng-if="$last" style="color:{{t.color}};">{{t.nom}}</span>
+					</span>
+				</span>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+

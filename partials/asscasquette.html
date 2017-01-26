@@ -1,0 +1,19 @@
+<div class="modal-body">
+	<div>
+		<form>
+			<p><input class="form-control autoFocus" placeholder="rechercher le contact" ng-model="query" ng-change="getPage(1)" /></p>
+		</form>
+	    <uib-pagination ng-if="Data.modele.casquettes_sel.total>0" boundary-links="true" total-items="Data.modele.casquettes_sel.total" ng-model="page.courante" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+	    <span ng-if="Data.modele.casquettes_sel.total>0" class="pagination-span">{{itemsParPage*(Data.modele.casquettes_sel.page-1)+1}} - {{min(itemsParPage*Data.modele.casquettes_sel.page,Data.modele.casquettes_sel.total)}} de {{Data.modele.casquettes_sel.total}}</span>
+        <div ng-if="Data.modele.casquettes_sel.total==0">Aucun résultat</div>
+        <ul ng-if="Data.modele.casquettes_sel.total>0" class="list-group" id="contacts-list" ng-class="{'loading':page.courante!=Data.modele.casquettes_sel.page}">
+			<li class="list-group-item structure etab cursor" ng-repeat="cas in (c=(Data.modele.casquettes_sel.collection | toArray))" ng-click="assCasquette(cas)" ng-class="{'cas-suivante':!(Data.modele.casquettes_sel.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact)}">
+                <ng-include src="'partials/inc/casquette_ligne.html'"></ng-include>					
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+

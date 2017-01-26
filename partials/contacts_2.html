@@ -1,0 +1,42 @@
+<img class="wait" ng-if="!done || wait || suspend" src="img/loader.gif" />
+<div ng-if="done">
+	<div class="col-xs-12 col-md-3">
+	<p><span class="label label-primary" ui-draggable="true" drag="panier" drag-channel="panier">{{panier.length}} contact(s)</span> dans le panier. (<span class="cursor" ng-confirm-click="panierVide()" ng-confirm-message="Sûr ?">tout enlever</span>, <span class="cursor" ng-confirm-click="panierAll()" ng-confirm-message="Sûr ?">tout ajouter</span>)</p>
+	</div>
+	<div class="col-xs-12 col-md-6">
+		<p><span class="btn btn-primary"ng-click="addContactMod(1)">Nouveau Contact</span> <span class="btn btn-success"ng-click="addContactMod(2)">Nouvelle Structure</span></p>
+		<p><input class="form-control" placeholder="rechercher" ng-model="q.idx"/></p>
+		<pagination ng-show="selections.casquettesOk.length>itemsParPage" boundary-links="true" total-items="selections.casquettesOk.length" page="currentPage.casquettes" items-per-page="itemsParPage" max-size="maxSize"class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+		<p ng-if="selections.casquettesOk.length>0">{{(currentPage.casquettes-1)*itemsParPage+1}} à {{min((currentPage.casquettes)*itemsParPage,selections.casquettesOk.length)}} sur {{selections.casquettesOk.length}}.</p>
+		<p ng-if="!selections.casquettesOk.length>0">Aucun contact.</p>
+		<ul class="list-group" ng-mouseleave="courant.id = 0" msd-wheel="move($event, $delta, $deltaX, $deltaY)">
+			<li class="list-group-item" ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" ng-repeat-start="cas in (casAff= (selections.casquettesOk=(casquettes | exists | filter:{idx:stripAccents(q.idx)} | orderBy:'nom')) | startFrom:(currentPage.casquettes-1)*itemsParPage | limitTo:itemsParPage)" ng-if="$index==0 || casAff[$index-1].id_contact!=cas.id_contact">
+				<div class="col-sm-12 contact">
+					<h3><a href="modcontact/{{cas.id_contact}}"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}}</a>
+				 	</h3>
+					<div class="contact-btn cursor">
+						<span class="glyphicon glyphicon-trash" ng-confirm-click="delContact(cas)" ng-confirm-message="Sûr?"></span>
+					</div>
+				</div>
+				<div class="clearfix"></div>
+			</li>
+			<li ng-mouseenter="courant.id = cas.id" class="list-group-item cas-sepa" ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" ng-repeat-end ui-on-Drop="addCasTag($event,$data,cas)" drop-channel="tag">
+				<div ng-class="{'panier-btn-ko':!dansPanier(cas), 'panier-btn-ok':dansPanier(cas)}" ng-click="dansPanier(cas) ? panierDel(cas) : panierAdd(cas)"></div>
+				<div class="col-sm-6 col-sm-offset-3 cas-sepa inter">					
+				</div>
+				
+				<div class="clearfix"></div>
+			</li>
+		</ul>
+	</div>
+	<div class="col-md-3 tags hidden-xs hidden-sm" sticky sticky-class="col-md-offset-9 fixed">
+		<h3>Tags</h3>
+		<p><span class="btn btn-primary"ng-click="addTagMod()">Nouveau tag</span></p>
+		<ul class="list-group">
+			<li ng-if="tags.length==0" class="list-group-item">Aucun tag</li>
+			<li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in tags | filter:isChild({id:0}) | orderBy:'nom'"></li>
+		</ul>
+		
+		
+	</div>
+</div>

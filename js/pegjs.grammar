@@ -1,0 +1,47 @@
+start
+  = additive
+
+additive
+  = left:multiplicative "|" right:additive { return left + ' ou ' + right; }
+  / multiplicative
+
+multiplicative
+  = left:primary "&" right:multiplicative { return left + ' et ' + right ; }
+  / primary
+
+primary
+  = integer
+  / "!(" additive:additive ")" { return ' pas (' + additive + ')' ; }
+  / "(" additive:additive ")" { return '(' + additive + ')' ; }
+
+integer "integer"
+  = ':tag' id:[0-9]+ { return '::tag'+id.join("")+'::'; }
+  / '!:tag' id:[0-9]+ { return 'pas dans ::tag'+id.join("")+'::'; }
+  / ':etab' id:[0-9]+ { return 'dans la structure '+id.join(""); }
+  / '!:etab' id:[0-9]+ { return 'pas dans la structure '+id.join(""); }
+  / ':type' id:[12]+ { return id==1 ? 'est un individu' : 'est une structure'; }
+  / ':cp' id:[0-9AB]+ { return '::dpt'+id.join("")+'::'; }
+  / '!:cp' id:[0-9AB]+ { return 'pas ::dpt'+id.join("")+'::'; }
+  / ':contacts(' ids:[,0-9]+ ')' { 
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return 'parmi ces contacts : '+list;
+	}
+  / '!:contacts(' ids:[,0-9]+ ')' { 
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return 'pas parmi ces contacts : '+list;
+	}
+  / ':panier' { return 'dans le panier'; }
+  / '!:panier' { return 'pas dans le panier'; }
+  / ':mailerreur' { return 'e-mail en erreur'; }
+  / '!:mailerreur' { return "pas d'e-mail en erreur"; }
+  / ':email' { return 'a un e-mail'; }
+  / '!:email' { return "n'a pas d'e-mail"; }
+  / ':adresse' { return 'a une adresse'; }
+  / '!:adresse' { return "n'a pas d'adresse"; }
+  / '!' word:[a-zA-Z0-9 \*'"\.@]+ { return 'ne contient pas le texte : "'+ word.join("") +'"'; }
+  / word:[a-zA-Z0-9 \*'"\.@\-]+ { return 'contient le texte : &laquo;'+ word.join("") +'&raquo;'; }
+

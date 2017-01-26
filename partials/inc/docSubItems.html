@@ -1,0 +1,25 @@
+<div>
+	{{byId(items,item.id_item).label}}
+	<span ng-if="byId(items,item.id_item).type.type!='vide'" ng-click='modItemMod(item)'> : <span ng-if='item.value' class='cursor value'>{{item.value}}</span><span ng-if='!item.value' class='vide cursor'>vide</span></span>
+	<span ng-if="byId(doc.schema.items,item.id_item_schema).multi && isLast(item)" class='btn-group pull-right'>
+		<button ng-click="delMulti(item)" ng-if="item.n>0" class='btn btn-default btn-sm'>
+			<span class='glyphicon glyphicon-minus'></span>
+		</button>
+		<button class='btn btn-default btn-sm' ng-click="addMulti(item)">
+			<span class='glyphicon glyphicon-plus'></span>
+		</button>
+	</span>
+	<div ng-if="item.attrs.length>0" class="cursor small" ng-click="modAttrsItemMod(item)">
+		<span ng-repeat="attr in item.attrs">
+			<span class="gris">{{parseAttr(attr.id).name}}:</span>
+			<span ng-if="attr.value!=''"><i>{{attr.value}}</i></span>
+			<span ng-if="attr.value==''" class="gris"><i>vide</i></span>
+			<span ng-if="item.attrs.length>$index+1">,</span>
+		</span>
+	</div>
+</div>
+<ul ng-if="hasChild(item)"class="list-group">
+<li class="list-group-item" ng-include="'partials/inc/docSubItems.html'" ng-repeat="item in doc.items_ok | filter:isChild(item) | orderBy:['num','n']"></li>
+</ul>
+<div class="apres"></div>
+

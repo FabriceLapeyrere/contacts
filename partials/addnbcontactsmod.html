@@ -1,0 +1,17 @@
+<div class="modal-body">
+	<span class="btn btn-primary" ng-click="assTag(cas)">choisir un tag</span>
+    <div>
+		<span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in choosen" ng-click="delTag(id)"></span>
+	</div>
+    <div ng-if="choosen.length>0">
+        <label>Copier ici vos adresses mail :</label>
+        <textarea ng-model="liste.txt" class="form-control big"></textarea>  
+        {{liste.contacts.length}} mail(s) trouvé(s)      
+    	<p><span class="btn btn-primary" ng-click="parseTxt()">Chercher les mails</span></p>
+	</div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()" ng-if="liste.contacts.length>0">Ajouter</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+

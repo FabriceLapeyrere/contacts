@@ -1,0 +1,76 @@
+<form name="frm" class="col-sm-6 col-sm-offset-3" loading="key" data="Data">
+	<locked verrou="Data.modele[key].verrou" data="Data">
+	<div class="col-xs-12">
+        <p><button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button> <button class="btn btn-default" ng-click="pdf(Data.modele[key])" >PDF</button></p>
+		<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+		    <span class="pull-right mini" ng-show="p">Enregistré</span>
+		    <span class="pull-right mini" ng-show="!p">Non enregistré</span>
+		</p>
+			
+		<p>
+		<label>Nom</label>
+		<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
+		</p>
+	</div>
+	<div class="col-xs-6">
+		<div class="col-xs-6">
+			<small>Hauteur de page</small><br />
+			<input placeholder="Hauteur de page (mm)" ng-model="Data.modele[key].h_page" class="form-control" type="text"/>
+		</div>
+		<div class="col-xs-6">
+			<small>Largeur de page</small><br />
+			<input placeholder="Largeur de page (mm)" ng-model="Data.modele[key].l_page" class="form-control" type="text"/>
+		</div>
+		<div class="col-xs-6">
+			<small>Nombre de lignes</small><br />
+			<input placeholder="Nombre de lignes" ng-model="Data.modele[key].nb_lignes" class="form-control" type="text"/>
+		</div>
+		<div class="col-xs-6">
+			<small>Nombre de colonnes</small><br />
+			<input placeholder="Nombre de colonnes" ng-model="Data.modele[key].nb_colonnes" class="form-control" type="text"/>
+		</div>
+		<div class="col-xs-6" ng-if="Data.modele[key].nb_colonnes*Data.modele[key].nb_lignes>1">
+			<small>Offset de première page</small><br />
+			<input placeholder="Offset" ng-model="Data.modele[key].offset" class="form-control" type="text"/>
+		</div>
+		<div class="col-xs-12">
+			<small>Marge de page</small><br />
+			<input placeholder="Marge de page haut (mm)" ng-model="Data.modele[key].mp_haut" class="form-control" type="text" style="text-align:center;"/>
+		</div>
+		<div class="col-xs-6">
+			<input placeholder="Marge de page gauche (mm)" ng-model="Data.modele[key].mp_gauche" class="form-control" type="text" style="text-align:left;"/>
+		</div>
+		<div class="col-xs-6">
+			<input placeholder="Marge de page droite (mm)" ng-model="Data.modele[key].mp_droite" class="form-control" type="text" style="text-align:right;"/>
+		</div>
+		<div class="col-xs-12">
+			<input placeholder="Marge de page bas (mm)" ng-model="Data.modele[key].mp_bas" class="form-control" type="text" style="text-align:center;"/>
+		</div>
+		<div class="col-xs-12">
+			<small>Marge de case</small><br />
+			<input placeholder="Marge de case haut (mm)" ng-model="Data.modele[key].mc_haut" class="form-control" type="text" style="text-align:center;"/>
+		</div>
+		<div class="col-xs-6">
+			<input placeholder="Marge de case gauche (mm)" ng-model="Data.modele[key].mc_gauche" class="form-control" type="text" style="text-align:left;"/>
+		</div>
+		<div class="col-xs-6">
+			<input placeholder="Marge de case droite (mm)" ng-model="Data.modele[key].mc_droite" class="form-control" type="text" style="text-align:right;"/>
+		</div>
+		<div class="col-xs-12">
+			<input placeholder="Marge de case bas (mm)" ng-model="Data.modele[key].mc_bas" class="form-control" type="text" style="text-align:center;"/>
+			<small>Taille de police</small><br />
+			<input placeholder="Taille de police" ng-model="Data.modele[key].police" class="form-control" type="text"/>
+		</div>
+	</div>
+	<div class="col-sm-6" style='padding-top:50px;'>
+		<div style='position:absolute;border:1px solid #ccc;height:{{1*Data.modele[key].h_page+2}}px;width:{{1*Data.modele[key].l_page+2}}px;'>
+			<div style="background-color:#ccc;position:absolute;top:0px;left:0px;height:{{Data.modele[key].mp_haut}}px;width:{{Data.modele[key].l_page}}px;"></div>
+			<div style="background-color:#ccc;position:absolute;top:0px;left:0px;height:{{Data.modele[key].h_page}}px;width:{{Data.modele[key].mp_gauche}}px;"></div>
+			<div style="background-color:#ccc;position:absolute;top:0px;left:{{Data.modele[key].l_page-Data.modele[key].mp_droite}}px;height:{{Data.modele[key].h_page}}px;width:{{Data.modele[key].mp_droite}}px;"></div>
+			<div style="background-color:#ccc;position:absolute;top:{{Data.modele[key].h_page-Data.modele[key].mp_bas}}px;left:0px;height:{{Data.modele[key].mp_bas}}px;width:{{Data.modele[key].l_page}}px;"></div>
+			<div style="background-color:{{$index>=Data.modele[key].offset ? '#aaa' : '#ccc'}};position:absolute;top:{{c.top}}px;left:{{c.left}}px;height:{{c.height}}px;width:{{c.width}}px;" ng-repeat="c in (cs=plan())"></div>
+		</div>
+	</div>
+    </locked>
+</form>
+

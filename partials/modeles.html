@@ -1,0 +1,12 @@
+<img class="wait" ng-if="!done || wait || suspend" src="img/loader.gif" />
+<div ng-if="done">
+	<div class="col-sm-6 col-sm-offset-3">
+		<h1>Modeles</h1>
+		<p><span class="btn btn-primary"ng-click="addModeleMod()">Nouveau modele</span></p>
+		<ul class="list-group">
+			<li class="list-group-item" ng-repeat="modele in modeles | exists | orderBy:'nom'">
+				<a href="modmodele/{{modele.id}}">{{modele.nom}}</a>
+			</li>
+		</ul>
+	</div>
+</div>

@@ -1,0 +1,20 @@
+<div x-lvl-drop-target='true'  x-on-drop='dropped(dragEl, dropEl,0)' class="avant"></div>
+<div x-lvl-drop-target='true'  x-on-drop='dropped(dragEl, dropEl,-1)'>
+	{{item.label}} 
+	<span ng-if="byId(items,item.id_item).type.type!='vide'" ng-click='modItemMod(item)'> : <span ng-if='item.value' class='cursor value'>{{item.value}}</span><span ng-if='!item.value' class='vide cursor'>vide</span></span>
+	<button ng-if="!hasChild(item)" ng-click="del(item)" class='btn btn-default btn-xs pull-right'>x</button>
+	<span ng-class="item.multi && 'active'" ng-click="mod(item)" class='cursor multi pull-right'>multi</span>
+	<div ng-if="item.attrs.length>0" class="cursor small" ng-click="modAttrsItemMod(item)">
+		<span ng-repeat="attr in item.attrs">
+			<span class="gris">{{parseAttr(attr.id).name}}:</span>
+			<span ng-if="attr.value!=''"><i>{{attr.value}}</i></span>
+			<span ng-if="attr.value==''" class="gris"><i>vide</i></span>
+			<span ng-if="item.attrs.length>$index+1">,</span>
+		</span>
+	</div>
+</div>
+<ul ng-if="hasChild(item)"class="list-group">
+<li x-lvl-draggable='true' class="list-group-item" ng-include="'partials/inc/schemaSubItems.html'" ng-repeat="item in schema.items | filter:isChild(item) |orderBy:numero"></li>
+</ul>
+<div x-lvl-drop-target='true'  x-on-drop='dropped(dragEl, dropEl,1)' class="apres"></div>
+

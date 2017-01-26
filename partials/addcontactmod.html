@@ -1,0 +1,19 @@
+<form role="form" name="form.addContact">
+<div class="modal-body">
+	<p>
+		<label ng-if="contact.type==1">
+			<span ng-class="{'individu':contact.type==1,'structure':contact.type==2}">Prenom</span>
+		</label>
+		<input ng-if="contact.type==1" class="form-control autoFocus" type="text" ng-model="contact.prenom" required/>
+		<label>
+			<span ng-class="{'individu':contact.type==1,'structure':contact.type==2}">Nom</span>
+		</label>
+		<input class="form-control autoFocus" type="text" ng-model="contact.nom" required/>
+	</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">Ajouter</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>
+

@@ -1,0 +1,65 @@
+<div loading="key" data="Data">
+	<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+		<h1>{{Data.modele[key].sujet}} <small ng-if="Data.modele[key].boite_envoi.total==0">Envoi terminé</small></h1>
+		<p> De : {{Data.modele[key].expediteur.nom}} <{{Data.modele[key].expediteur.email}}></p>
+		<p> <span class="mini">{{calendar(Data.modele[key].date)}} par {{Data.modele.users[Data.modele[key].by].name}}.</span>
+		</p>
+		<p ng-if="Data.modele[key].boite_envoi.total>0">
+			<button class="btn btn-primary glyphicon glyphicon-refresh" ng-click="restart()" ng-disabled="Data.modele[key].statut==0 || (Data.modele[key].boite_envoi.collection|avecErreur).length==0"></button> 
+			<button class="btn btn-primary glyphicon glyphicon-play" ng-click="play()" ng-disabled="Data.modele[key].statut==0 || Data.modele[key].statut==2 || (Data.modele[key].boite_envoi.collection|sansErreur).length==0"></button>
+			<button class="btn btn-primary glyphicon glyphicon-pause" ng-click="pause()" ng-disabled="Data.modele[key].statut==1 || Data.modele[key].statut==2"></button>
+			<button class="btn btn-danger glyphicon glyphicon-remove" ng-confirm-click="vide()" ng-confirm-message="Les messages en atente seront supprimés. Sûr?" ng-disabled="Data.modele[key].boite_envoi.total==0"></button>
+		</p>
+		<div class="progress" style="" ng-if="Data.modele[key].boite_envoi.total>0 || Data.modele[key].statut==0">
+			<div class="progress-bar" role="progressbar" ng-style="{ 'width': (Data.modele[key].nb-Data.modele[key].boite_envoi.total)*100/Data.modele[key].nb + '%' }"><span style="color:black; white-space:nowrap;"></span><div class="progress-center">{{Data.modele[key].nb-Data.modele[key].boite_envoi.total}} / {{Data.modele[key].nb}}</div></div>
+		</div>
+        <uib-tabset>
+		<uib-tab heading='Message'>
+			<div style="background-color:#fff;padding:15px;margin-top:15px;border-radius:4px;" class="yui3-cssreset yui3-cssbase" ng-bind-html="trust(Data.modele[key].html)"></div>
+			<div ng-show="c.length>0">
+				<h3>Pièces jointes</h3>
+				<ul class="list-group">
+					<li class="list-group-item" ng-repeat="pj in (c=(Data.modele[key].pjs | notUsed))">
+						<a href="{{pj.path}}" target="_blank">{{pj.filename}}</a>
+						<div class="clearfix"></div>
+					</li>
+				</ul>
+			</div>
+		</uib-tab>
+		<uib-tab heading="Boite d'envoi" ng-if="Data.modele[key].boite_envoi.total>0">
+			<uib-pagination boundary-links="true" total-items="Data.modele[key].boite_envoi.total" ng-model="pageCourante.boite" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+			<ul class="list-group" ng-if="Data.modele[key].boite_envoi.total>0">
+				<li class="list-group-item" ng-repeat="m in Data.modele[key].boite_envoi.collection | toArray " ng-init="mcas=Data.modele[key].cas[m.id_cas]">
+					{{m.i}} / {{Data.modele[key].nb}} - <a href="modcontact/{{mcas.id_contact}}" ng-class="{'structure':mcas.type==2,'contact':mcas.type==1}"><span ng-if="mcas.prenom">{{mcas.prenom}} </span>{{mcas.nom}}<span ng-if="!(mcas.prenom || mcas.nom)">(sans nom)</span></a>, <span ng-repeat-start="mail in mcas.emails">{{mail}}</span><span ng-repeat-end ng-if="!$last">, </span> <div class="erreur" ng-if="m.erreurs">{{m.erreurs}}</div>
+				</li>
+			</ul>
+		</uib-tab>
+		<uib-tab heading="Log" ng-if="Data.modele[key].succes_log.total>0">
+			<uib-pagination boundary-links="true" total-items="Data.modele[key].succes_log.total" ng-model="pageCourante.succes" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+			<ul class="list-group" ng-if="Data.modele[key].succes_log.total>0">
+				<li class="list-group-item" ng-repeat="m in Data.modele[key].succes_log.collection | toArray">
+					{{m.i}} / {{Data.modele[key].nb}} - {{calendar(m.date)}} - <a href="modcontact/{{m.cas.id_contact}}" ng-class="{'structure':m.cas.type==2,'contact':m.cas.type==1}"><span ng-if="m.cas.prenom">{{m.cas.prenom}} </span>{{m.cas.nom}}<span ng-if="!(m.cas.prenom || m.cas.nom)">(sans nom)</span></a>, <span ng-repeat-start="mail in m.cas.emails">{{mail}}</span><span ng-repeat-end ng-if="!$last">, </span>
+				</li>
+			</ul>
+		</uib-tab>
+		<uib-tab heading="Erreurs" ng-if="Data.modele[key].erreur_log.total>0">
+			<uib-pagination boundary-links="true" total-items="Data.modele[key].erreur_log.total" ng-model="pageCourante.erreur" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+			<ul class="list-group" ng-if="Data.modele[key].erreur_log.total>0">
+				<li class="list-group-item" ng-repeat="m in Data.modele[key].erreur_log.collection | toArray">
+					{{m.i}} / {{Data.modele[key].nb}} - {{calendar(m.date)}} - <a href="modcontact/{{m.cas.id_contact}}" ng-class="{'structure':m.cas.type==2,'contact':m.cas.type==1}"><span ng-if="m.cas.prenom">{{m.cas.prenom}} </span>{{m.cas.nom}}<span ng-if="!(m.cas.prenom || m.cas.nom)">(sans nom)</span></a>, <span ng-repeat-start="mail in m.cas.emails">{{mail}}</span><span ng-repeat-end ng-if="!$last">, </span> <div class="erreur">{{m.erreur}}</div>
+				</li>
+			</ul>
+		</uib-tab>
+		<uib-tab heading="Impact" ng-if="Data.modele[key].impact.total>0">
+			<uib-pagination boundary-links="true" total-items="Data.modele[key].impact.total" ng-model="pageCourante.impact" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+			<ul class="list-group" ng-if="Data.modele[key].impact.total>0">
+				<li class="list-group-item" ng-repeat="clic in Data.modele[key].impact.collection | toArray" ng-init="mcas=Data.modele[key].cas[clic.id_cas]">
+					{{calendar(clic.date)}} - <a href="{{clic.url}}" target="_blank">{{clic.url}}</a> - <a href="modcontact/{{mcas.id_contact}}" ng-class="{'structure':mcas.type==2,'contact':mcas.type==1}"><span ng-if="mcas.prenom">{{mcas.prenom}} </span>{{mcas.nom}}<span ng-if="!(mcas.prenom || mcas.nom)">(sans nom)</span></a>
+				</li>
+			</ul>
+		</uib-tab>
+        </uib-tabset>
+        <p>&nbsp;</p><p>&nbsp;</p>
+	</div>
+
+</div>

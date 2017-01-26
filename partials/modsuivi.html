@@ -1,0 +1,80 @@
+<div class="col-xs-12 col-md-6" loading="key" data="Data">
+	<p>
+		<button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+		<button ng-if="Data.modele[key].statut==0" class="btn btn-success" ng-click="next()">À suivre</button>
+		<button ng-if="Data.modele[key].statut==0" class="btn btn-default" ng-click="close()">Terminé</button>
+		<button ng-if="Data.modele[key].statut==1" class="btn btn-default" ng-click="open()">Ré-ouvrir</button>
+		<span style="font-size:0.8em;" class="glyphicon glyphicon-trash pull-right cursor" ng-confirm-click="del()" ng-confirm-message="Sûr?"></span>
+	</p>
+	<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.usersall[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.usersall[Data.modele[key].modifiedby].name}}.</span>
+		<span class="pull-right mini" ng-show="p">Enregistré</span>
+		<span class="pull-right mini" ng-show="!p">Non enregistré</span>
+	</p>
+    <p ng-if="Data.modele[key].acl.all.length>0" class="mini">Cette fiche de suivi est partagée avec : &nbsp; <span class="vert" ng-repeat="u in Data.modele[key].acl.user" ng-if="u!=Data.user.id">{{Data.modele.usersall[u].name}}  &nbsp; </span> <span class="bleu" ng-repeat="g in Data.modele[key].acl.group">{{Data.modele.groups[g].nom}}  &nbsp; </span></p>
+    <p ng-if="Data.modele[key].acl.all.length==0" class="mini">Cette fiche de suivi est privée.</p>
+	<div ng-if="Data.modele[key].statut==0">
+		<locked verrou="Data.modele[key].verrou" data="Data">
+        <div class="row" ng-if="Data.modele[key].statut==0">
+		    <div class="col-xs-9">
+			    <label>
+				    <span>Résumé</span>
+			    </label>
+			    <input class="form-control" type="text" ng-model="Data.modele[key].titre" required/>
+		    </div>
+		    <div class="col-xs-3">
+			    <label>
+				    <span>Date</span>
+			    </label>
+                <input type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy" ng-model="Data.modele[key].date" is-open="popup.opened" ng-required="true" ng-click="popup.opened=true"/>
+            </div>
+		</div>
+		<label>
+			<span>Note</span>
+		</label>
+		<textarea ckeditor="editorOptions" name="editor" style="height:500px;" class="form-control autoFocus" ng-model="Data.modele[key].desc"></textarea>
+        </locked>
+	</div>
+	<div ng-if="Data.modele[key].statut==1">
+		<h3>{{calendarSansHeure(Data.modele[key].date)}} - {{Data.modele[key].titre}}</h3>
+		<div ng-bind-html="trust(Data.modele[key].desc)"></div>
+	</div>
+    <div ng-show="suivisCas.length>0">
+		<h3>Historique</h3>
+		<div class="list-group-item col-xs-12">
+			<div ng-repeat="suivi in (suivisCas=(Data.modele.suivis | exists | suivisCas:Data.modele[key].id_casquette | orderBy:'date':true))" ng-init="showDesc[suivi.id]=true">
+				<locked verrou="suivi.verrou" data="Data">
+                <i>{{calendarSansHeure(suivi.date)}} - <a ng-class="{termine:suivi.statut==1}" href="modsuivi/{{suivi.id}}">{{suivi.titre}} <span ng-if="!suivi.titre">(sans-titre)</span></a> <span class="mini">({{Data.modele.usersall[suivi.createdby].name}}/{{Data.modele.usersall[suivi.modifiedby].name}})</span> <span class="cursor" ng-if="suivi.desc && !showDesc[suivi.id]" ng-click="showDesc[suivi.id]=true">voir</span><span class="cursor" ng-if="suivi.desc && showDesc[suivi.id]" ng-click="showDesc[suivi.id]=false">cacher</span></i>
+				<div class="list-group-item suivi-desc" ng-if="suivi.desc && showDesc[suivi.id]" ng-bind-html="trust(suivi.desc)"></div>
+                </locked>
+			</div>
+		</div>
+	</div>
+	<p>&nbsp;</p>
+</div>
+<div class="col-xs-12 col-md-6">
+	<uib-tabset>
+		<uib-tab heading="Contact">
+			<div loading="contactKey" data="Data">
+			<h3 class="cursor" ng-class="{'individu':Data.modele[contactKey].casquettes[casKey].type==1, 'structure':Data.modele[contactKey].casquettes[casKey].type==2}"><a href="modcontact/{{Data.modele[contactKey].casquettes[casKey].id_contact}}">{{Data.modele[contactKey].casquettes[casKey].prenom}} {{Data.modele[contactKey].casquettes[casKey].nom}}</a> <span class="mini cursor" ng-click="assCasquette()">changer le contact</span></h3>
+			<div ng-repeat="cas in [Data.modele[contactKey].casquettes[casKey]]" ng-include="'partials/inc/casquetteInfos.html'"></div>
+			</div>
+		</uib-tab>
+		<uib-tab ng-if="Data.user.id==1 || Data.modele[key].createdby==Data.user.id" heading="Partages">
+			<h4>Groupes</h4>
+				<div>
+					<button type="button" ng-repeat-start="g in Data.modele.groups" class="btn" ng-class="{'btn-primary':Data.modele[key].acl.group.indexOf(g.id)>=0,'btn-default':Data.modele[key].acl.group.indexOf(g.id)<=0}" ng-click="toggle_acl_group(g)" ng-disabled="g.users.indexOf(Data.user.id)<0 && Data.user.id!=1">{{g.nom}}</button>
+					<span ng-repeat-end>&nbsp;</span>
+				</div>
+			<h4>Utilisateurs</h4>
+				<div>
+					<button ng-if="u.id>1 && u.id!=Data.user.id" type="button" ng-repeat-start="u in Data.modele.users" class="btn" ng-class="{'btn-success':Data.modele[key].acl.user.indexOf(u.id)>=0,'btn-default':Data.modele[key].acl.user.indexOf(u.id)<=0}" ng-click="toggle_acl_user(u)">{{u.name}}</button>
+					<span ng-if="u.id>1 && u.id!=Data.user.id" ng-repeat-end>&nbsp;</span>
+				</div>
+			<div>
+			</div>
+		</uib-tab>
+	<uib-tabset>
+</div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+

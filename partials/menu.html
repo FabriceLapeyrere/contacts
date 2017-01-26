@@ -1,0 +1,35 @@
+<div class="col-xs-12 col-md-8 col-lg-9">
+<div class="navbar-header">
+	<a href="" class="navbar-brand">{{Data.modeleSrv.config.config.app.brand.value}}</a>
+</div>
+<ul class="nav navbar-nav">
+	<li ng-attr-class="{{path()=='/contacts' && 'active'}}"><a href="contacts">Contacts</a></li>
+	<li ng-attr-class="{{path()=='/suivis' && 'active'}}"><a href="suivis">À suivre</a></li>
+	<li uib-dropdown is-open="status.isopen">
+		<a uib-dropdown-toggle>
+			Mailing <span class="caret"></span>
+		</a>
+		<ul uib-dropdown-menu role="menu">
+			<li><a href="mails">E-mail simple</a></li>
+			<li><a href="news">Newsletters</a></li>
+			<li class="divider"></li>
+			<li><a href="envois">Suivi des envois</a></li>
+		</ul>
+	</li>
+	<li uib-dropdown is-open="status.isopen2">
+		<a uib-dropdown-toggle>
+			Import / Export <span class="caret"></span>
+		</a>
+		<ul uib-dropdown-menu role="menu">
+			<li><a class="cursor" ng-click="csv()">Export csv</a></li>
+			<li class="divider"></li>
+			<li><a class="cursor" ng-click="addNbContactsMod()">Import E-mails en nombre</a></li>
+			<li><a class="cursor" ng-click="addNbCsvMod()">Import csv</a></li>
+		</ul>
+	</li>
+	<li ng-attr-class="{{path()=='/supports' && 'active'}}"><a href="supports">Publipostage</a></li>
+	<li ng-if="Data.user.id==1" ng-attr-class="{{path()=='/admin' && 'active'}}"><a href="admin">Admin</a></li>
+	<li ng-attr-class="{{path()=='/moi' && 'active'}}"><a href="moi">Moi</a></li>
+	<li><a href="#" ng-click="logout()">(Déconnecter {{Data.user.name}})</a></li>
+</ul>
+</div>

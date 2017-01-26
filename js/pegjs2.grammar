@@ -1,0 +1,47 @@
+start
+  = additive
+
+additive
+  = left:multiplicative "|" right:additive { return left + ' OR ' + right; }
+  / multiplicative
+
+multiplicative
+  = left:primary "&" right:multiplicative { return left + ' AND ' + right; }
+  / primary
+
+primary
+  = integer
+  / "!(" additive:additive ")" { return ' NOT (' + additive + ')' ; }
+  / "(" additive:additive ")" { return '(' + additive + ')' ; }
+
+integer "integer"
+  = ':tag' id:[0-9]+ { return '::tag/'+id.join("")+'::'; }
+  / '!:tag' id:[0-9]+ { return 'NOT (::tag/'+id.join("")+'::)'; }
+  / ':etab' id:[0-9]+ { return '::etab/'+id.join("")+'::'; }
+  / '!:etab' id:[0-9]+ { return 'NOT (::etab/'+id.join("")+'::)'; }
+  / ':type' id:[12]+ { return id==1 ? '::type/1::' : '::type/2::'; }
+  / ':cp' id:[0-9AB]+ { return '::cp/'+id.join("")+'::'; }
+  / '!:cp' id:[0-9AB]+ { return 'NOT (::cp/'+id.join("")+'::)'; }
+  / ':contacts(' ids:[,0-9]+ ')' { 
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return '::contacts/'+list+'::';
+	}
+  / '!:contacts(' ids:[,0-9]+ ')' { 
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return 'NOT ::contacts/'+list+'::';
+	}
+  / ':panier' { return '::panier::'; }
+  / '!:panier' { return 'NOT ::panier::'; }
+  / ':mailerreur' { return '::mailerreur::'; }
+  / '!:mailerreur' { return 'NOT ::mailerreur::'; }
+  / ':email' { return '::email::'; }
+  / '!:email' { return 'NOT ::email::'; }
+  / ':adresse' { return '::adresse::'; }
+  / '!:adresse' { return 'NOT ::adresse::'; }
+  / '!' word:[a-zA-Z0-9 \*'"\.@]+ { return 'NOT (::text/'+ word.join("") +'::)'; }
+  / word:[a-zA-Z0-9 \*'"\.@\-]+ { return '::text/'+ word.join("") +'::'; }
+

@@ -1,0 +1,75 @@
+<div class="col-xs-12 list-group-item list-group">
+	<p>{{cas.nom_cas}}  <span class="mini">#{{cas.id}}</span></p>
+	<div ng-repeat-start="d in cas.donnees" class="col-sm-6" style="overflow:hidden;">
+		<div ng-if="d.type!='adresse' && d.type!='note'">
+			<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+			{{d.value}}
+		</div>
+		<div ng-if="d.type=='adresse'">
+			<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+			<span ng-bind-html="d.value.adresse | nl2br"></span><br />
+			{{d.value.cp}} {{d.value.ville}}<br />
+			{{d.value.pays}}
+		</div>
+		<div ng-if="d.type=='note'">
+			<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+			<div ng-bind-html="d.value | nl2br"></div>
+		</div>
+	</div>
+	<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
+	<div class="col-xs-12 clearfix inter"></div>
+	<div ng-if="cas.etab" class="list-group-item col-xs-12">
+		<div class="col-xs-12">
+			<span class="structure"><a href="modcontact/{{cas.etab.id_contact}}">{{cas.etab.nom!='' ? cas.etab.nom : '(sans nom)'}}</a> <small>/ {{cas.etab.nom_cas}}</small></span>
+			<span class="mini"> ({{calendar(lastMod(cas.etab).date)}} par {{byId(users,lastMod(cas.etab).by).name}})</span>
+		</div>
+		<div class="col-xs-12">
+			<div ng-repeat-start="d in cas.etab.donnees" class="col-sm-6" style="overflow:hidden;" >
+				<div ng-if="d.type!='adresse' && d.type!='note'">
+					<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+					{{d.value}}
+				</div>
+				<div ng-if="d.type=='adresse'">
+					<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+				<span ng-bind-html="d.value.adresse | nl2br"></span><br />
+				{{d.value.cp}} {{d.value.ville}}<br />
+					{{d.value.pays}}
+				</div>
+				<div ng-if="d.type=='note'">
+					<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+					<div ng-bind-html="d.value | nl2br"></div>
+				</div>
+			</div>
+			<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
+			<div class="clearfix inter" ng-if="cas.etab.cols.length>0"></div>
+				<div class="clearfix col-xs-12" ng-if="cas.etab.cols.length>0">
+					<span class="pull-right mini">
+						contacts de la structure
+					</span>
+				</div>
+				<div ng-show="cas.etab.cols.length>0" class="list-group-item col-xs-12">
+					<div class="col-sm-12" ng-repeat="c in cas.etab.cols" class="individu">
+						<a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom!='' ? c.nom : '(sans nom)'}}</a> <small>{{valeur(c,'fonction')[0].valeur}}</small>
+					</div>
+				</div>
+
+			</div>
+	</div>
+	<div class="clearfix inter clearfix"></div>
+	<div class="clearfix col-xs-12" ng-if="cas.type==2 && cas.cols.length>0">
+		<span class="cursor pull-right mini">
+			contacts de la structure
+		</span>
+	</div>
+	<div ng-show="cas.type==2 && cas.cols.length>0" class="list-group-item col-xs-12">
+		<div class="col-sm-12" ng-repeat="c in cas.cols" class="individu">
+			<a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom!='' ? c.nom : '(sans nom)'}}</a> <small>{{valeur(c,'fonction')[0].valeur}}</small>
+		</div>
+	</div>
+	<div class="col-xs-12 inter clearfix"></div>
+	<div class="col-sm-12">
+		<span ng-include="'partials/inc/tag.html'" ng-repeat="id in parNomTag(cas.tags)"></span>
+	</div>
+</div>
+<div class="clearfix"></div>
+

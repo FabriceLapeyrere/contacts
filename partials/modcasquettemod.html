@@ -1,0 +1,46 @@
+<form role="form" name="form.modCas">
+<div class="modal-body">
+	<p>
+		<label>
+			<span class="individu" ng-if="cas.type==1">Nom de la casquette</span>
+			<span class="structure" ng-if="cas.type==2">Nom de l'établissement</span>
+		</label>
+		<input class="form-control autoFocus" type="text" ng-model="cas.nom_cas" required/>
+	</p>
+	<p>
+		<span class="btn btn-xs btn-default cursor" ng-click="addDonnee('tel')"><span class="glyphicon glyphicon-plus"> </span> Tel</span>
+		<span class="btn btn-xs btn-default cursor" ng-click="addDonnee('fax')"><span class="glyphicon glyphicon-plus"> </span> Fax</span>
+		<span class="btn btn-xs btn-default cursor" ng-click="addDonnee('email')"><span class="glyphicon glyphicon-plus"> </span> E-mail</span>
+		<span ng-if="cas.type==1 && !hasType('fonction')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('fonction')"><span class="glyphicon glyphicon-plus"> </span> Fonction</span>
+		<span ng-if="cas.type==1 && !hasType('civilite')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('civilite')"><span class="glyphicon glyphicon-plus"> </span> Civilité</span>
+		<span ng-if="!hasType('adresse')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('adresse')"><span class="glyphicon glyphicon-plus"> </span> Adresse</span>
+		<span ng-if="!hasType('note')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('note')"><span class="glyphicon glyphicon-plus"> </span> Note</span>
+		<span class="btn btn-xs btn-default cursor" ng-click="addChampPerso()"><span class="glyphicon glyphicon-plus"> </span> Champ personnalisé</span>
+	</p>
+	<div ng-repeat="donnee in cas.donnees">
+		<label ng-class="{'erreur':donnee.type=='email_erreur'}">{{donnee.label}}</label> <span class="cursor mini" ng-if="donnee.type=='email_erreur'" ng-confirm-click="donnee.type='email'" ng-confirm-message="Sûr ?">corriger le mail en erreur |</span> <span class="cursor mini" ng-confirm-click="delDonnee(cas,donnee.label)" ng-confirm-message="Sûr ?">supprimer</span>
+		<input ng-if="donnee.type == 'text' " class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'tel' " class="form-control autoFocus" type="tel" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'email'" class="form-control autoFocus" type="email" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'email_erreur'" class="form-control autoFocus" type="text" ng-model="donnee.value" required disabled/>
+		<input ng-if="donnee.type == 'fonction'" class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'civilite'" class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
+		<div ng-if="donnee.type == 'adresse'">
+			<div class="col-xs-12"><textarea placeholder="Adresse" class="form-control autoFocus" type="text" ng-model="donnee.value.adresse" required></textarea></div>
+			<div class="clearfix inter col-xs-12"></div>
+			<div class="col-xs-3"><input class="form-control" type="text" ng-model="donnee.value.cp" required placeholder="cp"/></div>
+			<div class="col-xs-9"><input class="form-control" type="text" ng-model="donnee.value.ville" required required placeholder="ville"/></div>
+			<div class="clearfix inter col-xs-12"></div>
+			<div class="col-xs-12"><input class="form-control" type="text" ng-model="donnee.value.pays" required placeholder="pays"/></div>
+			<div class="clearfix"></div>
+		</div>
+		<textarea ng-if="donnee.type == 'note'" class="form-control autoFocus" type="text" ng-model="donnee.value" required></textarea>
+		<div class="clearfix inter col-xs-12"></div>
+	</div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">{{bouton}}</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>
+
