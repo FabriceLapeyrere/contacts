@@ -1146,6 +1146,9 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			templateUrl: 'partials/modblocmod.html',
 			controller: 'modBlocModCtl',
 			resolve:{
+				trust: function () {
+					return $scope.trust;
+				},
 				bloc: function () {
 					return angular.copy(Data.modele[$scope.key].blocs[i]);
 				},
@@ -1882,10 +1885,11 @@ app.controller('addNewsModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'ne
 		$uibModalInstance.dismiss();
 	};
 }]);
-app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bloc', 'pjs', 'Data', function ($scope, $uibModalInstance, $uibModal, bloc, pjs, Data) {
+app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bloc', 'pjs', 'Data', 'trust', function ($scope, $uibModalInstance, $uibModal, bloc, pjs, Data, trust) {
 	$scope.Data=Data;
 	$scope.bloc=bloc;
 	$scope.pjs=pjs;
+	$scope.trust=trust;
 	$scope.form={};
 	$scope.ok = function () {
 		if ($scope.form.modBloc.$valid){

@@ -49,7 +49,7 @@
                             <input class="form-control" type='number' ng-model-options="{debounce:250}" ng-model="item.value" ng-if="item.type=='integer'"/>
                             <input class="form-control" type='password' ng-model="item.value" ng-if="item.type=='passwd'"/>
                             <input class="form-control" type='text' ng-model="item.value" ng-if="item.type=='texte_court'"/>
-                            <textarea class="form-control" ng-model="item.value" ng-if="item.type=='texte_long'" ng-allow-tab/></textarea>
+                            <textarea rows="15" class="form-control" ng-model="item.value" ng-if="item.type=='texte_long'" ng-allow-tab/></textarea>
                             <label class="btn btn-primary" ng-model="item.value" ng-change="setConfig()" uib-btn-checkbox ng-if="item.type=='bool'">
                                 <span ng-if="item.value==1">ON</span><span ng-if="item.value==0">OFF</span>                        
                             </label>
@@ -69,7 +69,7 @@
                                             <input class="form-control" type='number' ng-model="p.value" ng-if="p.type=='integer'"/>
                                             <input class="form-control" type='password' ng-model="p.value" ng-if="p.type=='passwd'"/>
                                             <input class="form-control" type='text' ng-model="p.value" ng-if="p.type=='texte_court'"/>
-                                            <textarea class="form-control" ng-model="p.value" ng-if="p.type=='texte_long'" ng-allow-tab/></textarea>
+                                            <textarea rows="15" class="form-control" ng-model="p.value" ng-if="p.type=='texte_long'" ng-allow-tab/></textarea>
                                             <label class="btn btn-primary" ng-model="p.value" ng-change="setConfig()" uib-btn-checkbox ng-if="p.type=='bool'">
                                                 <span ng-if="p.value==1">ON</span><span ng-if="p.value==0">OFF</span>                        
                                             </label>

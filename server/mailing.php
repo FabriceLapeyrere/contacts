@@ -31,29 +31,29 @@
 			$insert->execute(array($id,'mail',json_encode($mail),millisecondes(),$id));
 			$delete = $db->database->prepare('DELETE FROM emails WHERE id=?');
 			$delete->execute(array($id_mail));
-		    CR::maj(array("mails","mail/$id_mail"));
-	    }
+			CR::maj(array("mails","mail/$id_mail"));
+		}
 		public static function get_mails($id=0) {
 			$db= new DB();
 			if ($id>0) $query = "SELECT * FROM emails where id=$id";
-            else $query = "SELECT * FROM emails ORDER BY id ASC";
+			else $query = "SELECT * FROM emails ORDER BY id ASC";
 			$mails=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-			    if ($id>0) {
-            	    $row['pjs']=array();
-				    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-				    foreach(glob("./data/files/mail/".$row['id']."/*") as $f){
-					    if (is_file($f)) {
-						    $row['pjs'][]=array(
-							    "path"=>$f,
-							    "filename"=>basename($f),
-							    "mime"=>finfo_file($finfo, $f)
-						    );
-					    }
-				    }
-                }
-                $row['verrou']=WS::get_verrou('mail/'.$row['id']);
-			    $mails[$row['id']]=$row;
+				if ($id>0) {
+					$row['pjs']=array();
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					foreach(glob("./data/files/mail/".$row['id']."/*") as $f){
+						if (is_file($f)) {
+							$row['pjs'][]=array(
+								"path"=>$f,
+								"filename"=>basename($f),
+								"mime"=>finfo_file($finfo, $f)
+							);
+						}
+					}
+				}
+				$row['verrou']=WS::get_verrou('mail/'.$row['id']);
+				$mails[$row['id']]=$row;
 			}
 			if ($id>0) return $row;
 			return $mails;
@@ -62,7 +62,7 @@
 			$db= new DB();
 			$update = $db->database->prepare('UPDATE emails SET modificationdate=?, modifiedby=? WHERE id=?');
 			$update->execute(array(millisecondes(), $id, $id_mail));
-		    CR::maj(array("mail/$id_mail"));	
+			CR::maj(array("mail/$id_mail"));	
 			return 1;
 		}
 		public static function del_mail_pj($params,$id)
@@ -93,7 +93,7 @@
 			$update = $db->database->prepare('UPDATE news SET sujet=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
 			$update->execute(array($sujet, json_encode($blocs), $t, $id, $id_news));
 			CR::maj(array("newss","news/$id_news"));
-            return $id;
+			return $id;
 		}
 		public static function get_news($id_news,$id) {
 			return Mailing::get_newss($id_news,$id);
@@ -104,8 +104,8 @@
 			$news=Mailing::get_news($id_news);
 			$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
 			$insert->execute(array($id_news,'news',json_encode($news),millisecondes(),$id));
-            $delete = $db->database->prepare('DELETE FROM news WHERE id=?');
-            $delete->execute(array($id_news));
+			$delete = $db->database->prepare('DELETE FROM news WHERE id=?');
+			$delete->execute(array($id_news));
 			CR::maj(array("newss","news/$id_news"));
 		}
 		public static function get_newss($id_news=0,$id) {
@@ -120,50 +120,52 @@
 			}
 			$newss=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-                $row['verrou']=WS::get_verrou('news/'.$row['id']);
+				$row['verrou']=WS::get_verrou('news/'.$row['id']);
 				if ($id_news>0) {
-                    $row['blocs']=json_decode($row['blocs']);
-				    if (is_array($row['blocs'])){
-					    foreach($row['blocs'] as $k=>$b){
-                            $row['blocs'][$k]->verrou=WS::get_verrou('newsbloc/'.$row['id'].'/'.$k);
-						    $row['blocs'][$k]->donnees=Mailing::donnees_modele($row['id'],$row['blocs'][$k]->id_modele,isset($row['blocs'][$k]->donnees) ? $row['blocs'][$k]->donnees : array());
-						    $row['blocs'][$k]->html=Mailing::html_bloc($row['id'],$row['blocs'][$k]->id_modele,$row['blocs'][$k]->donnees);
-					    }
-				    } else {
-					    $row['blocs']=array();
-				    }
-				    $row['pjs']=array();
-				    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-				    foreach(glob("data/files/news/".$row['id']."/*") as $f){
-					    if (is_file($f)) {
-						    $used=false;
-						    foreach($row['blocs'] as $b){
-							    foreach($b->donnees as $d){
-								    if (is_object($d) && $d->valeur==$f){
-									    $used=true;
-								    }
-							        if (is_object($d) && is_object($d->valeur)){
+					$row['blocs']=json_decode($row['blocs']);
+					if (is_array($row['blocs'])){
+						foreach($row['blocs'] as $k=>$b){
+							$row['blocs'][$k]->verrou=WS::get_verrou('newsbloc/'.$row['id'].'/'.$k);
+							$row['blocs'][$k]->donnees=Mailing::donnees_modele($row['id'],$row['blocs'][$k]->id_modele,isset($row['blocs'][$k]->donnees) ? $row['blocs'][$k]->donnees : array());
+							$hb=Mailing::html_bloc($row['id'],$row['blocs'][$k]->id_modele,$row['blocs'][$k]->donnees,$id,$k);
+							$row['blocs'][$k]->html=$hb[0];
+							$row['blocs'][$k]->donneeshtml=$hb[1];
+						}
+					} else {
+						$row['blocs']=array();
+					}
+					$row['pjs']=array();
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					foreach(glob("data/files/news/".$row['id']."/*") as $f){
+						if (is_file($f)) {
+							$used=false;
+							foreach($row['blocs'] as $b){
+								foreach($b->donnees as $d){
+									if (is_object($d) && $d->valeur==$f){
+										$used=true;
+									}
+									if (is_object($d) && is_object($d->valeur)){
 										foreach($d->valeur as $do){
 								 			if (is_object($do) && $do->valeur==$f){
 												$used=true;
 											}
 										}
-								    }
-							    }
-						    }
-						    $row['pjs'][]=array(
-							    "path"=>$f,
-							    "filename"=>basename($f),
-							    "mime"=>finfo_file($finfo, $f),
-							    "used"=>$used
-						    );
-					    }
-				    }
-                }
+									}
+								}
+							}
+							$row['pjs'][]=array(
+								"path"=>$f,
+								"filename"=>basename($f),
+								"mime"=>finfo_file($finfo, $f),
+								"used"=>$used
+							);
+						}
+					}
+				}
 				$newss[$row['id']]=$row;
 			}
 			if ($id_news>0) return $row;
-            return $newss;
+			return $newss;
 		}	
 		//news modeles
 		public static function donnees_modele($id_news,$id_modele,$donnees) {
@@ -210,13 +212,14 @@
 			}
 			return $donnees_ok;
 		}
-		public static function html_bloc($id_news,$id_modele,$donnees) {
-            global $C;
+		public static function html_bloc($id_news,$id_modele,$donnees,$id,$k) {
+			global $C;
 			$modele=Mailing::get_modele($id_modele);
 			$nom=$modele['nom'];
 			$tab=explode('::',$nom);
 			$modCat='Sans thème';
 			if (count($tab)>0) $modCat=$tab[0];
+			$donneeshtml=json_encode('{}');
 			$html=$modele['modele'];
 			$pattern = "/::([^::]*)::/";
 			preg_match_all($pattern, $modele['modele'], $matches, PREG_OFFSET_CAPTURE, 3);
@@ -236,7 +239,7 @@
 				$html=str_replace($code,$valeur,$html);
 			}
 			$html=str_replace('::code::',$html,$C->news->wrapper->value);
-			return $html;
+			return array($html,$donneeshtml);
 		}
 		public static function del_news_pj($params,$id)
 		{
@@ -305,7 +308,7 @@
 			$query = "SELECT * FROM news_modeles ORDER BY id ASC";
 			$modeles=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-                $row['verrou']=WS::get_verrou('modele/'.$row['id']);
+				$row['verrou']=WS::get_verrou('modele/'.$row['id']);
 				$modeles[$row['id']]=$row;
 			}
 			return $modeles;
@@ -467,7 +470,7 @@
 				$pjs=$mail['pjs'];
 			}
 			$casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>1),0,$id);
-            $selection=$casquettes['collection'];
+			$selection=$casquettes['collection'];
 			$nb=$casquettes['total'];
 
 			$insert = $db->database->prepare('INSERT INTO envois (sujet, html, pjs, expediteur, nb, statut, date, by) VALUES (?,?,?,?,?,?,?,?)');

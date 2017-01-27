@@ -51,7 +51,8 @@ class Config {
                     'base'=>array('value'=>'','label'=>'OU de base','type'=>'texte_court','show'=>'active')
                 ),
                 'news'=>array(
-                    'wrapper'=>array('value'=>"<div style='margin: 0 auto;width:700px;font-family: verdana, sans-serif;font-size:12px;text-align:left;background:#fff;'>::code::</div>",'label'=>'Code du conteneur de newsletter','type'=>'texte_long')
+                    'wrapper'=>array('value'=>"<div style='margin: 0 auto;width:700px;font-family: verdana, sans-serif;font-size:12px;text-align:left;background:#fff;'>::code::</div>",'label'=>'Code du conteneur de newsletter','type'=>'texte_long'),
+                    'css'=>array('value'=>"",'label'=>'CSS','type'=>'texte_long')
                 )
             );
 			if($rebuild) { $this->rebuild_config(); }

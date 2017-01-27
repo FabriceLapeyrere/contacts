@@ -10,7 +10,7 @@ $envoi=Mailing::get_envoi($id_envoi,'',1);
 if($envoi['statut']==1) {
 	Mailing::play_envoi($id_envoi);
 	error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi commencé.\n", 3, "data/log/envoi.log");
-	$html='<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body>'.$envoi['html'].'<body>';
+	$html='<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><style>'.$C->news->css->value.'</style></head><body>'.$envoi['html'].'<body>';
 	$sujet=$envoi['sujet'];
 	$nb=$envoi['nb'];
 	$expediteur=$envoi['expediteur'];
