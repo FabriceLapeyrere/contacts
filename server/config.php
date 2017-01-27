@@ -20,6 +20,7 @@ class Config {
             $this->base_config=array(
                 'app'=>array(
                     'brand'=>array('value'=>'','label'=>'Nom de l\'application','type'=>'texte_court'),
+                    'url'=>array('value'=>'','label'=>'Url de l\'application','type'=>'texte_court'),
                     'mails_notification'=>array('value'=>'','label'=>'E-mails qui doivent recevoir les notifications (séparés par des virgules)','type'=>'texte_court'),
                     'mails_notification_from'=>array('value'=>'','label'=>'Expéditeur des notifications','type'=>'texte_court')
                 ),
@@ -27,8 +28,6 @@ class Config {
                     'nbmail'=>array('value'=>100,'label'=>'Nombre de mail par tranche','type'=>'integer'),
                     't_pause'=>array('value'=>30,'label'=>'Durée de la pause en secondes','type'=>'integer'),
                     'use_redirect'=>array('value'=>0,'label'=>'Activer / Désactiver la redirection des liens','type'=>'bool'),
-                    'redirect_url'=>array('value'=>'','label'=>'Url pour la redirection des liens','type'=>'texte_court','show'=>'use_redirect'),
-                    'unsubscribe_url'=>array('value'=>'','label'=>'Url pour la desinscription','type'=>'texte_court'),
                     'expediteurs'=>array('value'=>array(
                         array(
                             'nom'=>array('value'=>'','label'=>'Nom','type'=>'texte_court'),

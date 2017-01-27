@@ -43,8 +43,8 @@ function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') 
   mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
 }
 if (isset($_GET['cle'])) {
-	if (file_exists("cle/".$_GET['cle'])) {
-		$fichier=file("cle/".$_GET['cle']);
+	if (file_exists("data/cle/".$_GET['cle'])) {
+		$fichier=file("data/cle/".$_GET['cle']);
 		$params['nom']=trim($fichier[0]);
 		$params['prenom']=trim($fichier[1]);
 		$params['donnees']=array();
@@ -55,7 +55,7 @@ if (isset($_GET['cle'])) {
 		);
 		$id_categorie=trim($fichier[3]);
 		$params['categories']=array($id_categorie);
-		$path='newsletter/'.$id_categorie;
+		$path='data/newsletter/'.$id_categorie;
 		if (file_exists($path)) {
 			$logo="$path/logo.png";
 			$data=json_decode(file_get_contents("$path/data.json"));
@@ -63,7 +63,7 @@ if (isset($_GET['cle'])) {
 			$msg=$data->msg;
 			$from=$data->from;
 			$bgcolor=$data->bgcolor;
-			$color=$color->color;
+			$color=$data->color;
 			if (isset($fichier[4]) && $fichier[4]=='done')
 			{
 ?>
@@ -98,7 +98,7 @@ ciao";
 				}
 				aj_contact($params);
 				$fichier[]='done';
-				file_put_contents("cle/".$_GET['cle'],$fichier);		
+				file_put_contents("data/cle/".$_GET['cle'],$fichier);		
 ?>
 <html>
 <head>
@@ -111,7 +111,7 @@ ciao";
 	<div class="col-xs-12" style="text-align:center;padding:100px 0;">
 		<img src="<?=$logo?>"/>
 	</div>
-	<form id="newsletter" class="col-xs-12 col-md-6 col-md-offset-3 " method="post" action="inscription.php">
+	<div class="col-xs-12 col-md-6 col-md-offset-3 ">
 		<p>Votre inscription a bien été prise en compte !</p>
 		<p><?=$msg?></p>
         </div>

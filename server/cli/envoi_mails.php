@@ -19,9 +19,9 @@ if($envoi['statut']==1) {
 	$exp=$C->mailing->expediteurs->value[$expediteur->id];
 	$mailing_nbmail=$C->mailing->nbmail->value;
 	$mailing_t_pause=$C->mailing->t_pause->value;
-	$use_redirect=$C->mailing->use_redirect->value;
-	$redirect_url=$C->mailing->redirect_url->value;
-	$unsubscribe_url=$C->mailing->unsubscribe_url->value;
+	$use_redirect=$C->app->use_redirect->value;
+	$redirect_url=$C->app->url->value."/r.php";
+	$unsubscribe_url=$C->app->url->value."/desinscription.php";
 	$mail = new PHPMailer();
 	$mail->SetLanguage("fr","server/lib/PHPmailer/language/");
 	$mail->IsSMTP();

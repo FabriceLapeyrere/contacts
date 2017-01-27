@@ -52,9 +52,10 @@ function ass_casquette($id_casquette,$id_contact,$id_categorie)
 }
 
 
-if (isset($_REQUEST['cat']) && file_exists('newsletter/'.$_REQUEST['cat'])) {
+if (isset($_REQUEST['cat']) && file_exists('data/newsletter/'.$_REQUEST['cat'])) {
+	if (!file_exists('data/cle')) mkdir('./data/cle', 0777, true);
 	$id_categorie=$_REQUEST['cat'];
-	$path='newsletter/'.$id_categorie;
+	$path='data/newsletter/'.$id_categorie;
 	$logo="$path/logo.png";
 	$data=json_decode(file_get_contents("$path/data.json"));
 	$brand=$data->brand;
@@ -83,11 +84,11 @@ if (isset($_REQUEST['cat']) && file_exists('newsletter/'.$_REQUEST['cat'])) {
 					$infos[]=$_POST['prenom']."\n";
 					$infos[]=$_POST['email']."\n";
 					$infos[]=$id_categorie."\n";
-					file_put_contents("cle/$cle",$infos);
+					file_put_contents("data/cle/$cle",$infos);
 			
 					$message="Afin de completer votre inscription à notre newsletter, merci de suivre le lien suivant :
 
-http://contacts.surlefil.org/confirmation.php?cle=$cle
+{$C->app->url->value}/confirmation.php?cle=$cle
 
 $msg";
 
@@ -110,6 +111,7 @@ $msg";
 	<div class="col-xs-12" style="text-align:center;padding:100px 0;">
 		<img src="<?=$logo?>" aria-label="Audiostories"/>
 	</div>
+<?if ($res==""){?>
 	<form id="newsletter" class="col-xs-12 col-md-6 col-md-offset-3 " method="post" action="inscription.php">
 		<h3>Inscription à la newsletter : <?=$brand?></h3>
 		<input type="hidden" value="<?=$id_categorie?>" name="cat">
@@ -118,7 +120,8 @@ $msg";
 	    <div class="col-xs-12 col-md-4 form-group"><input type="email" value="" name="email" placeholder="e-mail" class="form-control input-sm"></div>
             <input class="col-xs-12 btn btn-primary btn-xs" type="submit" value="inscrivez-vous à la newsletter" name="envoyer"/>
         </div>
-        <div id="reponse" class="col-xs-12 col-md-8"><?=$res?></div>
+<?}?>
+        <div id="reponse" class="col-xs-12 col-md-6 col-md-offset-3"><?=$res?></div>
 </body>
 </html>
 <? } else { ?>
