@@ -87,13 +87,15 @@ if (isset($_GET['cle'])) {
 <?
 			} else {
 				$message="Bonjour!!
-	Une nouvelle inscription à la newsletter $brand :
-	Nom : {$params['nom']}
-	Prenom : {$params['prenom']}
-	email : {$params['donnees'][0]->value}
+Une nouvelle inscription à la newsletter $brand :
+Nom : {$params['nom']}
+Prenom : {$params['prenom']}
+email : {$params['donnees'][0]->value}
 
-	ciao";
-				mail_utf8('web@surlefil.org',"Inscription automatique à la newsletter $brand - Le Fil",$message,'From: contact@surlefil.org');
+ciao";
+				foreach(explode(",",$C->app->mails_notification->value) as $dest){
+					mail_utf8(trim($dest),"Inscription automatique à la newsletter $brand - Le Fil",$message,'From: '.$C->app->mails_notification_from->value);		
+				}
 				aj_contact($params);
 				$fichier[]='done';
 				file_put_contents("cle/".$_GET['cle'],$fichier);		

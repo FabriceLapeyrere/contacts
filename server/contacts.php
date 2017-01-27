@@ -467,6 +467,29 @@
 			ldap_update($cas_id);
 			CR::maj(array('contact/'.$cas['id_contact']));
 		}
+		public static function remove_mail($email,$id) {
+			$db= new DB();
+			$query="select id from casquettes where emails like '%$email%'";
+			$casquette_ids=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$casquette_ids[]=$row['id'];
+			}
+			foreach($casquette_ids as $cas_id) {
+				$cas=Contacts::get_casquette($cas_id,false,$id);
+				$donnees=$cas['donnees'];
+				foreach($donnees as $k=>$d) {
+					if ($d->type=='email' && strpos($d->value,$email)!==false) {
+						unset($donnees[$k]);
+					}
+				}
+				$donnees=array_values($donnees);
+				$update = $db->database->prepare('UPDATE casquettes SET donnees=?, emails=?, email_erreur=? WHERE id=?');
+				$update->execute(array(json_encode($donnees),emails($donnees),1,$cas_id));	
+				ldap_update($cas_id);
+				CR::maj(array('contact/'.$cas['id_contact']));
+			}
+			return count($casquette_ids);
+		}
 		public static function mod_casquette($params,$id) {
 			$db= new DB();
 			$cas=Contacts::get_casquette($params->cas->id,false,$id);

@@ -140,16 +140,18 @@ function replaceHref($html, $redirect, $params)
 	for ($i = 0; $i < $hrefs->length; $i++) {
 		$href = $hrefs->item($i);
 		$url = $href->getAttribute('href');
-		$p=$params;
-		$p['url']=$url;
-		$hash=json_encode($p);
-		$hash=base64_encode($hash);
-		//remove and set target attribute       
-		$newURL=$redirect."?h=".$hash;
+		if ($url!="##UNSUBSCRIBEURL##") {
+			$p=$params;
+			$p['url']=$url;
+			$hash=json_encode($p);
+			$hash=base64_encode($hash);
+			//remove and set target attribute       
+			$newURL=$redirect."?h=".$hash;
 
-		//remove and set href attribute       
-		$href->removeAttribute('href');
-		$href->setAttribute("href", $newURL);
+			//remove and set href attribute       
+			$href->removeAttribute('href');
+			$href->setAttribute("href", $newURL);
+		}
 	}
 
 	// save html

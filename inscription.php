@@ -32,7 +32,6 @@ function casquette($email)
 	foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 		$id=$row['id'];
 	}
-	error_log($id." ".$email."\n",3,'/tmp/fab.log');
 	$casquette=array();
 	if ($id>0) {
 		$casquette[]=$contacts->get_casquette($id,false,1);

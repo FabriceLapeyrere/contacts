@@ -455,7 +455,7 @@
 			$expediteur=$params->res->expediteur;
 			$query=$params->res->query;
 			if ($params->type=='news') {
-				$news=Mailing::get_news($params->e->id);
+				$news=Mailing::get_news($params->e->id,$id);
 				$sujet=$news['sujet'];
 				$html='';
 				foreach($news['blocs'] as $b){

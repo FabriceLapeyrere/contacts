@@ -21,6 +21,7 @@ if($envoi['statut']==1) {
 	$mailing_t_pause=$C->mailing->t_pause->value;
 	$use_redirect=$C->mailing->use_redirect->value;
 	$redirect_url=$C->mailing->redirect_url->value;
+	$unsubscribe_url=$C->mailing->unsubscribe_url->value;
 	$mail = new PHPMailer();
 	$mail->SetLanguage("fr","server/lib/PHPmailer/language/");
 	$mail->IsSMTP();
@@ -40,6 +41,7 @@ if($envoi['statut']==1) {
 	$mail->FromName = $exp->nom->value;
 	error_log(date('d/m/Y H:i:s')." - nb = ".Mailing::nb_messages_boite_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
 	while (Mailing::nb_messages_boite_envoi($id_envoi)>0) {
+		$htmlr=$html;
 		if ($pas==$mailing_nbmail) {
 			$pas=1;
 			error_log(date('d/m/Y H:i:s')." - On attend\n", 3, "data/log/envoi.log");
@@ -66,15 +68,18 @@ if($envoi['statut']==1) {
 		}
 		$m=Mailing::envoi_premier_message($id_envoi);
 		$i=$m['i'];
-		$c=Contacts::get_casquette($m['id_cas'],1);	
+		$c=Contacts::get_casquette($m['id_cas'],1);
+		$usbcr_hash=base64_encode(json_encode(array("emails"=>$c['emails'])));
+		$unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
 		if($use_redirect){
 			$params=array(
 				'contact'=>$m['id_cas'],
 				'envoi'=>$id_envoi
 			);
-			$htmlr=replaceHref($html, $redirect_url, $params);
-			$mail->MsgHTML($htmlr);
+			$htmlr=replaceHref($htmlr, $redirect_url, $params);
 		}
+		$htmlr=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);
+		$mail->MsgHTML($htmlr);
 		$nom=trim($c['prenom']." ".$c['nom']);
 		$emails=$c['emails'];
 		foreach($emails as $email){
