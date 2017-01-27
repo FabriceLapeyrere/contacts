@@ -54,7 +54,7 @@
 						break;
 					case "etabs":
 						$params->query.=' AND ::type/2::';
-						$res=Contacts::get_casquettes($params);
+						$res=Contacts::get_casquettes($params,0,$S['user']['id']);
 						break;
 					case "contact":
 						$res=Contacts::get_contact($tab[1],true,$S['user']['id']);
