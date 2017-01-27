@@ -19,7 +19,7 @@ if($envoi['statut']==1) {
 	$exp=$C->mailing->expediteurs->value[$expediteur->id];
 	$mailing_nbmail=$C->mailing->nbmail->value;
 	$mailing_t_pause=$C->mailing->t_pause->value;
-	$use_redirect=$C->app->use_redirect->value;
+	$use_redirect=$C->mailing->use_redirect->value;
 	$redirect_url=$C->app->url->value."/r.php";
 	$unsubscribe_url=$C->app->url->value."/desinscription.php";
 	$mail = new PHPMailer();
@@ -68,16 +68,17 @@ if($envoi['statut']==1) {
 		}
 		$m=Mailing::envoi_premier_message($id_envoi);
 		$i=$m['i'];
-		$c=Contacts::get_casquette($m['id_cas'],1);
-		$usbcr_hash=base64_encode(json_encode(array("emails"=>$c['emails'])));
-		$unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
 		if($use_redirect){
+			error_log(date('d/m/Y H:i:s')." - redirect ON.\n", 3, "data/log/envoi.log");
 			$params=array(
 				'contact'=>$m['id_cas'],
 				'envoi'=>$id_envoi
 			);
 			$htmlr=replaceHref($htmlr, $redirect_url, $params);
 		}
+		$c=Contacts::get_casquette($m['id_cas'],1);
+		$usbcr_hash=base64_encode(json_encode(array("emails"=>$c['emails'])));
+		$unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
 		$htmlr=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);
 		$mail->MsgHTML($htmlr);
 		$nom=trim($c['prenom']." ".$c['nom']);

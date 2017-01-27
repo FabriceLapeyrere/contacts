@@ -521,8 +521,8 @@
 			$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($apres),$params->cas->id));
 			Contacts::touch_contact($params->cas->id_contact,$id);
 			ldap_update($params->cas->id_contact,$id);
-			$res=array('contact/'.$params->cas->id_contact)
-			foreach($etabs as $idetab) {
+			$res=array('contact/'.$params->cas->id_contact);
+			foreach($prev_etabs as $idetab) {
 				$res[]='contact/'.$idetab;
 			}
 			CR::maj($res);
