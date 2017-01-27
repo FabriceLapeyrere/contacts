@@ -39,19 +39,19 @@ app.config(['$locationProvider', function($locationProvider) {
 	$locationProvider.html5Mode(true);
 }]);
 app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$uibModal', '$q', '$window', '$sce', 'Link', 'Data', 'ngAudio', function ($scope, $http, $location, $timeout, $interval, $uibModal, $q, $window, $sce, Link, Data, ngAudio) {
-    Data.mainQuery='';
-    Data.pageContacts=1;
-    $scope.uploaders={};
-    $scope.uploading=function(){
-        var res=false;
-        angular.forEach($scope.uploaders,function(u){
-            if(u.queue.length>0 && u.progress<100) res=true;
-        });
-        return res;
-    };
-    $scope.sound = ngAudio.load("img/sonar.mp3");
-    $scope.Data=Data;
-    $scope.params='test';
+	Data.mainQuery='';
+	Data.pageContacts=1;
+	$scope.uploaders={};
+	$scope.uploading=function(){
+		var res=false;
+		angular.forEach($scope.uploaders,function(u){
+			if(u.queue.length>0 && u.progress<100) res=true;
+		});
+		return res;
+	};
+	$scope.sound = ngAudio.load("img/sonar.mp3");
+	$scope.Data=Data;
+	$scope.params='test';
 	$scope.done=false;
 	$scope.brand='';
 	$scope.tagsOpen=[];
@@ -71,13 +71,13 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.pageCourante.suivis.retard=1;
 	$scope.pageCourante.suivis.termines=1;
 	Data.pageContacts=1;
-    $scope.initScroll=0;
+	$scope.initScroll=0;
 	$scope.parser={};
-    $scope.path=function(){return $location.path();}
+	$scope.path=function(){return $location.path();}
 	$scope.$watch('Data.user.id',function(){
 		if (Data.user.id>=0){
-            Link.init();
-         }
+			Link.init();
+		 }
 	});
 	$scope.requete=function(data,callback){
 		$http.post('ajax.php',data).then(function(msg){
@@ -106,7 +106,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return $sce.trustAsHtml(html);
 	}
 	$scope.logout=function(){
-        Link.logout();
+		Link.logout();
 	};
 	$scope.calendar=function(t){
 		moment.lang('fr');
@@ -138,7 +138,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return res;
 	};
 	$scope.children=function(tag){
-        var res={};
+		var res={};
 		angular.forEach(Data.modele.tags, function(t){
 			if (t.id_parent==tag.id){
 				res[t.id]=t;
@@ -147,7 +147,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return res;
 	}
 	$scope.hasChild=function(tag){
-        var res=false;
+		var res=false;
 		angular.forEach(Data.modele.tags, function(t){
 			if (t.id_parent==tag.id){
 				res=true;
@@ -181,14 +181,14 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return res;
 	};
 	$scope.isEqual=function(a,b){
-        return JSON.stringify(angular.copy(a), null, 4)==JSON.stringify(angular.copy(b), null, 4);
+		return JSON.stringify(angular.copy(a), null, 4)==JSON.stringify(angular.copy(b), null, 4);
 	};
-    $scope.pristine=function(key){
-        return $scope.isEqual(Data.modele[key],Data.modeleSrv[key]);       
-    }
+	$scope.pristine=function(key){
+		return $scope.isEqual(Data.modele[key],Data.modeleSrv[key]);	   
+	}
 	$scope.dirty=function(key){
-        return !$scope.pristine(key);       
-    }
+		return !$scope.pristine(key);	   
+	}
 	$scope.min=function(a,b){
 		return Math.min(a,b);
 	};
@@ -206,7 +206,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		Link.ajax([{action:'modPanier', params:{panier:Data.modele.panier}}]);
 	};
 	$scope.addPanier=function(nouveaux){
-        Link.ajax([{action:'addPanier', params:{nouveaux:nouveaux}}]);
+		Link.ajax([{action:'addPanier', params:{nouveaux:nouveaux}}]);
 	};
 	$scope.delPanier=function(nouveaux){
 		Link.ajax([{action:'delPanier', params:{nouveaux:nouveaux}}]);
@@ -271,7 +271,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.selections={};
 	$scope.courant={};
 	$scope.parNomTag = function(tags) {
-        var t = angular.copy(tags);
+		var t = angular.copy(tags);
 		if (t) {
 			t.sort(function(a,b) {
 				var tagA=Data.modele.tags[a];
@@ -299,7 +299,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 				parsed: function () {
 					return $scope.parsed;
 				},
-                type: function () {
+				type: function () {
 					return 'tout';
 				}
 			}
@@ -316,131 +316,131 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.requete({uid:Data.uid, data:{}},function(data){
 		Data.user=data.user;
 	});
-    $scope.frontParser={};
+	$scope.frontParser={};
 	$http.get('js/pegjs.grammar').then(function(msg){
-        $scope.frontParser=PEG.buildParser(msg.data);
+		$scope.frontParser=PEG.buildParser(msg.data);
 	});
 	$scope.backParser={};
 	$http.get('js/pegjs2.grammar').then(function(msg){
-        $scope.backParser=PEG.buildParser(msg.data);
+		$scope.backParser=PEG.buildParser(msg.data);
 	});
-    $scope.parsed={
-        front:function(query){
-            var p='';
-            if (query && $scope.frontParser.parse) {
-                try { p=$scope.frontParser.parse(query); }
-                catch (err) {
-                    p='Erreur de syntaxe';             
-                }
-                if (p!='Erreur de syntaxe') {
-                    
-                    var tag = /::tag(\d+)::/;
-                    while (tab = tag.exec(p)) {
-                        if (Data.modele.tags[tab[1]]) {
-                            var tags=$scope.descTag(Data.modele.tags[tab[1]]);
-                            var tagHtml='<span class="tag">';
-                            for(var i=0;i<tags.length;i++){
-                                if (i==tags.length-1) tagHtml+='<span style="color:{{data.modele.tags['+tags[i].id+'].color}};">{{data.modele.tags['+tags[i].id+'].nom}}</span>';
-                                else tagHtml+='<span style="color:{{data.modele.tags['+tags[i].id+'].color}};">{{data.modele.tags['+tags[i].id+'].nom}}></span>';
-                            }
-                            tagHtml+='</span>';
-                            p=p.replace(tab[0],tagHtml);
-                        }
-                        else {
-                            p=p.replace(tab[0], "(le tag n'existe pas)");
-                        }
-                    }
-                    var dpt = /::dpt([AB0-9]+)::/;
-                    while (tab = dpt.exec(p)) {
-                        p=p.replace(tab[0],'<span class="tag" style="background-color:#CCC;color:#FFF;">'+departement(tab[1]).nom+'</span>');
-                    }
-                }
-            }
-            return p;
-        },
-        back:function(query){
-            var p='1';
-            if (query && $scope.backParser.parse) {
-                try { p=$scope.backParser.parse(query); }
-                catch (err) {
-                    p=false;               
-                }
-            }
-            return p;
-        }
-    };
-    //chat
-    $scope.resizeChat=function(){
-        if ($window.innerWidth<768) $scope.chatZoom=1;
-        if ($window.innerWidth>=768 && $window.innerWidth<992) $scope.chatZoom=2;
-        if ($window.innerWidth>=992 && $window.innerWidth<1170) $scope.chatZoom=3;
-        if ($window.innerWidth>=1170) $scope.chatZoom=4;
-    };
-    angular.element($window).on('resize', $scope.resizeChat);
+	$scope.parsed={
+		front:function(query){
+			var p='';
+			if (query && $scope.frontParser.parse) {
+				try { p=$scope.frontParser.parse(query); }
+				catch (err) {
+					p='Erreur de syntaxe';			 
+				}
+				if (p!='Erreur de syntaxe') {
+					
+					var tag = /::tag(\d+)::/;
+					while (tab = tag.exec(p)) {
+						if (Data.modele.tags[tab[1]]) {
+							var tags=$scope.descTag(Data.modele.tags[tab[1]]);
+							var tagHtml='<span class="tag">';
+							for(var i=0;i<tags.length;i++){
+								if (i==tags.length-1) tagHtml+='<span style="color:{{data.modele.tags['+tags[i].id+'].color}};">{{data.modele.tags['+tags[i].id+'].nom}}</span>';
+								else tagHtml+='<span style="color:{{data.modele.tags['+tags[i].id+'].color}};">{{data.modele.tags['+tags[i].id+'].nom}}></span>';
+							}
+							tagHtml+='</span>';
+							p=p.replace(tab[0],tagHtml);
+						}
+						else {
+							p=p.replace(tab[0], "(le tag n'existe pas)");
+						}
+					}
+					var dpt = /::dpt([AB0-9]+)::/;
+					while (tab = dpt.exec(p)) {
+						p=p.replace(tab[0],'<span class="tag" style="background-color:#CCC;color:#FFF;">'+departement(tab[1]).nom+'</span>');
+					}
+				}
+			}
+			return p;
+		},
+		back:function(query){
+			var p='1';
+			if (query && $scope.backParser.parse) {
+				try { p=$scope.backParser.parse(query); }
+				catch (err) {
+					p=false;			   
+				}
+			}
+			return p;
+		}
+	};
+	//chat
+	$scope.resizeChat=function(){
+		if ($window.innerWidth<768) $scope.chatZoom=1;
+		if ($window.innerWidth>=768 && $window.innerWidth<992) $scope.chatZoom=2;
+		if ($window.innerWidth>=992 && $window.innerWidth<1170) $scope.chatZoom=3;
+		if ($window.innerWidth>=1170) $scope.chatZoom=4;
+	};
+	angular.element($window).on('resize', $scope.resizeChat);
 	$scope.newMessage={};
-    $scope.chatVisible=false;
-    $scope.chatZoom=4;
-    $scope.toggleChat=function(p){
-        if ($scope.chatVisible) {
-            $scope.chatVisible=false;
-            angular.element(document.getElementById('chat')).css('height',0);
-        } else {
-            $scope.chatVisible=true;
-            angular.element(document.getElementById('chat')).css('height',p+'%');
-        }
-    };
-    $scope.sendMessage=function(key){
-        Link.ajax([{action:'sendMessage', params:{id_from:Data.user.id, id_to:key, message:$scope.newMessage[key]}}]);
-        $scope.newMessage[key]='';
-    }
-    $scope.channels=[];
-    $scope.nonlus=0;
-    $scope.majChat=function(o,n){
-        if (!$scope.isEqual(o,n)) {
-            var channels=[];    
-            var groups=[];
-            var uids=[];
-            angular.forEach(Data.modele.groups,function(g){
-                if (g.users.indexOf(Data.user.id)>=0) {
-                    channels.push({id:-g.id,name:g.nom});
-                    groups.push(g.id);
-                }
-            });
-            angular.forEach(groups,function(gid){
-                angular.forEach(Data.modele.groups[gid].users,function(uid){
-                    if (uid!=Data.user.id && uids.indexOf(uid)<0) {
-                        channels.push(Data.modele.users[uid]);
-                        uids.push(uid);
-                    }
-                });
-            });
-            $scope.channels=channels;
-        }
-    };
-    $scope.$watchCollection('Data.modele.logged',$scope.majChat);
-    $scope.$watchCollection('Data.modele.groups',$scope.majChat);
-    $scope.$watchCollection(function(){if (Data.user.id && Data.user.id>0) return Data.modele.chat},function(o,n){
-        if (Data.user.id>0 && !$scope.isEqual(o,n)) {
-            var nonlus=0;
-            angular.forEach(Data.modele.chat.collection,function(l,id_corresp){
-                angular.forEach(l,function(m){
-                    if (!Data.modele.chat.lus[id_corresp] || m.creationdate>Data.modele.chat.lus[id_corresp]) {
+	$scope.chatVisible=false;
+	$scope.chatZoom=4;
+	$scope.toggleChat=function(p){
+		if ($scope.chatVisible) {
+			$scope.chatVisible=false;
+			angular.element(document.getElementById('chat')).css('height',0);
+		} else {
+			$scope.chatVisible=true;
+			angular.element(document.getElementById('chat')).css('height',p+'%');
+		}
+	};
+	$scope.sendMessage=function(key){
+		Link.ajax([{action:'sendMessage', params:{id_from:Data.user.id, id_to:key, message:$scope.newMessage[key]}}]);
+		$scope.newMessage[key]='';
+	}
+	$scope.channels=[];
+	$scope.nonlus=0;
+	$scope.majChat=function(o,n){
+		if (!$scope.isEqual(o,n)) {
+			var channels=[];	
+			var groups=[];
+			var uids=[];
+			angular.forEach(Data.modele.groups,function(g){
+				if (g.users.indexOf(Data.user.id)>=0) {
+					channels.push({id:-g.id,name:g.nom});
+					groups.push(g.id);
+				}
+			});
+			angular.forEach(groups,function(gid){
+				angular.forEach(Data.modele.groups[gid].users,function(uid){
+					if (uid!=Data.user.id && uids.indexOf(uid)<0) {
+						channels.push(Data.modele.users[uid]);
+						uids.push(uid);
+					}
+				});
+			});
+			$scope.channels=channels;
+		}
+	};
+	$scope.$watchCollection('Data.modele.logged',$scope.majChat);
+	$scope.$watchCollection('Data.modele.groups',$scope.majChat);
+	$scope.$watchCollection(function(){if (Data.user.id && Data.user.id>0) return Data.modele.chat},function(o,n){
+		if (Data.user.id>0 && !$scope.isEqual(o,n)) {
+			var nonlus=0;
+			angular.forEach(Data.modele.chat.collection,function(l,id_corresp){
+				angular.forEach(l,function(m){
+					if (!Data.modele.chat.lus[id_corresp] || m.creationdate>Data.modele.chat.lus[id_corresp]) {
 			nonlus++;
 			$scope.sound.play();
-		    }	
-                });
-            });
-            $scope.nonlus=nonlus;
-            $scope.resizeChat();
-        }
-    });
-    $scope.chatNav=0;
-    $scope.chatNavSuiv=function(){if ($scope.chatNav<$scope.channels.length-1) $scope.chatNav++};
-    $scope.chatNavPrec=function(){if ($scope.chatNav>0) $scope.chatNav--};
-    $scope.setlus=function(id){
-        if ($scope.nonlus>0) Link.ajax([{action:'setLus',params:{id_user:Data.user.id, id_corresp:id}}]);
-    };
-    $scope.modMessageMod=function(m){
+			}	
+				});
+			});
+			$scope.nonlus=nonlus;
+			$scope.resizeChat();
+		}
+	});
+	$scope.chatNav=0;
+	$scope.chatNavSuiv=function(){if ($scope.chatNav<$scope.channels.length-1) $scope.chatNav++};
+	$scope.chatNavPrec=function(){if ($scope.chatNav>0) $scope.chatNav--};
+	$scope.setlus=function(id){
+		if ($scope.nonlus>0) Link.ajax([{action:'setLus',params:{id_user:Data.user.id, id_corresp:id}}]);
+	};
+	$scope.modMessageMod=function(m){
 		var modal = $uibModal.open({
 			templateUrl: 'partials/modmessagemod.html',
 			controller: 'modMessageModCtl',
@@ -477,159 +477,159 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 app.controller('accueilCtl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
 }]);
 app.controller('loginCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
-    if (Data.user.id==-1) {
-	    $scope.Data=Data;
-        $scope.msgtxt='';
-	    $scope.login=function(){
-		    var data={
-			    verb:'login',
-			    login:$scope.user.login,
-			    password:$scope.user.password,
-			    uid:Data.uid,
-			    data:null
-		    };
-		    $scope.requete(data,function(data){
-                Data.logged=true;
-                Data.user=data.user;
-                $scope.canLink=false;
-                Link.init();
-			    if ($scope.afterLogin!='/login') $location.path($scope.afterLogin);
-                else $location.path('/');
-            });
-	    };
-    } else {
-        $location.path('/');
-    }
+	if (Data.user.id==-1) {
+		$scope.Data=Data;
+		$scope.msgtxt='';
+		$scope.login=function(){
+			var data={
+				verb:'login',
+				login:$scope.user.login,
+				password:$scope.user.password,
+				uid:Data.uid,
+				data:null
+			};
+			$scope.requete(data,function(data){
+				Data.logged=true;
+				Data.user=data.user;
+				$scope.canLink=false;
+				Link.init();
+				if ($scope.afterLogin!='/login') $location.path($scope.afterLogin);
+				else $location.path('/');
+			});
+		};
+	} else {
+		$location.path('/');
+	}
 }]);
 
 
 
 //casquettes
 app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$window', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $timeout, $interval, $window, $uibModal, Link, Data) {
-    $scope.Data=Data;
-    $scope.panierKey='panier';	
+	$scope.Data=Data;
+	$scope.panierKey='panier';	
 	$scope.itemsParPage=10;
 	$scope.panierAll=function(){
 		Link.ajax([{action:'panierAll', params:{query:$scope.parsed.back(Data.mainQuery)}}])
 	};
-    $scope.clearQuery=function(){
+	$scope.clearQuery=function(){
 		Data.mainQuery='';
-        $scope.getPage(1);
-    }
-    $scope.insert=function(channel,data,ctrl){
+		$scope.getPage(1);
+	}
+	$scope.insert=function(channel,data,ctrl){
 		var txt='';
 		if (channel=='tag') {
-		    txt=':tag'+data.id;
+			txt=':tag'+data.id;
 		}
-        if (channel=='sel') {
-		    txt=data.query;
+		if (channel=='sel') {
+			txt=data.query;
 		}
-        if (channel=='panier') {
-		    txt=':panier';
+		if (channel=='panier') {
+			txt=':panier';
 		}
-        if (Data.mainQuery!='') {
-            if(ctrl) txt= channel=='sel' ? '&(' + txt + ')' : '&' + txt;
-            else {
-                txt= channel=='sel' ? '|(' + txt + ')' : '|' + txt;
-            }
-        }
-        Data.mainQuery=Data.mainQuery + txt;
-        $scope.getPage(1);
-    }
-    $scope.up=function(){
-        $scope.selected.index--;
-        if ($scope.selected.index<0) {
-            if (Data.modele.casquettes.page>1) {
-                $scope.prev();
-                $scope.getPage();
-            }
-        }
-    };
-    $scope.down=function(){
-        $scope.selected.index++;
-        if ($scope.selected.index>=$scope.itemsParPage) {
-            if (Data.modele.casquettes.page<1+Data.modele.casquettes.total/$scope.itemsParPage) {
-                $scope.next();
-                $scope.getPage();
-            }
-        }
-    };
-    $scope.ajustScroll=function(){
-        $timeout(function(){
-            angular.forEach(angular.element(document.getElementById('contacts-list')).children(),function(e){
-                var elt=angular.element(e);
-                if (elt.hasClass('courant')) {
-                    var M=document.getElementById('main-container').offsetTop;
-                    var et=M+e.offsetTop;
-                    var eb=et+e.clientHeight;
-                    var WT=document.body.scrollTop;
-                    var WB=WT+$window.innerHeight;
-                    if (WT>et-20) WT=eb-$window.innerHeight+20;
-                    if (WB<eb+20) WT=et-20;
-                    var WB=WT+$window.innerHeight;
-                    document.body.scrollTop=WT;
-                }
-            });
-        },200);
-    };
-    $scope.$watch('selected.index',function(){
-        if (Data.modele.casquettes && Data.modele.casquettes.collection[$scope.selected.index]) {
-            $scope.courant.id=Data.modele.casquettes.collection[$scope.selected.index].id;
-            $scope.ajustScroll();
-        }
-    });
-    $scope.$watch('Data.mainQuery',debounce(function(n,o){
-        if (n!=o) {
-            $scope.getPage(1);
-        }
-    },200));
-    $scope.$watch('Data.modele.casquettes',function(n,o){
-        if (n!=o && Data.modele.casquettes && Data.modele.casquettes.collection[$scope.selected.index]) {
-            if ($scope.selected.index<0) $scope.selected.index=$scope.itemsParPage-1;
-            if ($scope.selected.index>$scope.itemsParPage-1) $scope.selected.index=0;
-            $scope.courant.id=Data.modele.casquettes.collection[$scope.selected.index].id;
-            $scope.ajustScroll();
-        }
-    });
-    $scope.$watch('Data.pageContacts',debounce(function(n,o){
-        if (n!=o && Data.modele.casquettes && Data.pageContacts>0 && Data.pageContacts<1+(Data.modele.casquettes.total/$scope.itemsParPage)) {
-            $scope.getPage();   
-		    if (n<o && $scope.selected.index==$scope.itemsParPage-1) $scope.selected.index=$scope.itemsParPage-1;
-	        if (n<o && $scope.selected.index!=$scope.itemsParPage-1) $scope.selected.index=0;
-	        if (n>o) $scope.selected.index=0;
+		if (Data.mainQuery!='') {
+			if(ctrl) txt= channel=='sel' ? '&(' + txt + ')' : '&' + txt;
+			else {
+				txt= channel=='sel' ? '|(' + txt + ')' : '|' + txt;
+			}
 		}
-    },200));
-	$scope.getPage=function(init){
-        var page;
-        var query=$scope.parsed.back(Data.mainQuery);
-        if (query) {
-            if (init) {
-                Data.pageContacts=1;
-                $scope.selected.index=0;
-                page=1;
-            }
-            else page=Data.pageContacts;
-		    Link.context([{type:'casquettes', params:{page:page, nb:$scope.itemsParPage, query:query}},{type:'tags'},{type:'selections'},{type:'panier'}]);
-        }
+		Data.mainQuery=Data.mainQuery + txt;
+		$scope.getPage(1);
+	}
+	$scope.up=function(){
+		$scope.selected.index--;
+		if ($scope.selected.index<0) {
+			if (Data.modele.casquettes.page>1) {
+				$scope.prev();
+				$scope.getPage();
+			}
+		}
 	};
-    $scope.delContact=function(cas){
+	$scope.down=function(){
+		$scope.selected.index++;
+		if ($scope.selected.index>=$scope.itemsParPage) {
+			if (Data.modele.casquettes.page<1+Data.modele.casquettes.total/$scope.itemsParPage) {
+				$scope.next();
+				$scope.getPage();
+			}
+		}
+	};
+	$scope.ajustScroll=function(){
+		$timeout(function(){
+			angular.forEach(angular.element(document.getElementById('contacts-list')).children(),function(e){
+				var elt=angular.element(e);
+				if (elt.hasClass('courant')) {
+					var M=document.getElementById('main-container').offsetTop;
+					var et=M+e.offsetTop;
+					var eb=et+e.clientHeight;
+					var WT=document.body.scrollTop;
+					var WB=WT+$window.innerHeight;
+					if (WT>et-20) WT=eb-$window.innerHeight+20;
+					if (WB<eb+20) WT=et-20;
+					var WB=WT+$window.innerHeight;
+					document.body.scrollTop=WT;
+				}
+			});
+		},200);
+	};
+	$scope.$watch('selected.index',function(){
+		if (Data.modele.casquettes && Data.modele.casquettes.collection[$scope.selected.index]) {
+			$scope.courant.id=Data.modele.casquettes.collection[$scope.selected.index].id;
+			$scope.ajustScroll();
+		}
+	});
+	$scope.$watch('Data.mainQuery',debounce(function(n,o){
+		if (n!=o) {
+			$scope.getPage(1);
+		}
+	},200));
+	$scope.$watch('Data.modele.casquettes',function(n,o){
+		if (n!=o && Data.modele.casquettes && Data.modele.casquettes.collection[$scope.selected.index]) {
+			if ($scope.selected.index<0) $scope.selected.index=$scope.itemsParPage-1;
+			if ($scope.selected.index>$scope.itemsParPage-1) $scope.selected.index=0;
+			$scope.courant.id=Data.modele.casquettes.collection[$scope.selected.index].id;
+			$scope.ajustScroll();
+		}
+	});
+	$scope.$watch('Data.pageContacts',debounce(function(n,o){
+		if (n!=o && Data.modele.casquettes && Data.pageContacts>0 && Data.pageContacts<1+(Data.modele.casquettes.total/$scope.itemsParPage)) {
+			$scope.getPage();   
+			if (n<o && $scope.selected.index==$scope.itemsParPage-1) $scope.selected.index=$scope.itemsParPage-1;
+			if (n<o && $scope.selected.index!=$scope.itemsParPage-1) $scope.selected.index=0;
+			if (n>o) $scope.selected.index=0;
+		}
+	},200));
+	$scope.getPage=function(init){
+		var page;
+		var query=$scope.parsed.back(Data.mainQuery);
+		if (query) {
+			if (init) {
+				Data.pageContacts=1;
+				$scope.selected.index=0;
+				page=1;
+			}
+			else page=Data.pageContacts;
+			Link.context([{type:'casquettes', params:{page:page, nb:$scope.itemsParPage, query:query}},{type:'tags'},{type:'selections'},{type:'panier'}]);
+		}
+	};
+	$scope.delContact=function(cas){
 		Link.ajax([{action:'delContact', params:{cas:cas}}]);		
 	};
-    var tagsScroll=undefined;
+	var tagsScroll=undefined;
 	$scope.$on('ANGULAR_HOVER_START',function(d,el,e,c){
-        console.log('start');
-        if (angular.isDefined(tagsScroll)) return;
-        tagsScroll=$interval(function(){
-            if (angular.element(el).hasClass('scroll-helper-top')) $scope.scrollTagsUp();
-            if (angular.element(el).hasClass('scroll-helper-bottom')) $scope.scrollTagsDown();
-        },100);
-    });
+		console.log('start');
+		if (angular.isDefined(tagsScroll)) return;
+		tagsScroll=$interval(function(){
+			if (angular.element(el).hasClass('scroll-helper-top')) $scope.scrollTagsUp();
+			if (angular.element(el).hasClass('scroll-helper-bottom')) $scope.scrollTagsDown();
+		},100);
+	});
 	$scope.$on('ANGULAR_HOVER_STOP',function(d,el,e,c){
-        console.log('stop');
-        $interval.cancel(tagsScroll);
-        tagsScroll=undefined;
-    });
-    $scope.scrollTagsUp=function(){
+		console.log('stop');
+		$interval.cancel(tagsScroll);
+		tagsScroll=undefined;
+	});
+	$scope.scrollTagsUp=function(){
 		document.getElementById('tags').scrollTop=document.getElementById('tags').scrollTop-50;
 	};
 	$scope.scrollTagsDown=function(){
@@ -637,13 +637,13 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	};
 	$scope.next=function(){
 		if (Data.pageContacts<=Data.modele.casquettes.total/$scope.itemsParPage) {
-            Data.pageContacts++;
-        }
+			Data.pageContacts++;
+		}
 	};
 	$scope.prev=function(){
 		if (Data.pageContacts>1) {
-            Data.pageContacts--;
-        }
+			Data.pageContacts--;
+		}
 	};
 	$scope.sel=function(){
 		var cas=$scope.courant;
@@ -671,9 +671,9 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.delCasTag = function(tag,cas) {
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
 	};
-    $scope.delCasquettesPanier=function(){
-        Link.ajax([{action:'delContactsPanier',params:{panier:Data.modele.panier}}]);
-    };
+	$scope.delCasquettesPanier=function(){
+		Link.ajax([{action:'delContactsPanier',params:{panier:Data.modele.panier}}]);
+	};
    	$scope.delTag = function(tag) {
 		Link.ajax([{action:'delTag', params:{tag:tag}}]);
 	};
@@ -683,7 +683,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.modTagMod=function(tag){
 		var modTag=angular.copy(tag);
 		Link.set_verrou(['tag/'+tag.id]);
-        var modal = $uibModal.open({
+		var modal = $uibModal.open({
 			templateUrl: 'partials/modtagmod.html',
 			controller: 'modTagModCtl',
 			resolve:{
@@ -718,9 +718,9 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		});
 	}
 	$scope.activeSelection=function(sel){
-        Data.mainQuery=angular.copy(sel.query);
-        $scope.getPage(1);
-    };
+		Data.mainQuery=angular.copy(sel.query);
+		$scope.getPage(1);
+	};
 	$scope.saveSelectionMod=function(){
 		var modSel={query:Data.mainQuery};
 		var modal = $uibModal.open({
@@ -739,7 +739,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			}
 		});
 		modal.result.then(function (sel) {
-            Link.ajax([{action:'addSelection',params:{selection:sel}}]);
+			Link.ajax([{action:'addSelection',params:{selection:sel}}]);
 		});
 	}
 	$scope.modSelectionMod=function(sel){
@@ -769,19 +769,19 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 
 app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', 'Link', 'Data', function ($scope, $filter, $http, $location, $routeParams, $uibModal, Link, Data) {
 	$scope.key='contact/'+$routeParams.id;
-    Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
-    $scope.sv={};
+	Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
+	$scope.sv={};
 	$scope.svDesc={};
 	$scope.voir=function(cas){$scope.sv[cas.id]=true;};
 	$scope.cacher=function(cas){$scope.sv[cas.id]=false;};
 	$scope.idx=-1;
 	$scope.modContact=function(contact){
 		Link.ajax([{action:'modContact', params:{id:$routeParams.id, nom:contact.nom, prenom:contact.prenom}},
-            {action:'del_verrou',type:$scope.key}]);
+			{action:'del_verrou',type:$scope.key}]);
 	}
 	$scope.modCasquetteMod=function(cas){
 		Link.set_verrou(['casquette/'+cas.id]);
-        $scope.casquetteCopy=angular.copy(cas);
+		$scope.casquetteCopy=angular.copy(cas);
 		var modal = $uibModal.open({
 			templateUrl: 'partials/modcasquettemod.html',
 			controller: 'modCasquetteModCtl',
@@ -789,10 +789,10 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 				cas: function () {
 					return $scope.casquetteCopy;
 				},
-                index: function () {
+				index: function () {
 					return $scope.index;
 				},
-                bouton: function () {
+				bouton: function () {
 					return 'Modifier';
 				}
 			}
@@ -803,7 +803,7 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 	}
 	$scope.modContactMod=function(){
 		Link.set_verrou([$scope.key]);
-        $scope.contactCopy=angular.copy(Data.modele[$scope.key]);
+		$scope.contactCopy=angular.copy(Data.modele[$scope.key]);
 		var modal = $uibModal.open({
 			templateUrl: 'partials/modcontactmod.html',
 			controller: 'modContactModCtl',
@@ -819,7 +819,7 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 	}
 	$scope.assEtablissement=function(cas){
 		Link.set_verrou(['casquette/'+cas.id]);
-        $scope.modCasquette=cas;
+		$scope.modCasquette=cas;
 		var modal = $uibModal.open({
 			templateUrl: 'partials/assetablissement.html',
 			controller: 'assEtablissementModCtl',
@@ -841,14 +841,14 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 
 		modal.result.then(function (cas) {
 			Link.ajax([{action:'modCasquette', params:{cas:cas}}],
-            function(){
+			function(){
 				Link.del_verrou('casquette/'+cas.id);
-                Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
-            });
+				Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
+			});
 		},function(){
-            Link.del_verrou('casquette/'+cas.id);
+			Link.del_verrou('casquette/'+cas.id);
 			Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
-        });
+		});
 	}
 	$scope.assTag=function(cas){
 		var modal = $uibModal.open({
@@ -893,9 +893,9 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		});
 	}
 	$scope.delCasquette=function(cas){
-        if ($filter('toArray')(Data.modele[$scope.key].casquettes).length>1) {
-		    Link.ajax([{action:'delCasquette', params:{cas:cas}}]);
-        }
+		if ($filter('toArray')(Data.modele[$scope.key].casquettes).length>1) {
+			Link.ajax([{action:'delCasquette', params:{cas:cas}}]);
+		}
 	}
 	$scope.addSuivi=function(cas){
 		$location.path('/addsuivi/'+ cas.id +'/0');
@@ -907,7 +907,7 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 //mailing
 app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
 	$scope.key='mail/'+$routeParams.id;
-    Link.context([{type:$scope.key}],[$scope.key]);
+	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.editorOptions = {
 		language: 'fr'
 	};
@@ -915,7 +915,7 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 			Link.ajax([{action:'modMail',params:{mail:Data.modele[$scope.key]}}])
 	}
 	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
-        	url: 'upload.php',
+			url: 'upload.php',
 		autoUpload:true,
 		formData:[{id:$routeParams.id},{type:'mail'}]
 	});
@@ -931,21 +931,21 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 				parsed: function () {
 					return $scope.parsed;
 				},
-                type: function () {
+				type: function () {
 					return 'mail';
 				}
 			}
 		});
 		modal.result.then(function (res) {
-            var expediteur={id:res.expediteur.nom.id,nom:res.expediteur.nom.value,email:res.expediteur.email.value};
+			var expediteur={id:res.expediteur.nom.id,nom:res.expediteur.nom.value,email:res.expediteur.email.value};
 			res.expediteur=expediteur;
 			Link.ajax([{action:'envoyer', params:{type:'mail', e:Data.modele[$scope.key], res:res}}], function(r){$location.path('/modenvoi/'+r.res);});
 		},function(){Link.context(contexts);});
 	}
-    $scope.$on("$destroy", function(){
-        if(!$scope.pristine($scope.key) && confirm("L'e-mail n'a pas été sauvé, sauver ?")) $scope.save();
-        Link.del_verrou($scope.key);
-    });
+	$scope.$on("$destroy", function(){
+		if(!$scope.pristine($scope.key) && confirm("L'e-mail n'a pas été sauvé, sauver ?")) $scope.save();
+		Link.del_verrou($scope.key);
+	});
 }]);
 app.controller('mailsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
 	Link.context([{type:'mails'}]);
@@ -997,62 +997,62 @@ app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 
 }]);
 app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($timeout, $window, $scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
 	$scope.mini={bool:false};
-    $scope.Data=Data;
+	$scope.Data=Data;
 	$scope.key='news/'+$routeParams.id;
-    Link.context([{type:$scope.key},{type:'modeles'}]);
-    $scope.showFichiers=false;
-    $scope.resizeNews=function(){
-        var scale=1,
-            dx=0,
-            dy=0,
-            pw=document.getElementById('news-container').clientWidth,
-            ph=document.getElementById('news-container').clientHeight;
-        if (pw<700) {
-            scale=pw/700;
-            angular.element(document.getElementById('news-container')).css('transform-origin','top left');
-            angular.element(document.getElementById('news-container')).css('transform','scale('+scale+')');
-        } else {
-            angular.element(document.getElementById('news-container')).css('transform-origin','top left');
-            angular.element(document.getElementById('news-container')).css('transform','scale(1)');    
-        }
-    };
-    $scope.modCats=[];
-    $scope.buildModCats=function(){
-        if (Data.modele.modeles){
-	        var tmp=[];
-	        angular.forEach(Data.modele.modeles, function(m){
-		        var tab=m.nom.split('::');
-		        if (tab.length>1) {
-			        theme=tab[0];
-		            if (tmp.indexOf(theme)<0) tmp.push(theme);
-		        }
-	        });
-	        tmp.sort();
-            angular.forEach(Data.modele.modeles, function(m){
-		        var tab=m.nom.split('::');
-		        if (tab.length==1) {
-			        theme='Sans thème';
-		            if (tmp.indexOf(theme)<0) tmp.push(theme);
-		        }
-	        });
-            var res=[];
-	        angular.forEach(tmp, function(nom){
-		        var tab=nom.split('_');
-		        if (tab.length>1) {
-			        res.push({label:tab[1],nom:nom});
-		        } else {    
-                	res.push({label:nom,nom:nom});
-		        }
-	        });
-            $scope.modCats=res;
-        }
-    };
-    $scope.buildModCats();
-    $scope.$watchCollection('Data.modele.modeles',function(o,n){
-        if(o!=n) {
-		    $scope.buildModCats();
-        }
-    });
+	Link.context([{type:$scope.key},{type:'modeles'}]);
+	$scope.showFichiers=false;
+	$scope.resizeNews=function(){
+		var scale=1,
+			dx=0,
+			dy=0,
+			pw=document.getElementById('news-container').clientWidth,
+			ph=document.getElementById('news-container').clientHeight;
+		if (pw<700) {
+			scale=pw/700;
+			angular.element(document.getElementById('news-container')).css('transform-origin','top left');
+			angular.element(document.getElementById('news-container')).css('transform','scale('+scale+')');
+		} else {
+			angular.element(document.getElementById('news-container')).css('transform-origin','top left');
+			angular.element(document.getElementById('news-container')).css('transform','scale(1)');	
+		}
+	};
+	$scope.modCats=[];
+	$scope.buildModCats=function(){
+		if (Data.modele.modeles){
+			var tmp=[];
+			angular.forEach(Data.modele.modeles, function(m){
+				var tab=m.nom.split('::');
+				if (tab.length>1) {
+					theme=tab[0];
+					if (tmp.indexOf(theme)<0) tmp.push(theme);
+				}
+			});
+			tmp.sort();
+			angular.forEach(Data.modele.modeles, function(m){
+				var tab=m.nom.split('::');
+				if (tab.length==1) {
+					theme='Sans thème';
+					if (tmp.indexOf(theme)<0) tmp.push(theme);
+				}
+			});
+			var res=[];
+			angular.forEach(tmp, function(nom){
+				var tab=nom.split('_');
+				if (tab.length>1) {
+					res.push({label:tab[1],nom:nom});
+				} else {	
+					res.push({label:nom,nom:nom});
+				}
+			});
+			$scope.modCats=res;
+		}
+	};
+	$scope.buildModCats();
+	$scope.$watchCollection('Data.modele.modeles',function(o,n){
+		if(o!=n) {
+			$scope.buildModCats();
+		}
+	});
 	$scope.prepNews=function(news){
 		var n=angular.copy(news);
 		for(var i=0;i<n.blocs.length;i++){
@@ -1061,10 +1061,10 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		}
 		return n;
 	}
-    angular.element($window).on('resize', $scope.resizeNews);
+	angular.element($window).on('resize', $scope.resizeNews);
 	$scope.modSujetMod=function(){
 		Link.set_verrou([$scope.key]);
-        $scope.contactCopy=angular.copy(Data.modele[$scope.key]);
+		$scope.contactCopy=angular.copy(Data.modele[$scope.key]);
 		var modal = $uibModal.open({
 			templateUrl: 'partials/modsujetmod.html',
 			controller: 'modSujetModCtl',
@@ -1075,12 +1075,12 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			}
 		});
 		modal.result.then(function (sujet) {
-            Data.modele[$scope.key].sujet=sujet;
+			Data.modele[$scope.key].sujet=sujet;
 			Link.ajax([{action:'modNews', params:{news:$scope.prepNews(Data.modele[$scope.key])}}],function(){Link.del_verrou($scope.key);});
 		}, function(){Link.del_verrou($scope.key);});
 	}
-    $scope.modNomCat=function(nomCat){
-        var modal = $uibModal.open({
+	$scope.modNomCat=function(nomCat){
+		var modal = $uibModal.open({
 			templateUrl: 'partials/modnomcatmod.html',
 			controller: 'modNomCatModCtl',
 			resolve:{
@@ -1096,7 +1096,7 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			Link.ajax([{action:'modNomCat', params:{nom_cat_new:nomCatNew,nom_cat:nomCat}}]);
 		});
 	}
-    $scope.addModeleMod=function(type){
+	$scope.addModeleMod=function(type){
 		$scope.addModele={};
 		var modal = $uibModal.open({
 			templateUrl: 'partials/addmodelemod.html',
@@ -1115,9 +1115,9 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		});
 	};
 	$scope.save = function() {
-        if (!$scope.pristine($scope.key)) {
-		    Link.ajax([{action:'modNews', params:{news:$scope.prepNews(Data.modele[$scope.key])}}]);
-        }
+		if (!$scope.pristine($scope.key)) {
+			Link.ajax([{action:'modNews', params:{news:$scope.prepNews(Data.modele[$scope.key])}}]);
+		}
 	};
 	$scope.drop = function(e,s,d,c){
 		console.log(e,s,d,c);
@@ -1142,7 +1142,7 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 	};
 	$scope.modBlocMod=function(i){
 		Link.set_verrou(['newsbloc/'+$routeParams.id+'/'+i]);
-        var modal = $uibModal.open({
+		var modal = $uibModal.open({
 			templateUrl: 'partials/modblocmod.html',
 			controller: 'modBlocModCtl',
 			resolve:{
@@ -1167,7 +1167,7 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		$scope.save();	
 	};
 	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
-        	url: 'upload.php',
+			url: 'upload.php',
 		autoUpload:true,
 		formData:[{id:$routeParams.id},{type:'news'}]
 	});
@@ -1183,7 +1183,7 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 				parsed: function () {
 					return $scope.parsed;
 				},
-                type: function () {
+				type: function () {
 					return 'mail';
 				}
 			}
@@ -1195,20 +1195,20 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		},function(){Link.context(contexts);});
 	}
 	$scope.$on("$destroy", function(){
-        angular.element($window).off('resize', $scope.resizeNews);
+		angular.element($window).off('resize', $scope.resizeNews);
 	});
-    waitUntil(function(){return document.getElementById('news-container') && document.getElementById('news-container').clientWidth>0},$scope.resizeNews);
+	waitUntil(function(){return document.getElementById('news-container') && document.getElementById('news-container').clientWidth>0},$scope.resizeNews);
 }]);
 app.controller('modmodeleCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, Link, Data) {
-    
+	
 	$scope.key='modele/'+$routeParams.id;
-    Link.context([{type:$scope.key}],[$scope.key]);
+	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.save = function() {
 		Link.ajax([{action:'modModele', params:{modele:Data.modele[$scope.key]}}]);
 	}
 	$scope.$on("$destroy", function(){
-        Link.del_verrou($scope.key);
-    });
+		Link.del_verrou($scope.key);
+	});
 }]);
 
 //envois
@@ -1221,19 +1221,19 @@ app.controller('envoisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link'
 		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}}]);
 	});
 	$scope.checkImap=function(){
-	    Link.ajax([{action:'checkImap', params:{}}]);    
-    };
+		Link.ajax([{action:'checkImap', params:{}}]);	
+	};
 }]);
 app.controller('modenvoiCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $sce, $uibModal, Link, Data) {
-    $scope.key='envoi/'+$routeParams.id;
-    $scope.getPage=function(){
-    	Link.context([{type:$scope.key,params:{
+	$scope.key='envoi/'+$routeParams.id;
+	$scope.getPage=function(){
+		Link.context([{type:$scope.key,params:{
 			boite:{page:$scope.pageCourante.boite,nb:$scope.itemsParPage},
 			succes:{page:$scope.pageCourante.succes,nb:$scope.itemsParPage},
 			erreur:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage},
 			impact:{page:$scope.pageCourante.impact,nb:$scope.itemsParPage}
 		}}]);
-    }
+	}
 	$scope.Data=Data;
 	$scope.tabSwitch=1;
 	$scope.pageCourante={};
@@ -1246,15 +1246,15 @@ app.controller('modenvoiCtl', ['$scope', '$http', '$location', '$routeParams', '
 	});
 	$scope.itemsParPage=10;
 	$scope.$watch('envoi.boite_envoi.length',function(){
-        if (Data.modele[$scope.key]) {
-		    if (Data.modele[$scope.key].boite_envoi && Data.modele[$scope.key].boite_envoi.length >0) {
-			    $scope.tabSwitch=2;
-		    } else if (Data.modele[$scope.key].succes_log && Data.modele[$scope.key].succes_log.length>0){
-			    $scope.tabSwitch=3;
-		    } else {
-			    $scope.tabSwitch=1;
-		    }
-        }
+		if (Data.modele[$scope.key]) {
+			if (Data.modele[$scope.key].boite_envoi && Data.modele[$scope.key].boite_envoi.length >0) {
+				$scope.tabSwitch=2;
+			} else if (Data.modele[$scope.key].succes_log && Data.modele[$scope.key].succes_log.length>0){
+				$scope.tabSwitch=3;
+			} else {
+				$scope.tabSwitch=1;
+			}
+		}
 	});
 	$scope.play=function(){
 		Link.ajax([{action:'playEnvoi',params:{id:$routeParams.id}}]);
@@ -1272,7 +1272,7 @@ app.controller('modenvoiCtl', ['$scope', '$http', '$location', '$routeParams', '
 
 //supports
 app.controller('supportsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
-    Link.context([{type:'supports'}]);
+	Link.context([{type:'supports'}]);
 	$scope.addSupportMod=function(type){
 		$scope.addSupport={};
 		var modal = $uibModal.open({
@@ -1296,8 +1296,8 @@ app.controller('supportsCtl', ['$scope', '$http', '$location', '$uibModal', 'Lin
 	}
 }]);
 app.controller('modsupportCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
-    $scope.key='support/'+$routeParams.id;
-    Link.context([{type:$scope.key}],[$scope.key]);
+	$scope.key='support/'+$routeParams.id;
+	Link.context([{type:$scope.key}],[$scope.key]);
 	var P=[];
 	$scope.plan = function(){
 		if (Data.modele[$scope.key] && Data.modele[$scope.key].nom) {
@@ -1326,7 +1326,7 @@ app.controller('modsupportCtl', ['$scope', '$http', '$location', '$routeParams',
 				parsed: function () {
 					return $scope.parsed;
 				},
-                type: function () {
+				type: function () {
 					return 'adresse';
 				}
 			}
@@ -1334,7 +1334,7 @@ app.controller('modsupportCtl', ['$scope', '$http', '$location', '$routeParams',
 		modal.result.then(function (res) {
 			var data={
 				verb:'getPdf',
-                type:'publipostage',
+				type:'publipostage',
 				id_support:support.id,
 				res:res
 			};
@@ -1342,38 +1342,38 @@ app.controller('modsupportCtl', ['$scope', '$http', '$location', '$routeParams',
 			Link.context(contexts);
 		},function(){Link.context(contexts);});
 	}
-    $scope.save=function(){
-        Link.ajax([{action:'modSupport',params:{support:Data.modele[$scope.key]}}]);
-    };
-    $scope.$on("$destroy", function(){
-        if(!$scope.pristine($scope.key) && confirm("Le support n'a pas été sauvé, sauver ?")) $scope.save();
-        Link.del_verrou($scope.key);
-    });
+	$scope.save=function(){
+		Link.ajax([{action:'modSupport',params:{support:Data.modele[$scope.key]}}]);
+	};
+	$scope.$on("$destroy", function(){
+		if(!$scope.pristine($scope.key) && confirm("Le support n'a pas été sauvé, sauver ?")) $scope.save();
+		Link.del_verrou($scope.key);
+	});
 }]);
 
 
 
 //suivis
 app.controller('suivisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
-    Link.context([{type:'suivis'}]);
+	Link.context([{type:'suivis'}]);
 }]);
 app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
-    $scope.key='suivi/'+$routeParams.id;
-    Link.context([{type:'suivi/'+$routeParams.id}]);
-    $scope.test=true;
-    $scope.casKey=0;
-    $scope.contactKey=0;
-    $scope.$watchCollection('Data', function(){
-        if ($scope.test && Data.modele[$scope.key]) {
-            $scope.update();
-            $scope.test=false;
-        }
-    });
+	$scope.key='suivi/'+$routeParams.id;
+	Link.context([{type:'suivi/'+$routeParams.id}]);
+	$scope.test=true;
+	$scope.casKey=0;
+	$scope.contactKey=0;
+	$scope.$watchCollection('Data', function(){
+		if ($scope.test && Data.modele[$scope.key]) {
+			$scope.update();
+			$scope.test=false;
+		}
+	});
 	$scope.update=function(){
 		if (Data.modele[$scope.key].statut==0) Link.set_verrou([$scope.key]);
-        $scope.casKey=Data.modele[$scope.key].id_casquette;
-        $scope.contactKey='contact/'+Data.modele[$scope.key].cas.id_contact;
-	    Link.context([{type:'suivi/'+$routeParams.id},{type:$scope.contactKey},{type:'tags'},{type:'suivis'}]);
+		$scope.casKey=Data.modele[$scope.key].id_casquette;
+		$scope.contactKey='contact/'+Data.modele[$scope.key].cas.id_contact;
+		Link.context([{type:'suivi/'+$routeParams.id},{type:$scope.contactKey},{type:'tags'},{type:'suivis'}]);
 	};
 	$scope.sv=false;
 	$scope.cas={};
@@ -1384,12 +1384,12 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		height:'300px'
 	};
 	$scope.del = function() {
-        Link.ajax([{action:'delSuivi',params:{id:$routeParams.id}}],function(){
-            $location.path('/suivis');
-        });
+		Link.ajax([{action:'delSuivi',params:{id:$routeParams.id}}],function(){
+			$location.path('/suivis');
+		});
 	}
 	$scope.save = function() {
-        Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
+		Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
 		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}],$scope.update);
 	}
 	$scope.next = function() {
@@ -1398,13 +1398,13 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}], function(){$location.path('/addsuivi/'+ Data.modele[$scope.key].id_casquette+'/'+ $routeParams.id);});
 	}
 	$scope.close = function() {
-        Link.del_verrou($scope.key);
+		Link.del_verrou($scope.key);
 		Data.modele[$scope.key].statut=1;
 		Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
 		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}]);
 	}
 	$scope.open = function() {
-        Link.set_verrou([$scope.key]);
+		Link.set_verrou([$scope.key]);
 		Data.modele[$scope.key].statut=0;
 		Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
 		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}]);
@@ -1422,33 +1422,33 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		modal.result.then(function (cas) {
 			Data.modele[$scope.key].id_casquette=cas.id;
 			Data.modele[$scope.key].cas=cas;
-		    $scope.save();
+			$scope.save();
 		}, function(){
-			$scope.update();    
+			$scope.update();	
 		});
 	}
 	$scope.toggle_acl_group=function(g){
-        if (Data.modele[$scope.key].acl.group.indexOf(g.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'group',id_acces:g.id}}]);
-        else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'group',id_acces:g.id,level:3}}]);
-    }
+		if (Data.modele[$scope.key].acl.group.indexOf(g.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'group',id_acces:g.id}}]);
+		else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'group',id_acces:g.id,level:3}}]);
+	}
 	$scope.toggle_acl_user=function(u){
-        if (Data.modele[$scope.key].acl.user.indexOf(u.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'user',id_acces:u.id}}]);
-        else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'user',id_acces:u.id,level:3}}]);
-    }
+		if (Data.modele[$scope.key].acl.user.indexOf(u.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'user',id_acces:u.id}}]);
+		else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'user',id_acces:u.id,level:3}}]);
+	}
 	
-    $scope.$on("$destroy", function(){
-        Link.del_verrou($scope.key);
-    });
+	$scope.$on("$destroy", function(){
+		Link.del_verrou($scope.key);
+	});
 }]);
 app.controller('addsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $sce, $uibModal, Link, Data) {
 	$scope.suivi={
-	    titre:'',
-	    desc:'',
-	    date:new Date().getTime(),
-	    statut:0,
-	    id_casquette:$routeParams.id,
-	    id_precedent:$routeParams.id_suivi
-    };
+		titre:'',
+		desc:'',
+		date:new Date().getTime(),
+		statut:0,
+		id_casquette:$routeParams.id,
+		id_precedent:$routeParams.id_suivi
+	};
 	$scope.editorOptions = {
 		language: 'fr',
 		toolbar: 'lite',
@@ -1463,24 +1463,24 @@ app.controller('addsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 
 //admin
 app.controller('adminCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
-    Link.context([{type:'log'}]);
-    $scope.setVerrou=function(){
-        Link.set_verrou(['config']);
+	Link.context([{type:'log'}]);
+	$scope.setVerrou=function(){
+		Link.set_verrou(['config']);
 		$scope.stopVerrou=$scope.$watchCollection('Data.modele.config',function(n,o){
-			if (n!=o) Link.set_verrou(['config']);        
+			if (n!=o) Link.set_verrou(['config']);		
 		});
-    }
-    $scope.delVerrou=function(){
-        if(!$scope.pristine('config') && confirm("La configuration n'a pas été sauvée, sauver ?")) $scope.save();
-        Link.del_verrou('config');
+	}
+	$scope.delVerrou=function(){
+		if(!$scope.pristine('config') && confirm("La configuration n'a pas été sauvée, sauver ?")) $scope.save();
+		Link.del_verrou('config');
 		$scope.stopVerrou();
-    }
+	}
 	$scope.delUser=function(id){
 		Link.ajax([{action:'delUser',params:{id:id}}]);
-    };
+	};
 	$scope.delGroup=function(id){
 		Link.ajax([{action:'delGroup',params:{id:id}}]);
-    };
+	};
 	$scope.routeVerb=function (verb) {
 		var tab=verb.replace(/\W+/g, '-')
 		.replace(/([a-z\d])([A-Z])/g, '$1-$2').split('-');
@@ -1489,18 +1489,18 @@ app.controller('adminCtl', ['$scope', '$http', '$location', 'Link', 'Data', func
 	$scope.dump=function (o) {
 		return JSON.stringify(o, null, 4)
 	}
-    $scope.show={};
-    $scope.setConfig=function(){
-        Link.ajax([{action:'setConfig',params:{config:Data.modele.config.config}}]);    
-    }
+	$scope.show={};
+	$scope.setConfig=function(){
+		Link.ajax([{action:'setConfig',params:{config:Data.modele.config.config}}]);	
+	}
 }]);
 app.controller('addUserCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
 	Link.context([]);
-    $scope.newUser={};
+	$scope.newUser={};
 	$scope.addUser=function(){
-        Link.ajax([{action:'addUser',params:{name:$scope.newUser.name,login:$scope.newUser.login,pwd:$scope.newUser.pwd}}],function(){
-            $location.path('/admin');
-        });
+		Link.ajax([{action:'addUser',params:{name:$scope.newUser.name,login:$scope.newUser.login,pwd:$scope.newUser.pwd}}],function(){
+			$location.path('/admin');
+		});
 	};
 	$scope.loginExists= function(login){
 		var test=false;
@@ -1514,85 +1514,85 @@ app.controller('addUserCtl', ['$scope', '$http', '$location', 'Link', 'Data', fu
 }]);
 app.controller('addGroupCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
 	Link.context([]);
-    $scope.newGroup={};
+	$scope.newGroup={};
 	$scope.addGroup=function(){
-        Link.ajax([{action:'addGroup',params:{nom:$scope.newGroup.nom}}],function(){
-            $location.path('/admin');
-        });
+		Link.ajax([{action:'addGroup',params:{nom:$scope.newGroup.nom}}],function(){
+			$location.path('/admin');
+		});
 	};
 }]);
 app.controller('moiCtl', ['$scope', '$http', '$location', '$timeout', 'Link', 'Data', function ($scope, $http, $location, $timeout, Link, Data) {
-    $scope.key='user/'+Data.user.id;
-    Link.context([],[$scope.key]);
+	$scope.key='user/'+Data.user.id;
+	Link.context([],[$scope.key]);
 	$scope.modUser={};
 	$timeout(function(){
-        $scope.modUser.id=Data.user.id;
-        $scope.modUser.name=Data.user.name;
-        $scope.modUser.login=Data.user.login;
-    },500);
+		$scope.modUser.id=Data.user.id;
+		$scope.modUser.name=Data.user.name;
+		$scope.modUser.login=Data.user.login;
+	},500);
 	$scope.$watch('Data.user.name',function(n,o){
 		if (n && n!=o) $timeout(function(){
-            $scope.modUser.id=Data.user.id;
-            $scope.modUser.name=Data.user.name;
-            $scope.modUser.login=Data.user.login;
-        },500);
+			$scope.modUser.id=Data.user.id;
+			$scope.modUser.name=Data.user.name;
+			$scope.modUser.login=Data.user.login;
+		},500);
 	});
-    $scope.toggle_group=function(g){
-        if (g.users && g.users.indexOf($scope.modUser.id)>=0) Link.ajax([{action:'delUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
-        else Link.ajax([{action:'addUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
-    }
+	$scope.toggle_group=function(g){
+		if (g.users && g.users.indexOf($scope.modUser.id)>=0) Link.ajax([{action:'delUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
+		else Link.ajax([{action:'addUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
+	}
 	$scope.mod=function(){
 		Link.ajax([{action:'modUser',params:{login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
-            $location.path('/admin');
-        });
+			$location.path('/admin');
+		});
 	};
 }]);
 app.controller('modUserCtl', ['$scope', '$http', '$location', '$routeParams', '$timeout', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $timeout, Link, Data) {
-    $scope.key='user/'+$routeParams.id;
-    Link.context([],[$scope.key]);
+	$scope.key='user/'+$routeParams.id;
+	Link.context([],[$scope.key]);
 	$scope.modUser={};
 	$timeout(function(){
-        $scope.modUser.id=$routeParams.id;
-        $scope.modUser.name=Data.modele.users[$routeParams.id].name;
-        $scope.modUser.login=Data.modele.users[$routeParams.id].login;
-    },500);
+		$scope.modUser.id=$routeParams.id;
+		$scope.modUser.name=Data.modele.users[$routeParams.id].name;
+		$scope.modUser.login=Data.modele.users[$routeParams.id].login;
+	},500);
 	$scope.$watchCollection('Data.modele.users',function(n,o){
-        if (n && n!=o) $timeout(function(){
-            $scope.modUser.id=$routeParams.id;
-            $scope.modUser.name=Data.modele.users[$routeParams.id].name;
-            $scope.modUser.login=Data.modele.users[$routeParams.id].login;
-        },500);
+		if (n && n!=o) $timeout(function(){
+			$scope.modUser.id=$routeParams.id;
+			$scope.modUser.name=Data.modele.users[$routeParams.id].name;
+			$scope.modUser.login=Data.modele.users[$routeParams.id].login;
+		},500);
 	});
 	$scope.mod=function(){
 		Link.ajax([{action:'modUser',params:{id:$routeParams.id,login:Data.modele.users[$routeParams.id].login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
-            $location.path('/admin');
-        });
+			$location.path('/admin');
+		});
 	};
-    $scope.toggle_group=function(g){
-        if (g.users && g.users.indexOf($scope.modUser.id)>=0) Link.ajax([{action:'delUserGroup',params:{id_user:$routeParams.id,id_group:g.id}}]);
-        else Link.ajax([{action:'addUserGroup',params:{id_user:$routeParams.id,id_group:g.id}}]);
-    }
-    $scope.$on("$destroy", function(){
-        Link.del_verrou($scope.key);
-    });
+	$scope.toggle_group=function(g){
+		if (g.users && g.users.indexOf($scope.modUser.id)>=0) Link.ajax([{action:'delUserGroup',params:{id_user:$routeParams.id,id_group:g.id}}]);
+		else Link.ajax([{action:'addUserGroup',params:{id_user:$routeParams.id,id_group:g.id}}]);
+	}
+	$scope.$on("$destroy", function(){
+		Link.del_verrou($scope.key);
+	});
 }]);
 app.controller('modGroupCtl', ['$scope', '$http', '$location', '$routeParams', '$timeout', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $timeout, Link, Data) {
-    $scope.Data=Data;
-    $scope.key='group/'+$routeParams.id;
-    $scope.i=$routeParams.id;
-    Link.context([],[$scope.key]);
+	$scope.Data=Data;
+	$scope.key='group/'+$routeParams.id;
+	$scope.i=$routeParams.id;
+	Link.context([],[$scope.key]);
 	$scope.mod=function(){
 		Link.ajax([{action:'modGroup',params:{id:$routeParams.id,nom:Data.modele.groups[$routeParams.id].nom}}],function(){
-            $location.path('/admin');
-        });
+			$location.path('/admin');
+		});
 	};
-    $scope.toggle_group=function(u){
-        if (Data.modele.groups[$routeParams.id].users && Data.modele.groups[$routeParams.id].users.indexOf(u.id)>=0) Link.ajax([{action:'delUserGroup',params:{id_user:u.id,id_group:$routeParams.id}}]);
-        else Link.ajax([{action:'addUserGroup',params:{id_user:u.id,id_group:$routeParams.id}}]);
-    }
-    $scope.$on("$destroy", function(){
-        Link.del_verrou($scope.key);
-    });
+	$scope.toggle_group=function(u){
+		if (Data.modele.groups[$routeParams.id].users && Data.modele.groups[$routeParams.id].users.indexOf(u.id)>=0) Link.ajax([{action:'delUserGroup',params:{id_user:u.id,id_group:$routeParams.id}}]);
+		else Link.ajax([{action:'addUserGroup',params:{id_user:u.id,id_group:$routeParams.id}}]);
+	}
+	$scope.$on("$destroy", function(){
+		Link.del_verrou($scope.key);
+	});
 }]);
 
 app.controller('modContactModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'contact', function ($scope, $uibModalInstance, $uibModal, contact) {
@@ -1758,26 +1758,26 @@ app.controller('envoyerModCtl', ['$scope', '$uibModalInstance', '$uibModal', '$h
 	$scope.parsed=parsed;
 	$scope.type=type;
 	$scope.res={};
-    $scope.Data=Data;
+	$scope.Data=Data;
 	$scope.res.expediteur=Data.modele.config.config.mailing.expediteurs.value[0];
-    $scope.page={courante:1};
-    $scope.itemsParPage=10;
-    $scope.maxSize=5;
-    $scope.min=function(a,b){
+	$scope.page={courante:1};
+	$scope.itemsParPage=10;
+	$scope.maxSize=5;
+	$scope.min=function(a,b){
 		return Math.min(a,b);
 	};
 	$scope.fullQuery=function(){
-        if ($scope.type=='mail') return Data.mainQuery=='' ? ':email' : '('+Data.mainQuery+')&:email';      
-        if ($scope.type=='adresse') return Data.mainQuery=='' ? ':adresse' : '('+Data.mainQuery+')&:adresse';
-        return Data.mainQuery;
-    }
+		if ($scope.type=='mail') return Data.mainQuery=='' ? ':email' : '('+Data.mainQuery+')&:email';	  
+		if ($scope.type=='adresse') return Data.mainQuery=='' ? ':adresse' : '('+Data.mainQuery+')&:adresse';
+		return Data.mainQuery;
+	}
 	Link.context([{type:'casquettes',params:{query:$scope.parsed.back($scope.fullQuery()),page:$scope.page.courante,nb:$scope.itemsParPage}},{type:'panier'},{type:'tags'}]);
 	$scope.$watch('page.courante',function(o,n){
 		if (o!=n) $scope.getPage($scope.page.courante);
 	});
 	$scope.addPanier=function(nouveaux){
-        Link.ajax([{action:'addPanier', params:{nouveaux:nouveaux}}]);
-    };
+		Link.ajax([{action:'addPanier', params:{nouveaux:nouveaux}}]);
+	};
 	$scope.delPanier=function(nouveaux){
 		Link.ajax([{action:'delPanier', params:{nouveaux:nouveaux}}]);
 	};
@@ -1796,11 +1796,11 @@ app.controller('envoyerModCtl', ['$scope', '$uibModalInstance', '$uibModal', '$h
 			return Data.modele.panier.indexOf(cas.id)>=0;
 		}
 	};
-    $scope.getPage=function(page){
-        Link.context([{type:'casquettes', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.fullQuery())}},{type:'panier'},{type:'tags'}]);
-    }
+	$scope.getPage=function(page){
+		Link.context([{type:'casquettes', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.fullQuery())}},{type:'panier'},{type:'tags'}]);
+	}
 	$scope.ok = function () {
-        $scope.res.query=$scope.parsed.back($scope.fullQuery());    
+		$scope.res.query=$scope.parsed.back($scope.fullQuery());	
 		$uibModalInstance.close($scope.res);
 	};
 	$scope.cancel = function () {
@@ -1809,8 +1809,8 @@ app.controller('envoyerModCtl', ['$scope', '$uibModalInstance', '$uibModal', '$h
 }]);
 app.controller('modSelectionModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data', 'parsed', 'modSel', 'bouton', function ($scope, $uibModalInstance, $uibModal, Data, parsed, modSel, bouton) {
 	$scope.parsed=parsed;
-    $scope.modSel=modSel;
-    $scope.Data=Data;
+	$scope.modSel=modSel;
+	$scope.Data=Data;
 	$scope.bouton=bouton;
 	$scope.form={};
 	$scope.ok = function () {
@@ -1943,23 +1943,23 @@ app.controller('addSupportModCtl', ['$scope', '$uibModalInstance', '$uibModal', 
 	};
 }]);
 app.controller('assEtablissementModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Link', 'Data', 'cas', 'index', 'parsed', function ($scope, $uibModalInstance, $uibModal, Link, Data, cas, index, parsed) {
-    $scope.parsed=parsed;
+	$scope.parsed=parsed;
 	$scope.Data=Data;
 	$scope.cas=cas;
 	$scope.index=index;
-    $scope.page={courante:1};
-    $scope.itemsParPage=10;
-    $scope.maxSize=5;
-    $scope.query='';
-    $scope.min=function(a,b){
+	$scope.page={courante:1};
+	$scope.itemsParPage=10;
+	$scope.maxSize=5;
+	$scope.query='';
+	$scope.min=function(a,b){
 		return Math.min(a,b);
 	};
 	$scope.$watch('page.courante',function(o,n){
 		if (o!=n) $scope.getPage($scope.page.courante);
 	});
 	$scope.getPage=function(page){
-        Link.context([{type:'etabs', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query)}}]);
-    }
+		Link.context([{type:'etabs', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query)}}]);
+	}
 	$scope.assEtablissement = function (e) {
 		$scope.cas.id_etab=e.id;
 		$scope.cas.nom_cas=e.nom;
@@ -1973,19 +1973,19 @@ app.controller('assEtablissementModCtl', ['$scope', '$uibModalInstance', '$uibMo
 app.controller('assCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Link', 'Data', 'parsed', function ($scope, $uibModalInstance, $uibModal, Link, Data, parsed) {
 	$scope.parsed=parsed;
 	$scope.Data=Data;
-    $scope.page={courante:1};
-    $scope.itemsParPage=10;
-    $scope.maxSize=5;
-    $scope.query='';
-    $scope.min=function(a,b){
+	$scope.page={courante:1};
+	$scope.itemsParPage=10;
+	$scope.maxSize=5;
+	$scope.query='';
+	$scope.min=function(a,b){
 		return Math.min(a,b);
 	};
 	$scope.$watch('page.courante',function(o,n){
 		if (o!=n) $scope.getPage($scope.page.courante);
 	});
 	$scope.getPage=function(page){
-        Link.context([{type:'casquettes_sel', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query)}}]);
-    }
+		Link.context([{type:'casquettes_sel', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query)}}]);
+	}
 	$scope.assCasquette = function (e) {
 		$uibModalInstance.close(e);
 	};
@@ -2045,11 +2045,11 @@ app.controller('addChampPersoModCtl', ['$scope', '$uibModalInstance', function (
 }]);
 app.controller('addNbContactsModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Link', 'Data', function ($scope, $uibModalInstance, $uibModal, Link, Data) {
 	$scope.Data=Data;
-    $scope.choosen=[];
-    $scope.liste={txt:'',contacts:[]};
+	$scope.choosen=[];
+	$scope.liste={txt:'',contacts:[]};
 	$scope.delTag=function(id){
 		var i=$scope.choosen.indexOf(id);
-        $scope.choosen.splice(i,1);
+		$scope.choosen.splice(i,1);
 	};
 	$scope.descTag=function(tag){
 		var h=$scope.descTagRec(tag);
@@ -2064,34 +2064,34 @@ app.controller('addNbContactsModCtl', ['$scope', '$uibModalInstance', '$uibModal
 		}
 		return h;
 	};
-    $scope.parseTxt=function(){
-        var email = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/g;
-        var emailName = /(\"([^\"]+)\"\s+)?(([^,\n]+)\s+)?\<((([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,})))\>/g;
-        var tab;
-        while ((tab = emailName.exec($scope.liste.txt)) !== null) {
+	$scope.parseTxt=function(){
+		var email = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/g;
+		var emailName = /(\"([^\"]+)\"\s+)?(([^,\n]+)\s+)?\<((([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,})))\>/g;
+		var tab;
+		while ((tab = emailName.exec($scope.liste.txt)) !== null) {
 			var c={nom:tab[4],mail:tab[5]};
 			var test=true;
-            for (i=0;i<$scope.liste.contacts.length;i++) {
+			for (i=0;i<$scope.liste.contacts.length;i++) {
 				if ($scope.liste.contacts[i].mail==c.mail) {
 					test=false;
 					break;
 				}
 			}
 			if (test) $scope.liste.contacts.push(c);
-        }
-        while ((tab = email.exec($scope.liste.txt)) !== null) {
+		}
+		while ((tab = email.exec($scope.liste.txt)) !== null) {
 			var c={nom:'',mail:tab[0]};
-        	var test=true;
-            for (i=0;i<$scope.liste.contacts.length;i++) {
+			var test=true;
+			for (i=0;i<$scope.liste.contacts.length;i++) {
 				if ($scope.liste.contacts[i].mail==c.mail) {
 					test=false;
 					break;
 				}
 			}
 			if (test) $scope.liste.contacts.push(c);
-        }
+		}
 		console.log($scope.liste.contacts);
-    }
+	}
 	$scope.assTag=function(cas){
 		var modal = $uibModal.open({
 			templateUrl: 'partials/asstag.html',
@@ -2110,14 +2110,14 @@ app.controller('addNbContactsModCtl', ['$scope', '$uibModalInstance', '$uibModal
 	};
 }]);
 app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $uibModalInstance, $uibModal, FileUploader, Link, Data) {
-    $scope.Data=Data;
+	$scope.Data=Data;
 	$scope.choosen=[];
-    $scope.rows=0;
+	$scope.rows=0;
 	$scope.map=[];
-    $scope.header=[];
+	$scope.header=[];
 	$scope.hash='';
-    $scope.filename='';
-    $scope.i=0;
+	$scope.filename='';
+	$scope.i=0;
 	$scope.uploader = {};
 	$scope.reset=function(){
 		$scope.rows=0;
@@ -2128,17 +2128,17 @@ app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'F
 		$scope.i=0;
 		$scope.initUploader();
 	}
-    $scope.precedent=function(){
+	$scope.precedent=function(){
 		if ($scope.i>0) $scope.i--;
 	};
 	$scope.suivant=function(){
 		if ($scope.i+1<$scope.exemples.length) $scope.i++;
 	};
 	$scope.exemples=[];
-    $scope.liste={txt:'',contacts:[]};
+	$scope.liste={txt:'',contacts:[]};
 	$scope.delTag=function(id){
 		var i=$scope.choosen.indexOf(id);
-        $scope.choosen.splice(i,1);
+		$scope.choosen.splice(i,1);
 	};
 	$scope.initUploader=function(){
 		$scope.uploader = new FileUploader({

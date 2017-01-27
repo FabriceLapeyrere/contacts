@@ -493,7 +493,8 @@
 		public static function mod_casquette($params,$id) {
 			$db= new DB();
 			$cas=Contacts::get_casquette($params->cas->id,false,$id);
-			$avant=$cas['donnees'];
+			$prev_etabs=Contacts::get_etabs_contact($params->cas->id_contact);
+                   	$avant=$cas['donnees'];
 			$apres=$params->cas->donnees;
 			$t=millisecondes();
 			$gps=array('x'=>1000,'y'=>1000);
@@ -520,7 +521,11 @@
 			$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($apres),$params->cas->id));
 			Contacts::touch_contact($params->cas->id_contact,$id);
 			ldap_update($params->cas->id_contact,$id);
-					CR::maj(array('contact/'.$params->cas->id_contact));
+			$res=array('contact/'.$params->cas->id_contact)
+			foreach($etabs as $idetab) {
+				$res[]='contact/'.$idetab;
+			}
+			CR::maj($res);
 		}
 		public static function add_contact($params,$id) {
 			$db= new DB();
