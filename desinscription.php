@@ -33,7 +33,8 @@ if (isset($_REQUEST['hash'])) {
 	<div class="col-xs-12 col-md-6 col-md-offset-3">
 	<h1>Désinscription</h1>
 	<p><b><?=implode(", ",$emails)?></b></p>
-	<p>Vous avez bien été désinscrit !</p>
+	<?if (count($emails)==1){?><p>Cette adresse a bien été désinscrite !</p><?}?>
+	<?if (count($emails)>1){?><p>Ces adresses ont bien été désinscrites !</p><?}?>
 	</div>
 </body>
 </html><?} else {
@@ -48,7 +49,7 @@ if (isset($_REQUEST['hash'])) {
 	<div class="col-xs-12 col-md-6 col-md-offset-3">
 	<h1>Désinscription</h1>
 	<p><b><?=implode(", ",$emails)?></b></p>
-	<p>Vous n'êtes pas inscrit.</p>
+	<p>Cette adresse n'est pas inscrite.</p>
 	</div>
 </body>
 </html><?}
