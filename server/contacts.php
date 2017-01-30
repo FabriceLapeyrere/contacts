@@ -464,6 +464,9 @@
 			}
 			$update = $db->database->prepare('UPDATE casquettes SET donnees=?, emails=?, email_erreur=? WHERE id=?');
 			$update->execute(array(json_encode($donnees),emails($donnees),1,$cas_id));
+			$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
+			$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($donnees),$cas_id));
+			Contacts::touch_contact($cas['id_contact'],$id);
 			ldap_update($cas_id);
 			CR::maj(array('contact/'.$cas['id_contact']));
 		}
@@ -483,8 +486,28 @@
 					}
 				}
 				$donnees=array_values($donnees);
+				$test=true;
+				foreach($donnees as $k=>$d) {
+					if ($d->type=='note') {
+						$test=false;
+						$donnees[$k]->value=$donnees[$k]->value."\nL'adresse $email a été désinscrite.";
+					}
+				}
+				if ($test) {
+					$t=millisecondes();
+					$d=json_decode('{}');
+					$d->label='Note';
+					$d->type='note';
+					$d->date=$t;
+					$d->by=$id;
+					$d->value="L'adresse $email a été désinscrite.";
+					$donnees[]=$d;
+				}
 				$update = $db->database->prepare('UPDATE casquettes SET donnees=?, emails=?, email_erreur=? WHERE id=?');
 				$update->execute(array(json_encode($donnees),emails($donnees),1,$cas_id));	
+				$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
+				$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($donnees),$cas_id));
+				Contacts::touch_contact($cas['id_contact'],$id);
 				ldap_update($cas_id);
 				CR::maj(array('contact/'.$cas['id_contact']));
 			}
