@@ -28,12 +28,13 @@ class Config {
                     'nbmail'=>array('value'=>100,'label'=>'Nombre de mail par tranche','type'=>'integer'),
                     't_pause'=>array('value'=>30,'label'=>'Durée de la pause en secondes','type'=>'integer'),
                     'use_redirect'=>array('value'=>0,'label'=>'Activer / Désactiver la redirection des liens','type'=>'bool'),
+                    'redirect_notification'=>array('value'=>0,'label'=>'Envoyer les notifications de clic à l\'expéditeur ?','type'=>'bool','show'=>'use_redirect'),
                     'expediteurs'=>array('value'=>array(
                         array(
                             'nom'=>array('value'=>'','label'=>'Nom','type'=>'texte_court'),
                             'email'=>array('value'=>'','label'=>'E-mail','type'=>'email'),
                             'smtp_host'=>array('value'=>'','label'=>'Serveur SMTP','type'=>'texte_court'),
-                            'smtp_port'=>array('value'=>25,'label'=>'Port IMAP','type'=>'integer'),
+                            'smtp_port'=>array('value'=>25,'label'=>'Port SMTP','type'=>'integer'),
                             'smtp_auth'=>array('value'=>1,'label'=>'Active / désactive l\'authentification SMTP','type'=>'bool'),
                             'smtp_username'=>array('value'=>'','label'=>'Utilisateur SMTP','type'=>'texte_court','show'=>'smtp_auth'),
                             'smtp_pwd'=>array('value'=>'','label'=>'Mot de passe SMTP','type'=>'passwd','show'=>'smtp_auth'),
@@ -63,7 +64,7 @@ class Config {
 		// this public function rebuilds the database if there is no database to work with yet
 		public function rebuild_config()
 		{
-            file_put_contents($this->file,json_encode($this->base_config));
+           		file_put_contents($this->file,json_encode($this->base_config));
 		}
         public function get_default(){
             return $this->base_config;

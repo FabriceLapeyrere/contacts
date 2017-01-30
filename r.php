@@ -32,23 +32,25 @@ $insert->execute(array($contact, $envoi, $url, $date));
 CR::maj(array("envoi/$envoi"));
 
 //on previent l'expéditeur!!
-$e=Mailing::get_envoi($envoi,'',1);
-$expediteur=$e['expediteur'];
-$exp=$C->mailing->expediteurs->value[$expediteur->id];
+if ($C->mailing->redirect_notification->value) {
+	$e=Mailing::get_envoi($envoi,'',1);
+	$expediteur=$e['expediteur'];
+	$exp=$C->mailing->expediteurs->value[$expediteur->id];
 	
-require 'server/lib/PHPMailer/PHPMailerAutoload.php';
-$mail = new PHPMailer();
-$mail->SetLanguage("fr","server/lib/PHPmailer/language/");
-$mail->IsSMTP();
-$mail->Host = $exp->smtp_host->value;
-$mail->Port = $exp->smtp_port->value;
-$mail->SMTPAuth = $exp->smtp_auth->value;
-$mail->Username = $exp->smtp_username->value;
-$mail->Password = $exp->smtp_pwd->value;
-$mail->CharSet = "UTF-8";
-$mail->Subject = '[[Nouveau clic]]';
-$mail->Body = "$nom (N° $contact) a cliqué sur $url !";
-$mail->From = $exp->email->value;
-$mail->FromName = 'Le Fil';
-$mail->AddAddress($exp->email->value,$exp->nom->value);
-$mail->Send();
+	require 'server/lib/PHPMailer/PHPMailerAutoload.php';
+	$mail = new PHPMailer();
+	$mail->SetLanguage("fr","server/lib/PHPmailer/language/");
+	$mail->IsSMTP();
+	$mail->Host = $exp->smtp_host->value;
+	$mail->Port = $exp->smtp_port->value;
+	$mail->SMTPAuth = $exp->smtp_auth->value;
+	$mail->Username = $exp->smtp_username->value;
+	$mail->Password = $exp->smtp_pwd->value;
+	$mail->CharSet = "UTF-8";
+	$mail->Subject = '[[Nouveau clic]]';
+	$mail->Body = "$nom (N° $contact) a cliqué sur $url !";
+	$mail->From = $exp->email->value;
+	$mail->FromName = 'Newsletter';
+	$mail->AddAddress($exp->email->value,$exp->nom->value);
+	$mail->Send();
+}
