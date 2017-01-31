@@ -62,13 +62,8 @@
 		<uib-tab ng-if="Data.user.id==1 || Data.modele[key].createdby==Data.user.id" heading="Partages">
 			<h4>Groupes</h4>
 				<div>
-					<button type="button" ng-repeat-start="g in Data.modele.groups" class="btn" ng-class="{'btn-primary':Data.modele[key].acl.group.indexOf(g.id)>=0,'btn-default':Data.modele[key].acl.group.indexOf(g.id)<=0}" ng-click="toggle_acl_group(g)" ng-disabled="g.users.indexOf(Data.user.id)<0 && Data.user.id!=1">{{g.nom}}</button>
-					<span ng-repeat-end>&nbsp;</span>
-				</div>
-			<h4>Utilisateurs</h4>
-				<div>
-					<button ng-if="u.id>1 && u.id!=Data.user.id" type="button" ng-repeat-start="u in Data.modele.users" class="btn" ng-class="{'btn-success':Data.modele[key].acl.user.indexOf(u.id)>=0,'btn-default':Data.modele[key].acl.user.indexOf(u.id)<=0}" ng-click="toggle_acl_user(u)">{{u.name}}</button>
-					<span ng-if="u.id>1 && u.id!=Data.user.id" ng-repeat-end>&nbsp;</span>
+					<button type="button" ng-repeat-start="g in Data.modele.groups" class="btn" ng-class="{'btn-primary':Data.modele[key].acl.group.indexOf(g.id)>=0,'btn-default':Data.modele[key].acl.group.indexOf(g.id)<=0}" ng-click="toggle_acl_group(g)" ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1">{{g.nom}}</button>
+					<span ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1" ng-repeat-end>&nbsp;</span>
 				</div>
 			<div>
 			</div>
