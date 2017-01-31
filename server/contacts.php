@@ -260,7 +260,7 @@
 						$valeur="(t2.cp='".strtoupper($param)."' OR t2.cp='' AND t2.id_etab in (SELECT id FROM casquettes WHERE cp='".strtoupper($param)."'))";
 						break;
 					case 'text':
-						$valeur="t2.id IN (SELECT id from casquettes_fts WHERE idx MATCH '".str_replace("'","''",$param)."')";
+						$valeur="t2.id IN (SELECT id from casquettes_fts WHERE idx MATCH '".str_replace("'","''",normalizeChars($param))."')";
 						break;
 					case 'tag':
 						$children=Contacts::get_whole_tag($param,$tags);
@@ -504,7 +504,7 @@
 					$donnees[]=$d;
 				}
 				$update = $db->database->prepare('UPDATE casquettes SET donnees=?, emails=?, email_erreur=? WHERE id=?');
-				$update->execute(array(json_encode($donnees),emails($donnees),1,$cas_id));	
+				$update->execute(array(json_encode($donnees),emails($donnees),0,$cas_id));	
 				$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
 				$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($donnees),$cas_id));
 				Contacts::touch_contact($cas['id_contact'],$id);

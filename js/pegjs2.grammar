@@ -42,6 +42,6 @@ integer "integer"
   / '!:email' { return 'NOT ::email::'; }
   / ':adresse' { return '::adresse::'; }
   / '!:adresse' { return 'NOT ::adresse::'; }
-  / '!' word:[a-zA-Z0-9 \*'"\.@]+ { return 'NOT (::text/'+ word.join("") +'::)'; }
-  / word:[a-zA-Z0-9 \*'"\.@\-]+ { return '::text/'+ word.join("") +'::'; }
+  / '!' word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@]+ { return 'NOT (::text/'+ word.join("") +'::)'; }
+  / word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return '::text/'+ word.join("") +'::'; }
 

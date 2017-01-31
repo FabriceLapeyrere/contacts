@@ -42,6 +42,6 @@ integer "integer"
   / '!:email' { return "n'a pas d'e-mail"; }
   / ':adresse' { return 'a une adresse'; }
   / '!:adresse' { return "n'a pas d'adresse"; }
-  / '!' word:[a-zA-Z0-9 \*'"\.@]+ { return 'ne contient pas le texte : "'+ word.join("") +'"'; }
-  / word:[a-zA-Z0-9 \*'"\.@\-]+ { return 'contient le texte : &laquo;'+ word.join("") +'&raquo;'; }
+  / '!' word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@]+ { return 'ne contient pas le texte : "'+ word.join("") +'"'; }
+  / word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return 'contient le texte : &laquo;'+ word.join("") +'&raquo;'; }
 

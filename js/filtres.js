@@ -107,6 +107,15 @@ app.filter('exists', function() {
         return res;
     }
 });
+app.filter('hasgroup', function() {
+    return function(ee,g) {
+	var res=[];
+        angular.forEach(ee, function(e){
+		if (g==0 || e.groups.indexOf(parseInt(g))>=0) res.push(e);
+	});
+        return res;
+    }
+});
 app.filter('collaborateurs', function() {
     return function(casquettes,id) {
 	var res=[];
