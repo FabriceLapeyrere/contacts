@@ -221,7 +221,7 @@
 				$casquettes[]=$row;
 			}
 			$t5=millisecondes();
-			return array('collection'=>$casquettes,'page'=>$page, 'nb'=>$nb, 'total'=>$total,'query'=>$query,'times'=>array($t1-$t0,$t2-$t1,$t3-$t2,$t4-$t3,$t5-$t4,$sql));
+			return array('params'=>$params,'collection'=>$casquettes,'page'=>$page, 'nb'=>$nb, 'total'=>$total,'query'=>$query,'times'=>array($t1-$t0,$t2-$t1,$t3-$t2,$t4-$t3,$t5-$t4,$sql));
 		}
 		public static function build_query($query,$id){
 			$tags=Contacts::get_tags();
@@ -247,7 +247,7 @@
 						$valeur="t2.emails!='[]'";
 						break;
 					case 'adresse':
-						$valeur="(t2.cp!='' OR t2.id_etab in (SELECT id FROM casquettes WHERE cp!=''))";
+						$valeur="( (t2.cp!='' AND t2.cp!='E') OR t2.id_etab in (SELECT id FROM casquettes WHERE (cp!='' AND cp!='E')))";
 						break;
 					case 'panier':
 						$panier=User::get_panier($id);

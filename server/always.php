@@ -62,11 +62,13 @@ function email_erreur($a){
 function cp($a){
 	$cp="";
 	foreach($a as $i){
-		if (isset($i->value) && $i->type=='adresse' && $i->value->pays=="France") {
-			$cp=$i->value->cp;
-		}
-		if (isset($i->value) && $i->type=='adresse' && $i->value->pays!="" && $i->value->pays!="France") {
-			$cp="E";
+		if (isset($i->value) && $i->type=='adresse'){
+			if (strtolower($i->value->pays)=="france" || $i->value->pays=="") {
+				$cp=$i->value->cp;
+			}
+			if ($i->value->pays!="" && strtolower($i->value->pays)!="france") {
+				$cp="E";
+			}
 		}
 	}
 	return cp2dept($cp);
@@ -346,7 +348,7 @@ function replaceHref($html, $redirect, $params)
         return $trace;
     }
 	function cp2dept($cp) {
-		if ($cp="E") return "E";
+		if ($cp=="E") return "E";
 		if ($cp<1000) return "";
 		$n=floor($cp/1000);
 		if ($n==20 && $cp<20200) $n="2A";
