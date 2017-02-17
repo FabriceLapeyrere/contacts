@@ -544,12 +544,16 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			txt=':panier';
 		}
 		if (Data.mainQuery!='') {
-			if(ctrl) txt= channel=='sel' ? '&(' + txt + ')' : '&' + txt;
-			else {
+			if(ctrl) {
+				txt= channel=='sel' ? '&(' + txt + ')' : '&' + txt;
+				Data.mainQuery= '(' + Data.mainQuery + ')' + txt;
+			} else {
 				txt= channel=='sel' ? '|(' + txt + ')' : '|' + txt;
+				Data.mainQuery= Data.mainQuery + txt;
 			}
+		} else {
+			Data.mainQuery= Data.mainQuery + txt;
 		}
-		Data.mainQuery=Data.mainQuery + txt;
 		$scope.getPage(1);
 	};
 	$scope.up=function(){
