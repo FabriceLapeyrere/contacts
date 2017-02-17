@@ -279,3 +279,6 @@ a.termine {color:#666;}
 .minis {max-height:150px;overflow:hidden;box-shadow: 0 0 20px -10px #999;}
 .modal {perspective:none;}
 .progress-center{color:#CCC;}
+.modal-body h4 {
+	color:#337ab7;
+}

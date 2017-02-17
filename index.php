@@ -30,7 +30,7 @@ session_write_close();
 <div id="main-container" ng-view></div>
 <div ng-if="Data.user.id>=0" id="chat" ng-class="{'visible':chatVisible}" ng-include="'partials/chat.html'" ng-swipe-right="chatNavPrec()" ng-swipe-left="chatNavSuiv()"></div>
 <div id="main-lock" ng-if="Data.offline">Connection en cours...</div>
-<div class='app-loader-container'><span ng-class="{'ok':uploading()}" class="glyphicon glyphicon-upload"></span> <span ng-class="{'ok':!Data.modeleFresh}" class="glyphicon glyphicon-refresh"></span></div>
+<div class='app-loader-container'><span ng-class="{'ok':uploading()}" class="glyphicon glyphicon-upload"></span> <span ng-class="{'ok':!Data.modeleFresh || !isAnswer()}" class="glyphicon glyphicon-refresh"></span></div>
 <input id='uid' type='hidden' value='<?=$id?>'/>
 <script src="lib/angular-1.4.9.min.js"></script>
 <script src="lib/angular-animate.min.js"></script>

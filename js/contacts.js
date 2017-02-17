@@ -41,6 +41,17 @@ app.config(['$locationProvider', function($locationProvider) {
 app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$uibModal', '$q', '$window', '$sce', 'Link', 'Data', 'ngAudio', function ($scope, $http, $location, $timeout, $interval, $uibModal, $q, $window, $sce, Link, Data, ngAudio) {
 	Data.mainQuery='';
 	Data.pageContacts=1;
+	$scope.isAnswer=function(){
+		if (Data.modele.casquettes) {
+			var Qparams={};
+			for(var i=0;i<Data.contexts.length;i++){
+				if (Data.contexts[i].type=='casquettes') Qparams=Data.contexts[i].params;
+			}
+			Aparams=Data.modele.casquettes.params;
+			return $scope.isEqual(Qparams,Aparams);
+		}
+		return true;
+	};
 	$scope.uploaders={};
 	$scope.uploading=function(){
 		var res=false;
@@ -505,17 +516,22 @@ app.controller('loginCtl', ['$scope', '$http', '$location', 'Link', 'Data', func
 
 
 //casquettes
-app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$window', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $timeout, $interval, $window, $uibModal, Link, Data) {
+app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$window', '$uibModal','Link', 'Data', function ($scope, $http, $location, $timeout, $interval, $window, $uibModal, Link, Data) {
 	$scope.Data=Data;
 	$scope.panierKey='panier';	
 	$scope.itemsParPage=10;
+	$scope.help=function(id){
+		$uibModal.open({
+			templateUrl: 'partials/inc/help_'+id+'.html'
+		});
+	};
 	$scope.panierAll=function(){
 		Link.ajax([{action:'panierAll', params:{query:$scope.parsed.back(Data.mainQuery)}}])
 	};
 	$scope.clearQuery=function(){
 		Data.mainQuery='';
 		$scope.getPage(1);
-	}
+	};
 	$scope.insert=function(channel,data,ctrl){
 		var txt='';
 		if (channel=='tag') {
@@ -535,7 +551,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		}
 		Data.mainQuery=Data.mainQuery + txt;
 		$scope.getPage(1);
-	}
+	};
 	$scope.up=function(){
 		$scope.selected.index--;
 		if ($scope.selected.index<0) {

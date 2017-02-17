@@ -3,6 +3,7 @@ start
 
 additive
   = left:multiplicative "|" right:additive { return left + ' ou ' + right; }
+  / left:multiplicative "^" right:additive { return left + ' ou ' + right; }
   / multiplicative
 
 multiplicative

@@ -1,0 +1,48 @@
+<div class="modal-body">
+	<h3>Les éléments de recherche</h3>
+	<p>Pour construire votre recherche, les éléments suivants sont disponibles&nbsp;:</p>
+	<h4>Texte simple :</h4>
+	<p>Du texte rentré sans syntaxe particulière lancera une recherche textuelle, vous pouvez utiliser le caractère <b>*</b> si vous souhaitez faire une recherche sur le début d'un mot.</p>
+	<p>Exemple :<br /><b>dupont</b> affichera les contacts qui contiennent exactement le mot dupont (les accents et la casse ne sont pas pris en compte).<br /><b>dupon*</b> trouvera aussi bien <b>dupont</b> que <b>dupond</b></p>
+	<h4>A un e-mail :</h4>
+	<p>Le mot clé <b>:email</b> permet d'afficher les contacts qui ont un e-mail.</p>
+	<h4>A une adresse postale :</h4>
+	<p>Le mot clé <b>:adresse</b> permet d'afficher les contacts qui ont une adresse postale.</p>
+	<h4>E-mail en erreur :</h4>
+	<p>Le mot clé <b>:mailerreur</b> permet d'afficher les contacts qui ont un e-mail en erreur.</p>
+	<h4>Panier :</h4>
+	<p>Le mot clé <b>:panier</b> permet d'afficher les contacts du panier.</p>
+	<h4>Type :</h4>
+	<p>Le mot clé <b>:type1</b> permet d'afficher les individus.</p>
+	<p>Le mot clé <b>:type2</b> permet d'afficher les structures.</p>
+	<h4>Contacts :</h4>
+	<p>Le mot clé <b>:contacts(#,#,...,#)</b> permet d'afficher les contacts ayant les identifiants correspondants</p>
+	<p>Exemple :<br /> <b>:contacts(1,2,3)</b> affichera les contacts n°1, n°2 et n°3.</p>
+	<h4>Etablissements :</h4>
+	<p>Le mot clé <b>:etab#</b> permet d'afficher tous les contacts d'un établissement donnée (la fiche de l'établissement et les individus associés).</p>
+	<p>Exemple :<br /> <b>:etab32</b> affichera l'établissement n°32 et tous les individus associés.</p>
+	<h4>Catégories :</h4>
+	<p>Le mot clé <b>:tag#</b> permet d'afficher les contacts appartenant à la catégorie n°#.</p>
+	<p>Exemple :<br /> <b>:tag158</b></p>
+	<h4>Départements :</h4>
+	<p>Le mot clé <b>:cp#</b> permet d'afficher les contacts ayant une adresse postale dans le département #.</p>
+	<p>Exemple :<br /> <b>:cp81</b> affichera les contacts ayant une adresse postale dans le Tarn.</p>
+	<h3>Recherches complexes</h3>
+	<p>Vous pouvez combiner les éléments de recherche ci-dessus pour former des recherches complexes. Pour cela, les opérateurs suivants sont disponibles :</p>
+	<h4>Réunion :</h4>
+	<p>L'opérateur <b>|</b> (ou <b>^</b>) permet d'afficher les contacts qui vérifient l'un ou l'autre des éléments de recherche (ou les deux). C'est l'équivalent du <b>ou</b> logique.</p>
+	<p>Exemple :<br /><b>:cp12|:tag2</b> (ou <b>:cp12^:tag2</b>) affichera les contacts qui ont une adresse postale dans l'aveyron mais aussi ceux qui sont dans la catégorie n°2</p>
+	<h4>Intersection :</h4>
+	<p>L'opérateur <b>&</b> permet d'afficher les contacts qui vérifient les deux éléments. C'est l'équivalent du <b>et</b> logique.</p>
+	<p>Exemple :<br /><b>:cp12&:tag2</b> affichera les contacts qui ont une adresse postale dans l'aveyron <b>et</b> qui sont dans la catégorie n°2.</p>
+	<h4>Négation :</h4>
+	<p>L'opérateur <b>!</b> permet d'afficher les contacts qui ne vérifient pas l'élément.</p>
+	<p>Exemple :<br /><b>!:email</b> affichera les contacts qui n'ont pas d'adresse e-mail.</p>
+	<h4>Parenthèses :</h4>
+	<p>Les parenthèses permettent de regrouper les éléments pour former des recherches complexes</p>
+	<p>Exemple :<br /><b>:tag2&(!:adresse|:cp81)</b> affichera les contacts de la catégorie n°2 qui soit n'ont pas d'adresse postale, soit en ont une dans le Tarn.</p>
+	
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="$close()">Fermer</button>
+</div>
