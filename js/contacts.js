@@ -42,11 +42,11 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	Data.mainQuery='';
 	Data.pageContacts=1;
 	$scope.isAnswer=function(){
-		if (Data.modele.casquettes) {
-			var Qparams={};
-			for(var i=0;i<Data.contexts.length;i++){
-				if (Data.contexts[i].type=='casquettes') Qparams=Data.contexts[i].params;
-			}
+		var Qparams={};
+		for(var i=0;i<Data.contexts.length;i++){
+			if (Data.contexts[i].type=='casquettes') Qparams=Data.contexts[i].params;
+		}
+		if ('query' in Qparams && 'casquettes' in Data.modele) {
 			Aparams=Data.modele.casquettes.params;
 			return $scope.isEqual(Qparams,Aparams);
 		}
