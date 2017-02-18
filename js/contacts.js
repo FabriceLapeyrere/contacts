@@ -520,6 +520,9 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.Data=Data;
 	$scope.panierKey='panier';	
 	$scope.itemsParPage=10;
+	$scope.normalizedNom = function(tag) {
+		return removeDiacritics(tag.nom);
+	};
 	$scope.help=function(id){
 		$uibModal.open({
 			templateUrl: 'partials/inc/help_'+id+'.html'
@@ -636,25 +639,57 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		Link.ajax([{action:'delContact', params:{cas:cas}}]);		
 	};
 	var tagsScroll=undefined;
-	$scope.$on('ANGULAR_HOVER_START',function(d,el,e,c){
-		console.log('start');
-		if (angular.isDefined(tagsScroll)) return;
-		tagsScroll=$interval(function(){
-			if (angular.element(el).hasClass('scroll-helper-top')) $scope.scrollTagsUp();
-			if (angular.element(el).hasClass('scroll-helper-bottom')) $scope.scrollTagsDown();
-		},100);
-	});
+	$scope.dragging={active:false,type:'ou'};
+	$scope.dragText={
+		tag:{
+			tag:{
+				ou:'déplacer la catégorie',
+				et:'déplacer la catégorie'
+			},
+			query:{
+				ou:'ajouter aux résultats',
+				et:'parmi les resultats'
+			},
+			contact:{
+				ou:'ajouter la catégorie',
+				et:'ajouter la catégorie'
+			}
+		},
+		panier:{
+			tag:{
+				ou:'ajouter à la catégorie',
+				et:'enlever de la catégorie'
+			},
+			query:{
+				ou:'ajouter aux résultats',
+				et:'parmi les resultats'
+			}
+		},
+		sel:{
+			query:{
+				ou:'ajouter aux résultats',
+				et:'parmi les resultats'
+			}
+		}
+		
+	};
 	$scope.$on('ANGULAR_HOVER_STOP',function(d,el,e,c){
 		console.log('stop');
-		$interval.cancel(tagsScroll);
-		tagsScroll=undefined;
+		$scope.dragging.active=false;
 	});
-	$scope.scrollTagsUp=function(){
-		document.getElementById('tags').scrollTop=document.getElementById('tags').scrollTop-50;
-	};
-	$scope.scrollTagsDown=function(){
-		document.getElementById('tags').scrollTop=document.getElementById('tags').scrollTop+50;
-	};
+	$scope.$on('ANGULAR_DRAG_END',function(d,el,e,c){
+		console.log('stop');
+		$scope.dragging.active=false;
+	});
+	$scope.$on('ANGULAR_HOVER',function(d,el,e,c){
+		$scope.dragging.active=true;
+		$scope.dragging.drop=angular.element(el).attr('data-drop-type');
+		$scope.dragging.channel= c;
+		$scope.dragging.type= e.ctrlKey ? 'et': 'ou';
+		var helper = document.getElementById('drag-helper');
+		helper.style.left=(30+e.pageX)+"px";
+		helper.style.top=(15+e.pageY)+"px";
+	});
 	$scope.next=function(){
 		if (Data.pageContacts<=Data.modele.casquettes.total/$scope.itemsParPage) {
 			Data.pageContacts++;
@@ -1140,7 +1175,6 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		}
 	};
 	$scope.drop = function(e,s,d,c){
-		console.log(e,s,d,c);
 		if (c=="order") {
 			var src=angular.copy(Data.modele[$scope.key].blocs[s-1]);
 			Data.modele[$scope.key].blocs.splice(d,0,src);

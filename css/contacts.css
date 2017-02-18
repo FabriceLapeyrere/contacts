@@ -282,3 +282,13 @@ a.termine {color:#666;}
 .modal-body h4 {
 	color:#337ab7;
 }
+#drag-helper {
+	position:absolute;
+	display:none;
+}
+#drag-helper.drag-helper-display {
+	display:block;
+}
+#drag-helper.tag {
+	color:black;
+}

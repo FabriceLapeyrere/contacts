@@ -2,7 +2,7 @@
 	<p><span class="btn btn-primary" ng-click="addContactMod(1)">Nouveau Contact</span> <span class="btn btn-success" ng-click="addContactMod(2)">Nouvelle Structure</span></p>
 	<form>
 		<div class="rel">
-            <input class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier" ui-on-Drop="insert($channel,$data,$ctrl)"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
+            <input class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier" ui-on-Drop="insert($channel,$data,$ctrl)" data-drop-type="query"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
         </div>
         <div class="col-xs-12 gris parsed">
             <p dyn-tpl tpl="parsed.front(Data.mainQuery)" data="Data"></p>
@@ -17,7 +17,7 @@
     <span ng-if="Data.modele.casquettes.total>0" class="pagination-span">{{itemsParPage*(Data.modele.casquettes.page-1)+1}} - {{min(itemsParPage*Data.modele.casquettes.page,Data.modele.casquettes.total)}} de {{Data.modele.casquettes.total}}</span>
     <div ng-if="Data.modele.casquettes.total==0">Aucun résultat</div>
     <ul ng-if="Data.modele.casquettes.total>0" class="list-group" id="contacts-list" ng-class="{'loading':Data.pageContacts!=Data.modele.casquettes.page || !isAnswer()}">
-	    <li class="list-group-item cas" ng-class="{'individu':cas.type==1, 'structure':cas.type==2, 'cas-suivante':!(Data.modele.casquettes.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact), 'courant':Data.pageContacts==Data.modele.casquettes.page && cas.id==courant.id}" ng-repeat="cas in (c=(Data.modele.casquettes.collection | toArray))" ng-dblclick="selected.index = $index" ui-on-Drop="addCasTag($event,$data,cas)" drop-channel="tag">
+	    <li class="list-group-item cas" ng-class="{'individu':cas.type==1, 'structure':cas.type==2, 'cas-suivante':!(Data.modele.casquettes.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact), 'courant':Data.pageContacts==Data.modele.casquettes.page && cas.id==courant.id}" ng-repeat="cas in (c=(Data.modele.casquettes.collection | toArray))" ng-dblclick="selected.index = $index" ui-on-Drop="addCasTag($event,$data,cas)" drop-channel="tag" data-drop-type="contact">
 	        <div ng-class="{'panier-btn-ko':!dansPanier(cas), 'panier-btn-ok':dansPanier(cas)}" ng-click="dansPanier(cas) ? panierDel(cas) : panierAdd(cas)"></div>
 	        <div class="col-sm-12 cas">
 
@@ -76,7 +76,7 @@
         <p><span class="btn btn-primary" ng-click="addTagMod()">Nouveau tag</span></p>
 	    <ul class="list-group">
 		    <li ng-if="Data.modele.tags.length==0" class="list-group-item">Aucun tag</li>
-		    <li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in children({id:0}) | orderBy:'nom'"></li>
+		    <li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in children({id:0}) | toArray | orderBy:normalizedNom"></li>
 	    </ul>
     </uib-tab>
 	<uib-tab heading="Sélections">
@@ -96,3 +96,4 @@
 	<div class="scroll-helper-top" ui-on-Drop drop-channel="tag"></div>
 	<div class="scroll-helper-bottom" ui-on-Drop drop-channel="tag"></div>
 </div>
+<div id="drag-helper" class="tag" ng-class="{'drag-helper-display':dragging.active}">{{dragText[dragging.channel][dragging.drop][dragging.type]}}</div>
