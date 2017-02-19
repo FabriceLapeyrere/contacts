@@ -266,6 +266,15 @@
 						$children=Contacts::get_whole_tag($param,$tags);
 						$valeur= "t2.id IN (SELECT id_cas FROM tag_cas WHERE id_tag IN (".implode(', ',$children)."))";
 						break;
+					case 'seulement_tags':	
+						$ts=explode(',',$param);
+						sort($ts);
+						$param=implode(',',$ts);
+						$valeur= "t2.id IN (select id_cas FROM (select * from tag_cas order by id_tag) WHERE id_cas in (select id_cas from tag_cas where id_tag in (".$param.")) group by id_cas having group_concat(id_tag)='".$param."')";
+						break;
+					case 'aucun_tag':	
+						$valeur= "0 = (select count(*) from tag_cas where id_cas=t2.id)";
+						break;
 				}
 				$query=str_replace($code,$valeur,$query);
 			}

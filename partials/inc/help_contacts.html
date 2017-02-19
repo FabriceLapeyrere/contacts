@@ -1,8 +1,11 @@
+<div class="modal-header">
+    <button class="btn btn-warning" ng-click="$close()">Fermer</button>
+</div>
 <div class="modal-body">
 	<h3>Les éléments de recherche</h3>
 	<p>Pour construire votre recherche, les éléments suivants sont disponibles&nbsp;:</p>
 	<h4>Texte simple :</h4>
-	<p>Du texte rentré sans syntaxe particulière lancera une recherche textuelle, vous pouvez utiliser le caractère <b>*</b> si vous souhaitez faire une recherche sur le début d'un mot.</p>
+	<p>Du texte simple lancera une recherche textuelle, vous pouvez utiliser le caractère <b>*</b> si vous souhaitez faire une recherche sur le début d'un mot.</p>
 	<p>Exemple :<br /><b>dupont</b> affichera les contacts qui contiennent exactement le mot dupont (les accents et la casse ne sont pas pris en compte).<br /><b>dupon*</b> trouvera aussi bien <b>dupont</b> que <b>dupond</b></p>
 	<h4>A un e-mail :</h4>
 	<p>Le mot clé <b>:email</b> permet d'afficher les contacts qui ont un e-mail.</p>
@@ -18,15 +21,19 @@
 	<h4>Contacts :</h4>
 	<p>Le mot clé <b>:contacts(#,#,...,#)</b> permet d'afficher les contacts ayant les identifiants correspondants</p>
 	<p>Exemple :<br /> <b>:contacts(1,2,3)</b> affichera les contacts n°1, n°2 et n°3.</p>
-	<h4>Etablissements :</h4>
+	<h4>Etablissement :</h4>
 	<p>Le mot clé <b>:etab#</b> permet d'afficher tous les contacts d'un établissement donnée (la fiche de l'établissement et les individus associés).</p>
 	<p>Exemple :<br /> <b>:etab32</b> affichera l'établissement n°32 et tous les individus associés.</p>
-	<h4>Catégories :</h4>
+	<h4>Catégorie :</h4>
 	<p>Le mot clé <b>:tag#</b> permet d'afficher les contacts appartenant à la catégorie n°#.</p>
 	<p>Exemple :<br /> <b>:tag158</b></p>
-	<h4>Départements :</h4>
+	<h4>Département :</h4>
 	<p>Le mot clé <b>:cp#</b> permet d'afficher les contacts ayant une adresse postale dans le département #.</p>
 	<p>Exemple :<br /> <b>:cp81</b> affichera les contacts ayant une adresse postale dans le Tarn.</p>
+	<h4>Aucun tag :</h4>
+	<p>Le mot clé <b>:aucun_tag</b> permet d'afficher les contacts qui ne sont dans aucune catégorie.</p>
+	<h4>Seulement dans certaines catégories :</h4>
+	<p>Le mot clé <b>:seulement_tags(#,#,...,#)</b> permet d'afficher les contacts qui ont les catégories correspondantes et seulement celles-là. Peut être utilisé pour trouver les contacts d'une catégorie ayant des sous catégories sans prendre en compte les sous catégories.</p>
 	<h3>Recherches complexes</h3>
 	<p>Vous pouvez combiner les éléments de recherche ci-dessus pour former des recherches complexes. Pour cela, les opérateurs suivants sont disponibles :</p>
 	<h4>Réunion :</h4>

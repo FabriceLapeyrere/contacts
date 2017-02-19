@@ -23,6 +23,24 @@ integer "integer"
   / ':type' id:[12]+ { return id==1 ? '::type/1::' : '::type/2::'; }
   / ':cp' id:[0-9AB]+ { return '::cp/'+id.join("")+'::'; }
   / '!:cp' id:[0-9AB]+ { return 'NOT (::cp/'+id.join("")+'::)'; }
+  / ':aucun_tag' { 
+	return '::aucun_tag::';
+	}
+  / '!:aucun_tag' { 
+	return 'NOT ::aucun_tag::';
+	}
+  / ':seulement_tags(' ids:[,0-9]+ ')' { 
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return '::seulement_tags/'+list+'::';
+	}
+  / '!:seulement_tags(' ids:[,0-9]+ ')' { 
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return 'NOT ::seulement_tags/'+list+'::';
+	}
   / ':contacts(' ids:[,0-9]+ ')' { 
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);

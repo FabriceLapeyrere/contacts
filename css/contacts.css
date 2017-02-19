@@ -73,9 +73,6 @@ li.tag-list {padding-right:2px;}
 
 .petit {font-size:0.8em;}
 
-li.etab:hover {background:#FAFAFA;}
-li.cas:hover {background:#FAFAFA;}
-
 .news-first {height:20px;border-bottom:1px solid lightgray;}
 .news-last {height:50px;border-top:1px solid lightgray;}
 .news-empty {padding:30px;color:#333;}
@@ -112,7 +109,7 @@ li.cas:hover {background:#FAFAFA;}
 .cas-suivante {border-top:1px solid #FFF;}
 .vs-scroll .scroll-container {height:100%;overflow-y:scroll;}
 .vs-scroll.etabs .scroll-container {height:500px;overflow-y:scroll;}
-.courant {border-right:1px solid #428bca;border-left:1px solid #428bca;}
+.courant {border-right:1px solid #428bca;border-left:1px solid #428bca;background:#FAFAFA;}
 .erreur{color:#C04343;}
 .progress-center{position:absolute;top:0;left:0;right:0;bottom:0;text-align:center;}
 .progress {position:relative;}

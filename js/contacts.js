@@ -61,6 +61,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return res;
 	};
 	$scope.sound = ngAudio.load("img/sonar.mp3");
+	$scope.query_history={c:0,tab:[]};
 	$scope.Data=Data;
 	$scope.params='test';
 	$scope.done=false;
@@ -520,6 +521,30 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.Data=Data;
 	$scope.panierKey='panier';	
 	$scope.itemsParPage=10;
+	$scope.historyPrev=function(){
+		var l=$scope.query_history.tab.length;
+		if (l>0) {
+			$scope.query_history.c=Math.min($scope.query_history.c+1,l-1);
+			while($scope.query_history.c<l-1 && $scope.query_history.tab[l-1-$scope.query_history.c]==Data.mainQuery){
+				$scope.query_history.c=Math.min($scope.query_history.c+1,l-1);
+			}
+			Data.mainQuery=$scope.query_history.tab[l-1-$scope.query_history.c];
+		}
+	};
+	$scope.historyNext=function(){
+		var l=$scope.query_history.tab.length;
+		if (l>0) {
+			$scope.query_history.c=Math.max($scope.query_history.c-1,0);
+			while($scope.query_history.c>0 && $scope.query_history.tab[l-1-$scope.query_history.c]==Data.mainQuery){
+				$scope.query_history.c=Math.max($scope.query_history.c-1,0);
+			}
+			Data.mainQuery=$scope.query_history.tab[l-1-$scope.query_history.c];
+		}
+	};
+	$scope.history=function(e){
+		if (e.keyCode==38) $scope.historyPrev();
+		if (e.keyCode==40) $scope.historyNext();
+	};
 	$scope.normalizedNom = function(tag) {
 		return removeDiacritics(tag.nom);
 	};
@@ -565,6 +590,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			if (Data.modele.casquettes.page>1) {
 				$scope.prev();
 				$scope.getPage();
+				$scope.selected.index=9;
 			}
 		}
 	};
@@ -626,6 +652,10 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		var page;
 		var query=$scope.parsed.back(Data.mainQuery);
 		if (query) {
+			if (Data.mainQuery!='' && $scope.query_history.tab.indexOf(Data.mainQuery)<0) {
+				$scope.query_history.tab.push(Data.mainQuery);
+				$scope.query_history.c=0;
+			}
 			if (init) {
 				Data.pageContacts=1;
 				$scope.selected.index=0;
@@ -725,6 +755,15 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	};
 	$scope.delCasTag = function(tag,cas) {
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
+	};
+	$scope.CasTagClick = function(e,tag,cas) {
+		if (e.ctrlKey){
+			if ($window.confirm('Supprimer de la catégorie ?')) {
+				$scope.delCasTag(tag,cas);
+			}
+		} else {
+			$window.alert('Tag n°'+tag.id+'\n(Ctrl+clic pour enlever.)');
+		}
 	};
 	$scope.delCasquettesPanier=function(){
 		Link.ajax([{action:'delContactsPanier',params:{panier:Data.modele.panier}}]);

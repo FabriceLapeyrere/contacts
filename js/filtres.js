@@ -111,7 +111,7 @@ app.filter('hasgroup', function() {
     return function(ee,g) {
 	var res=[];
         angular.forEach(ee, function(e){
-		if (g==0 || e.groups.indexOf(parseInt(g))>=0) res.push(e);
+		if (g==0 || e.groups && e.groups.indexOf(parseInt(g))>=0) res.push(e);
 	});
         return res;
     }

@@ -1,8 +1,8 @@
 <div class="col-xs-12 col-md-8 col-lg-9" loading="'casquettes'" data="Data">
 	<p><span class="btn btn-primary" ng-click="addContactMod(1)">Nouveau Contact</span> <span class="btn btn-success" ng-click="addContactMod(2)">Nouvelle Structure</span></p>
 	<form>
-		<div class="rel">
-            <input class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier" ui-on-Drop="insert($channel,$data,$ctrl)" data-drop-type="query"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
+	<div class="rel">
+            <input class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier" ui-on-Drop="insert($channel,$data,$ctrl)" data-drop-type="query" ng-keydown="history($event)"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
         </div>
         <div class="col-xs-12 gris parsed">
             <p dyn-tpl tpl="parsed.front(Data.mainQuery)" data="Data"></p>
@@ -57,7 +57,7 @@
 			        </span>
 		        </div>
 	            <div class="col-sm-12">
-			        <span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in parNomTag(cas.tags)" ng-confirm-click="delCasTag(Data.modele.tags[id],cas)" ng-confirm-message="Supprimer ?"></span>
+			        <span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in parNomTag(cas.tags)" ng-click="CasTagClick($event,Data.modele.tags[id],cas)"></span>
 		        </div>
 		        
 	        </div>
