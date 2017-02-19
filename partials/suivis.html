@@ -21,7 +21,7 @@
 		<h1>En retard</h1>
 		<uib-pagination ng-if="suivisRetard.length>itemsParPage" boundary-links="true" total-items="suivisRetard.length" ng-model="pageCourante.suivis.retard" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 		<ul class="list-group">
-			<li class="list-group-item" ng-repeat="suivi in (suivisRetard=(Data.modele.suivis | toArray | exists | retard | orderBy:'date':true)) | startFrom:(pageCourante.suivis.retard-1)*itemsParPage | limitTo:itemsParPage">
+			<li class="list-group-item" ng-repeat="suivi in (suivisRetard=(Data.modele.suivis | toArray | exists | hasgroup:filtre.suivis | retard | orderBy:'date':true)) | startFrom:(pageCourante.suivis.retard-1)*itemsParPage | limitTo:itemsParPage">
                 <locked verrou="suivi.verrou" data="Data">
                 {{calendarSansHeure(suivi.date)}} <a href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a>
                 <div class='bas-droite' ng-if="suivi.groups"><span class='mini bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}} </span></div>
@@ -33,7 +33,7 @@
 		<h1>Terminés</h1>
 		<uib-pagination ng-if="suivisTermines.length>itemsParPage" boundary-links="true" total-items="suivisTermines.length" ng-model="pageCourante.suivis.termines" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 		<ul class="list-group">
-			<li class="list-group-item" ng-repeat="suivi in (suivisTermines=(Data.modele.suivis | toArray | exists | termines | orderBy:'date':true)) | startFrom:(pageCourante.suivis.termines-1)*itemsParPage | limitTo:itemsParPage">
+			<li class="list-group-item" ng-repeat="suivi in (suivisTermines=(Data.modele.suivis | toArray | exists | hasgroup:filtre.suivis | termines | orderBy:'date':true)) | startFrom:(pageCourante.suivis.termines-1)*itemsParPage | limitTo:itemsParPage">
 				<locked verrou="suivi.verrou" data="Data">
                 {{calendarSansHeure(suivi.date)}} <a class="termine" href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a>
                 <div class='bas-droite' ng-if="suivi.groups"><span class='mini bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}} </span></div>
