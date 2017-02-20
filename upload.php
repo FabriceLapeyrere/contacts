@@ -78,7 +78,6 @@ if ( !empty( $_FILES ) ) {
 				'adresse',
 				'cp',
 				'ville',
-				'type',
 				'pays'
 			);
 			$labels=array(
@@ -92,7 +91,6 @@ if ( !empty( $_FILES ) ) {
 				'Adresse',
 				'Cp',
 				'Ville',
-				'Type',
 				'Pays'
 			);
 			$map_labels=array();
@@ -101,7 +99,7 @@ if ( !empty( $_FILES ) ) {
 				$c=array_search($type, $types);
 				if ($c!==false) {
 					$label=$labels[$c];
-					$i=2;
+					$i=1;
 					$label_alt=$label;
 					while(in_array($label_alt,$map_labels)) {
 						$label_alt=$label." $i";

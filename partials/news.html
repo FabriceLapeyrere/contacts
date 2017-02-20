@@ -2,10 +2,10 @@
 	<div class="col-sm-6 col-sm-offset-3">
 		<h1>News</h1>
 		<p><span class="btn btn-primary"ng-click="addNewsMod()">Nouvelle Newsletter</span></p>
-		<input type="text" ng-model="filtre.sujet" class="form-control" placeholder="filtre"/>
+		<input type="text" ng-model="filtre.news.sujet" class="form-control" placeholder="filtre"/>
         <uib-pagination boundary-links="true" total-items="newss.length" ng-model="pageCourante.news" items-per-page="itemsParPage" max-size="maxSize"class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 		<ul class="list-group">
-			<li class="list-group-item" ng-repeat="news in (newss=(Data.modele.newss | toArray | filter:filtre | orderBy:'creationdate':true)) | startFrom:(pageCourante.news-1)*itemsParPage | limitTo:itemsParPage">
+			<li class="list-group-item" ng-repeat="news in (newss=(Data.modele.newss | toArray | filter:filtre.news | orderBy:'creationdate':true)) | startFrom:(pageCourante.news-1)*itemsParPage | limitTo:itemsParPage">
                 <a href="modnews/{{news.id}}">{{news.sujet ? news.sujet : '(sans titre)'}}</a> - {{calendar(news.modificationdate)}} par {{Data.modele.users[news.modifiedby].name}}
 				<span style="font-size:0.8em;" class="glyphicon glyphicon-trash pull-right cursor" ng-confirm-click="delNews(news)" ng-confirm-message="Sûr?"></span>
 			</li>

@@ -81,9 +81,9 @@
     </uib-tab>
 	<uib-tab heading="Sélections">
         <p>&nbsp;</p>
-        <input type="text" ng-model="filtre" class="form-control" placeholder="filtre"/>
+        <input type="text" ng-model="filtre.selections" class="form-control" placeholder="filtre"/>
         <ul class="list-group">
-		    <li ng-repeat="selection in Data.modele.selections | toArray | filter:filtre" class="list-group-item">
+		    <li ng-repeat="selection in Data.modele.selections | toArray | filter:filtre.selections" class="list-group-item">
                 <locked verrou="selection.verrou" data="Data">
                     <span ui-draggable="true" drag="selection" drag-channel="sel" class="bleu cursor">{{selection.nom}}</span>
                 	<span class="glyphicon glyphicon-trash pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-confirm-click="delSelection(selection)" ng-confirm-message="Sûr?"></span>
@@ -96,4 +96,7 @@
 	<div class="scroll-helper-top" ui-on-Drop drop-channel="tag"></div>
 	<div class="scroll-helper-bottom" ui-on-Drop drop-channel="tag"></div>
 </div>
-<div id="drag-helper" class="tag" ng-class="{'drag-helper-display':dragging.active}">{{dragText[dragging.channel][dragging.drop][dragging.type]}}</div>
+<div id="drag-helper" class="tag" ng-class="{'drag-helper-display':dragging.active}">
+	<span ng-if="Data.mainQuery!=''">{{dragText[dragging.channel][dragging.drop]['nv'][dragging.c][dragging.s]}}</span>
+	<span ng-if="Data.mainQuery==''">{{dragText[dragging.channel][dragging.drop]['v'][dragging.c][dragging.s]}}</span>
+</div>

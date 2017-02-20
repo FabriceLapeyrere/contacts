@@ -69,6 +69,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.tagsOpen=[];
 	$scope.panier=[];
 	$scope.scroll=0;
+	$scope.filtre={suivis:0};
 	$scope.total={};
 	$scope.total.casquettes=0;
 	$scope.selected={index:0};
@@ -562,6 +563,10 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	};
 	$scope.insert=function(channel,data,ctrl){
 		var txt='';
+		var c=false;
+		var s=false;
+		if ($scope.dragging.c=='c') c=true;
+		if ($scope.dragging.s=='s') s=true;
 		if (channel=='tag') {
 			txt=':tag'+data.id;
 		}
@@ -571,12 +576,14 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		if (channel=='panier') {
 			txt=':panier';
 		}
+		if (channel=='sel' && (Data.mainQuery!='' || s)) txt='('+txt+')';
+		if (s) txt='!'+txt;
 		if (Data.mainQuery!='') {
-			if(ctrl) {
-				txt= channel=='sel' ? '&(' + txt + ')' : '&' + txt;
+			if(c) {
+				txt= '&' + txt;
 				Data.mainQuery= '(' + Data.mainQuery + ')' + txt;
 			} else {
-				txt= channel=='sel' ? '|(' + txt + ')' : '|' + txt;
+				txt= '|' + txt;
 				Data.mainQuery= Data.mainQuery + txt;
 			}
 		} else {
@@ -652,7 +659,8 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		var page;
 		var query=$scope.parsed.back(Data.mainQuery);
 		if (query) {
-			if (Data.mainQuery!='' && $scope.query_history.tab.indexOf(Data.mainQuery)<0) {
+			var l=$scope.query_history.tab.length;
+			if (Data.mainQuery!='' && $scope.query_history.tab[l-1-$scope.query_history.c]!=Data.mainQuery) {
 				$scope.query_history.tab.push(Data.mainQuery);
 				$scope.query_history.c=0;
 			}
@@ -669,53 +677,160 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		Link.ajax([{action:'delContact', params:{cas:cas}}]);		
 	};
 	var tagsScroll=undefined;
-	$scope.dragging={active:false,type:'ou'};
+	$scope.dragging={active:false,c:'nc',s:'ns'};
 	$scope.dragText={
 		tag:{
 			tag:{
-				ou:'déplacer la catégorie',
-				et:'déplacer la catégorie'
+				v:{
+					c:{
+						s:'déplacer la catégorie',
+						ns:'déplacer la catégorie'
+					},
+					nc:{
+						s:'déplacer la catégorie',
+						ns:'déplacer la catégorie'
+					}
+				},
+				nv:{
+					c:{
+						s:'déplacer la catégorie',
+						ns:'déplacer la catégorie'
+					},
+					nc:{
+						s:'déplacer la catégorie',
+						ns:'déplacer la catégorie'
+					}
+				}				
 			},
 			query:{
-				ou:'ajouter aux résultats',
-				et:'parmi les resultats'
+				v:{
+					c:{
+						s:'contacts qui ne sont pas dans la catégorie',
+						ns:'contacts qui sont dans la catégorie'
+					},
+					nc:{
+						s:'contacts qui ne sont pas dans la catégorie',
+						ns:'contacts qui sont dans la catégorie'
+					}
+				},
+				nv:{
+					c:{
+						s:'contacts, parmi les resultats, qui ne sont pas dans la catégorie',
+						ns:'contacts, parmi les resultats, qui sont dans la catégorie'
+					},
+					nc:{
+						s:'ajouter aux résultats les contacts qui ne sont pas dans la catégorie',
+						ns:'ajouter aux résultats les contacts de la catégorie'
+					}
+				}				
 			},
 			contact:{
-				ou:'ajouter la catégorie',
-				et:'ajouter la catégorie'
+				v:{
+					c:{
+						s:'ajouter à la catégorie',
+						ns:'ajouter à la catégorie'
+					},
+					nc:{
+						s:'ajouter à la catégorie',
+						ns:'ajouter à la catégorie'
+					}
+				},
+				nv:{
+					c:{
+						s:'ajouter à la catégorie',
+						ns:'ajouter à la catégorie'
+					},
+					nc:{
+						s:'ajouter à la catégorie',
+						ns:'ajouter à la catégorie'
+					}
+				}				
 			}
 		},
 		panier:{
 			tag:{
-				ou:'ajouter à la catégorie',
-				et:'enlever de la catégorie'
+				v:{
+					c:{
+						s:'enlever de la catégorie',
+						ns:'ajouter à la catégorie'
+					},
+					nc:{
+						s:'enlever de la catégorie',
+						ns:'ajouter à la catégorie'
+					}
+				},
+				nv:{
+					c:{
+						s:'enlever de la catégorie',
+						ns:'ajouter à la catégorie'
+					},
+					nc:{
+						s:'enlever de la catégorie',
+						ns:'ajouter à la catégorie'
+					}
+				}				
 			},
 			query:{
-				ou:'ajouter aux résultats',
-				et:'parmi les resultats'
+				v:{
+					c:{
+						s:'contacts qui ne sont pas dans le panier',
+						ns:'contacts qui sont dans le panier'
+					},
+					nc:{
+						s:'contacts qui ne sont pas dans le panier',
+						ns:'contacts qui sont dans le panier'
+					}
+				},
+				nv:{
+					c:{
+						s:'contacts, parmi les resultats, qui ne sont pas dans le panier',
+						ns:'contacts, parmi les resultats, qui sont dans le panier'
+					},
+					nc:{
+						s:'ajouter aux résultats les contacts qui ne sont pas dans le panier',
+						ns:'ajouter aux résultats les contacts du panier'
+					}
+				}
 			}
 		},
 		sel:{
 			query:{
-				ou:'ajouter aux résultats',
-				et:'parmi les resultats'
+				v:{
+					c:{
+						s:'contacts qui ne sont pas dans la selection',
+						ns:'contacts qui sont dans la selection'
+					},
+					nc:{
+						s:'contacts qui ne sont pas dans la selection',
+						ns:'contacts qui sont dans la selection'
+					}
+				},
+				nv:{
+					c:{
+						s:'contacts, parmi les resultats, qui ne sont pas dans la selection',
+						ns:'contacts, parmi les resultats, qui sont dans la selection'
+					},
+					nc:{
+						s:'ajouter aux résultats les contacts qui ne sont pas dans la selection',
+						ns:'ajouter aux résultats les contacts de la selection'
+					}
+				}
 			}
 		}
 		
 	};
 	$scope.$on('ANGULAR_HOVER_STOP',function(d,el,e,c){
-		console.log('stop');
 		$scope.dragging.active=false;
 	});
 	$scope.$on('ANGULAR_DRAG_END',function(d,el,e,c){
-		console.log('stop');
 		$scope.dragging.active=false;
 	});
 	$scope.$on('ANGULAR_HOVER',function(d,el,e,c){
 		$scope.dragging.active=true;
 		$scope.dragging.drop=angular.element(el).attr('data-drop-type');
 		$scope.dragging.channel= c;
-		$scope.dragging.type= e.ctrlKey ? 'et': 'ou';
+		$scope.dragging.c= e.ctrlKey ? 'c': 'nc';
+		$scope.dragging.s= e.shiftKey ? 's': 'ns';
 		var helper = document.getElementById('drag-helper');
 		helper.style.left=(30+e.pageX)+"px";
 		helper.style.top=(15+e.pageY)+"px";
@@ -741,7 +856,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			if (!$scope.isAncestor(tag,data)) Link.ajax([{action:'movTag', params:{tag:data, parent:tag}}]);
 		}
 		if (channel=='panier'){
-			if (ctrl) Link.ajax([{action:'delPanierTag', params:{tag:tag}}]);
+			if (e.shiftKey) Link.ajax([{action:'delPanierTag', params:{tag:tag}}]);
 			else Link.ajax([{action:'addPanierTag', params:{tag:tag}}]);
 		}
 	};
@@ -757,12 +872,12 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
 	};
 	$scope.CasTagClick = function(e,tag,cas) {
-		if (e.ctrlKey){
+		if (e.shiftKey){
 			if ($window.confirm('Supprimer de la catégorie ?')) {
 				$scope.delCasTag(tag,cas);
 			}
 		} else {
-			$window.alert('Tag n°'+tag.id+'\n(Ctrl+clic pour enlever.)');
+			$window.alert('Tag n°'+tag.id+'\n(maj+clic pour enlever.)');
 		}
 	};
 	$scope.delCasquettesPanier=function(){

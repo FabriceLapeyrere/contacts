@@ -1,27 +1,28 @@
 <?php
 /**
  *
- * @license    GPL 3 (http://www.gnu.org/licenses/gpl.html)
- * @author     Fabrice Lapeyrere <fabrice@surlefil.org>
+ * @license	GPL 3 (http://www.gnu.org/licenses/gpl.html)
+ * @author	 Fabrice Lapeyrere <fabrice@surlefil.org>
  */
 set_time_limit(0);
 foreach (glob("server/*.php") as $filename)
 {
-    include $filename;
+	include $filename;
 }
 include 'fake_ws/conf.php';
 include 'conf/main.php';
 include 'conf/auth.php';
 
 	$params=json_decode(json_encode($_POST));
-    $filename="data/tmp/export".time().".csv";
+	$filename="data/tmp/export".time().".csv";
 	$fp = fopen($filename, 'w');
 	$selection=array();
-    $query=$params->res->query;
-    $casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>true),0,$S['user']['id']);
+	$query=$params->res->query;
+	$casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>true),0,$S['user']['id']);
 	$keys=array();
 	foreach ($casquettes['collection'] as $cas) {
 		$tab=array();
+		$tab['0_type']=$cas['type'];
 		$tab['1_nom']=$cas['nom'];
 		$tab['2_prenom']=$cas['prenom'];
 		$donnees=$cas['donnees'];
@@ -36,7 +37,7 @@ include 'conf/auth.php';
 					$tab["3_ville"]=$adresse->ville;
 					$tab["3_pays"]=$adresse->pays;
 				}
-				else $tab["3_".$donnee->label]=$donnee->value;
+				else $tab["3-".$donnee->label."_".$donnee->type]=$donnee->value;
 			}
 		}
 		if ($cas['id_etab']>0) {
@@ -50,7 +51,7 @@ include 'conf/auth.php';
 							$tab["3_ville"]=$adresse->ville;
 							$tab["3_pays"]=$adresse->pays;
 						}
-						else $tab["3_".$donnee->label]=$donnee->value;
+						else $tab["3-".$donnee->label."_".$donnee->type]=$donnee->value;
 					}
 				}
 			}
@@ -64,20 +65,20 @@ include 'conf/auth.php';
 			$listes[]=$cat['nom'];
 		}
 		$tab['6_listes']=implode(', ',$listes);
-        foreach($tab as $cle=>$valeur){
+		foreach($tab as $cle=>$valeur){
 			if (!in_array($cle,$keys)) $keys[]=$cle;
 		}
-        $csv=array();
+		$csv=array();
 		for($i=0;$i<count($keys);$i++){
-            $v='';
+			$v='';
 			if (isset($tab[$keys[$i]])) $v=$tab[$keys[$i]];
-            $csv[]=$v;
+			$csv[]=$v;
 		}
 		fputcsv($fp, $csv);
 	}
-    $header=array();
+	$header=array();
 	foreach($keys as $cle){
-		$header[]=substr($cle,2);
+		$header[]=substr($cle,strpos($cle,'_')+1);
 	}
 	fclose($fp);
 	prepend(implode(',',$header)."\n",$filename);
