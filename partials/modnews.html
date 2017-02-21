@@ -11,7 +11,7 @@
 		    </locked>
 		</form>
 		<div class="news" id="news-container">
-			<style ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
+			<style scoped ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
 			<div class="news-first" ui-on-Drop="drop($event,$data,0,$channel)" drop-channel="bloc"></div>
 			<div class="news-empty" ng-if="Data.modele[key].blocs.length==0" ui-on-Drop="addBloc($event,$data,0)" drop-channel="bloc">
 				Glisser les blocs ici...

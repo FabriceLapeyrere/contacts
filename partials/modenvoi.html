@@ -15,7 +15,7 @@
 		</div>
         <uib-tabset>
 		<uib-tab heading='Message'>
-			<style ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
+			<style scoped ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
 			<div style="background-color:#fff;padding:15px;margin-top:15px;border-radius:4px;" class="yui3-cssreset yui3-cssbase" ng-bind-html="trust(Data.modele[key].html)"></div>
 			<div ng-show="c.length>0">
 				<h3>Pièces jointes</h3>
