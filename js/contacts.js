@@ -61,7 +61,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return res;
 	};
 	$scope.sound = ngAudio.load("img/sonar.mp3");
-	$scope.query_history={c:0,tab:[]};
+	$scope.query_history={c:-1,tab:[]};
 	$scope.Data=Data;
 	$scope.params='test';
 	$scope.done=false;
@@ -533,6 +533,10 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		}
 	};
 	$scope.historyNext=function(){
+		if ($scope.query_history.c==0) {
+			Data.mainQuery='';
+			return;
+		}
 		var l=$scope.query_history.tab.length;
 		if (l>0) {
 			$scope.query_history.c=Math.max($scope.query_history.c-1,0);
@@ -661,8 +665,10 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		if (query) {
 			var l=$scope.query_history.tab.length;
 			if (Data.mainQuery!='' && $scope.query_history.tab[l-1-$scope.query_history.c]!=Data.mainQuery) {
-				$scope.query_history.tab.push(Data.mainQuery);
-				$scope.query_history.c=0;
+				$scope.query_history.tab.splice(l-$scope.query_history.c,0,Data.mainQuery);
+			}
+			if (Data.mainQuery=='') {
+				$scope.query_history.c=-1;
 			}
 			if (init) {
 				Data.pageContacts=1;
