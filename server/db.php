@@ -8,93 +8,460 @@
 			// file location for the user database
 			$dbfile = "./data/db/db.db";
 
+			$this->schema = array(
+				array(
+					'type'=>'table',
+					'nom'=>'trash',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_item','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'type','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'json','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'by','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'acl',
+					'champs'=>array(
+						array('nom'=>'id_ressource','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'type_ressource','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'id_acces','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'type_acces','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'level','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'unique index',
+					'nom'=>'acl_idx',
+					'on'=>'acl',
+					'champs'=>array('id_ressource', 'type_ressource', 'id_acces', 'type_acces')
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'contacts',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'sort','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'prenom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'type','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'casquettes',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'donnees','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'id_contact','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_etab','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'emails','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'email_erreur','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'fonction','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'cp','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'gps_x','type'=>'REAL','defaut'=>'','options'=>''),
+						array('nom'=>'gps_y','type'=>'REAL','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'fts table',
+					'nom'=>'casquettes_fts',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'idx','type'=>'TEXT','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'tags',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'color','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'id_parent','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'selections',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'query','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'tag_cas',
+					'champs'=>array(
+						array('nom'=>'id_tag','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_cas','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'index',
+					'nom'=>'contacts_idx',
+					'on'=>'contacts',
+					'champs'=>array('sort')
+				),
+				array(
+					'type'=>'index',
+					'nom'=>'casquettes_idx',
+					'on'=>'casquettes',
+					'champs'=>array('id_contact', 'id_etab', 'cp', 'email_erreur')
+				),
+				array(
+					'type'=>'unique index',
+					'nom'=>'tag_cas_idx',
+					'on'=>'tag_cas',
+					'champs'=>array('id_tag', 'id_cas')
+				),
+				
+				array(
+					'type'=>'table',
+					'nom'=>'chat',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_from','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_to','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'message','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'lus',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_corresp','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_user','type'=>'TEXT','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'supports',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'h_page','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'l_page','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'nb_lignes','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'nb_colonnes','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'offset','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mp_gauche','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mp_droite','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mp_haut','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mp_bas','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mc_gauche','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mc_droite','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mc_haut','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'mc_bas','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'police','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'tpl','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'boite_envoi',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_cas','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_envoi','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'i','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'erreurs','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'by','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'emails',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'sujet','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'html','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'news',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'sujet','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'blocs','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'news_modeles',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'modele','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'envois',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'sujet','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'html','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'pjs','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'expediteur','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'log','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'nb','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'statut','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'by','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'r',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_cas','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_envoi','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'url','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'suivis',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'titre','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'desc','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'statut','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'users',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'login','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'name','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'password','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'prefs','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'active','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'groups',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'acl',
+					'champs'=>array(
+						array('nom'=>'id_ressource','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'type_ressource','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'id_acces','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'type_acces','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'level','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'user_group',
+					'champs'=>array(
+						array('nom'=>'id_user','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_group','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'unique index',
+					'nom'=>'user_group_idx',
+					'on'=>'user_group',
+					'champs'=>array('id_user', 'id_group')
+				),
+			);
+			
 			// do we need to build a new database?
-			$rebuild = false;
-			if(!file_exists($dbfile)) { $rebuild = true; }
+			$fill = false;
+			if(!file_exists($dbfile)) { $fill = true; }
 
 			// bind the database handler
 			$this->database = new PDO("sqlite:" . $dbfile);
 
 			// If we need to rebuild, the file will have been automatically made by the PDO call,
 			// but we'll still need to define the user table before we can use the database.
-			if($rebuild) { $this->rebuild_database($dbfile); }
-
+			$this->check_database();
+			if($fill) { $this->fill(); }
 		}
 
 		// this function rebuilds the database if there is no database to work with yet
-		function rebuild_database($dbfile)
+		function check_database()
 		{
-			//begin transaction
-			$this->database->beginTransaction();
-			//ALL
-			$create = "CREATE TABLE trash (id INTEGER PRIMARY KEY AUTOINCREMENT, id_item INTEGER, type TEXT, json TEXT, date INTEGER, by INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE acl (id_ressource INTEGER, type_ressource TEXT, id_acces INTEGER, type_acces TEXT, level INTEGER);";
-			$this->database->exec($create);
-			$create = "CREATE UNIQUE INDEX acl_idx on acl(id_ressource, type_ressource, id_acces, type_acces)";
-			$this->database->exec($create);		
-			//CONTACTS
-			$create = "CREATE TABLE contacts (id INTEGER PRIMARY KEY AUTOINCREMENT, sort TEXT, nom TEXT, prenom TEXT, type INTEGER, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE casquettes (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, donnees TEXT, id_contact INTEGER, id_etab INTEGER, emails TEXT, email_erreur INTEGER, fonction TEXT, cp TEXT, gps_x REAL, gps_y REAL, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE VIRTUAL TABLE casquettes_fts USING fts3(id INTEGER PRIMARY KEY AUTOINCREMENT, idx TEXT)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE tags (id INTEGER PRIMARY KEY AUTOINCREMENT, nom INTEGER, color TEXT, id_parent INTEGER, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE selections (id INTEGER PRIMARY KEY AUTOINCREMENT, nom INTEGER, query TEXT, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE tag_cas (id_tag INTEGER, id_cas INTEGER, date INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE INDEX contacts_idx on contacts(sort)";
-			$this->database->exec($create);
-			$create = "CREATE INDEX casquettes_idx on casquettes(id_contact, id_etab, cp, email_erreur)";
-			$this->database->exec($create);
-			$create = "CREATE UNIQUE INDEX tag_cas_idx on tag_cas(id_tag, id_cas)";
-			$this->database->exec($create);		
-			//CHAT
-			$create = "CREATE TABLE chat (id INTEGER PRIMARY KEY AUTOINCREMENT, id_from INTEGER, id_to INTEGER, message TEXT, creationdate INTEGER, modificationdate INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE lus (id INTEGER PRIMARY KEY AUTOINCREMENT, date INTEGER, id_corresp INTEGER, id_user INTEGER)";
-			$this->database->exec($create);
-			//PUBLIPOSTAGE
-			$create = "CREATE TABLE supports (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, h_page INTEGER, l_page INTEGER, nb_lignes INTEGER, nb_colonnes INTEGER, offset INTEGER, mp_gauche INTEGER, mp_droite INTEGER, mp_haut INTEGER, mp_bas INTEGER, mc_gauche INTEGER, mc_droite INTEGER, mc_haut INTEGER, mc_bas INTEGER, police INTEGER, tpl TEXT, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			//MAILING
-			$create = "CREATE TABLE boite_envoi (id INTEGER PRIMARY KEY AUTOINCREMENT, id_cas INTEGER, id_envoi INTEGER, i INTEGER, date INTEGER, erreurs TEXT, by INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE emails (id INTEGER PRIMARY KEY AUTOINCREMENT, sujet TEXT, html TEXT, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE news (id INTEGER PRIMARY KEY AUTOINCREMENT, sujet TEXT, blocs TEXT, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE news_modeles (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, modele TEXT, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE envois (id INTEGER PRIMARY KEY AUTOINCREMENT, sujet TEXT, html TEXT, pjs TEXT, expediteur TEXT, log TEXT, nb INTEGER, statut INTEGER, date INTEGER, by INTEGER)";
-			$this->database->exec($create);
-			$create = "CREATE TABLE r (id INTEGER PRIMARY KEY AUTOINCREMENT, id_cas INTEGER, id_envoi INTEGER, url TEXT, date DATE);";
-			$this->database->exec($create);
-			//SUIVIS
-			$create = "CREATE TABLE suivis (id INTEGER PRIMARY KEY AUTOINCREMENT, id_casquette INTEGER, titre TEXT, desc TEXT, date INTEGER, statut INTEGER, creationdate INTEGER, createdby INTEGER, modificationdate INTEGER, modifiedby INTEGER)";
-			$this->database->exec($create);
-			//USERS
-			$create = "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, login TEXT, name TEXT, password TEXT, prefs TEXT, active INTEGER);";
-			$this->database->exec($create);
-			$create = "CREATE TABLE groups (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT);";
-			$this->database->exec($create);
-			$create = "CREATE TABLE acl (id_ressource INTEGER, type_ressource TEXT, id_acces INTEGER, type_acces TEXT, level INTEGER);";
-			$this->database->exec($create);
-			$create = "CREATE TABLE user_group (id_user INTEGER, id_group INTEGER);";
-			$this->database->exec($create);
-			$create = "CREATE UNIQUE INDEX acl_idx on acl(id_ressource, type_ressource, id_acces, type_acces)";
-			$this->database->exec($create);		
-			$create = "CREATE UNIQUE INDEX user_group_idx on user_group(id_user, id_group)";
-			$this->database->exec($create);		
+			
+			$sql=array();
+			foreach($this->schema as $item){
+				if ($item['type']=='table') {
+					$sql_test="PRAGMA table_info({$item['nom']})";
+					$cs=array();
+					foreach($this->database->query($sql_test) as $row){
+						$cs[]=$row['name'];
+					}
+					$test=true;
+					if (count($cs)==0) {
+						$champs=array();
+						foreach($item['champs'] as $c) {
+							$champ=trim("{$c['nom']} {$c['type']} {$c['options']}");
+							if ($c['defaut']!="") $champ.=" default {$c['defaut']}";
+							$champs[]=$champ;
+						}
+						$champs=implode(', ',$champs);
+						$sql[]="CREATE TABLE {$item['nom']} ($champs)";
+					} else {
+						foreach($item['champs'] as $c) {
+							if (!in_array($c['nom'],$cs)){
+								$champ=trim("{$c['nom']} {$c['type']} {$c['options']}");
+								if ($c['defaut']!="") $champ.=" default {$c['defaut']}";
+								$sql[]="ALTER TABLE ".$item['nom']." ADD COLUMN $champ";
+								$test=false;
+							}
+						}
+					}
+				}
+				if ($item['type']=='fts table') {
+					$sql_test="PRAGMA table_info({$item['nom']})";
+					$cs=array();
+					foreach($this->database->query($sql_test) as $row){
+						$cs[]=$row['name'];
+					}
+					$test=true;
+					if (count($cs)==0) {
+						$champs=array();
+						foreach($item['champs'] as $c) {
+							$champ=trim("{$c['nom']} {$c['type']} {$c['options']}");
+							if ($c['defaut']!="") $champ.=" default {$c['defaut']}";
+							$champs[]=$champ;
+						}
+						$champs=implode(', ',$champs);
+						$sql[]="CREATE VIRTUAL TABLE {$item['nom']} USING fts3($champs)";
+					} else {
+						foreach($item['champs'] as $c) {
+							if (!in_array($c['nom'],$cs)){
+								$champ=trim("{$c['nom']} {$c['type']} {$c['options']}");
+								if ($c['defaut']!="") $champ.=" default {$c['defaut']}";
+								$sql[]="ALTER TABLE ".$item['nom']." ADD COLUMN $champ";
+								$test=false;
+							}
+						}
+					}
+				}
+				if ($item['type']=='index') {
+					$sql_test="PRAGMA index_info({$item['nom']})";
+					$cs=array();
+					foreach($this->database->query($sql_test) as $row){
+						$cs[]=$row['name'];
+					}
+					$test=true;
+					$champs=implode(', ',$item['champs']);
+					if (count($cs)==0) {
+						$sql[]="CREATE INDEX {$item['nom']} on {$item['on']}($champs)";
+					} else {
+						foreach($item['champs'] as $c) {
+							if (!in_array($c,$cs)){
+								$test=false;
+							}
+						}	
+						if (!$test) {
+							$sql[]="DROP INDEX {$item['nom']}";
+							$sql[]="CREATE INDEX {$item['nom']} on {$item['on']}($champs)";
+						}
+					}
+				}
+				if ($item['type']=='unique index') {
+					$sql_test="PRAGMA index_info({$item['nom']})";
+					$cs=array();
+					foreach($this->database->query($sql_test) as $row){
+						$cs[]=$row['name'];
+					}
+					$test=true;
+					$champs=implode(', ',$item['champs']);
+					if (count($cs)==0) {
+						$sql[]="CREATE UNIQUE INDEX {$item['nom']} on {$item['on']}($champs)";
+					} else {
+						foreach($item['champs'] as $c) {
+							if (!in_array($c,$cs)){
+								$test=false;
+							}
+						}	
+						if (!$test) {
+							$sql[]="DROP INDEX {$item['nom']}";
+							$sql[]="CREATE UNIQUE INDEX {$item['nom']} on {$item['on']}($champs)";
+						}
+					}
+				}
+			}
+			if (count($sql)>0) {
+				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'data/log/db.log');
+				error_log(implode("\n",$sql)."\n\n",3,'data/log/db.log');
+				$this->database->beginTransaction();
+				foreach($sql as $s){
+					$this->database->exec($s);
+				}
+				$this->database->commit();
+			}
+		}
+		function fill()
+		{
 			$password=md5('adminadmin');
 			$prefs=array();
 			$prefs['panier']=array();
 			$select = $this->database->prepare("INSERT INTO users (login, name, password, prefs, active) VALUES (?,?,?,?,?)");
 			$select->execute(array('admin', 'Admin', $password, json_encode($prefs),1));
-			//commit
-            $this->database->commit();
 		}
 	}
