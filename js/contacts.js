@@ -73,11 +73,14 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.total={};
 	$scope.total.casquettes=0;
 	$scope.selected={index:0};
+	$scope.ts={};
 	$scope.tabs={};
 	$scope.tabs.admin={};
 	$scope.pageCourante={};
+	$scope.pageCourante.tags={};
 	$scope.pageCourante.envois=1;
 	$scope.pageCourante.news=1;
+	$scope.pageCourante.mails=1;
 	$scope.afterLogin='';
 	$scope.pageCourante.suivis={};
 	$scope.pageCourante.suivis.prochains=1;
@@ -522,6 +525,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.Data=Data;
 	$scope.panierKey='panier';	
 	$scope.itemsParPage=10;
+	$scope.itemsParPageTag=20;
 	$scope.historyPrev=function(){
 		var l=$scope.query_history.tab.length;
 		if (l>0) {
@@ -859,6 +863,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	};
 	$scope.dropOnTag = function(e,data,channel,tag,ctrl) {
 		if (channel=='tag'){
+			if ($scope.pageCourante.tags[data.id_parent]-1*$scope.itemsParPage==$scope.ts[data.id_parent].length-1) $scope.pageCourante.tags[data.id]--;
 			if (!$scope.isAncestor(tag,data)) Link.ajax([{action:'movTag', params:{tag:data, parent:tag}}]);
 		}
 		if (channel=='panier'){
@@ -878,12 +883,12 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
 	};
 	$scope.CasTagClick = function(e,tag,cas) {
-		if (e.shiftKey){
+		if (e.shiftKey || e.ctrlKey){
 			if ($window.confirm('Supprimer de la catégorie ?')) {
 				$scope.delCasTag(tag,cas);
 			}
 		} else {
-			$window.alert('Tag n°'+tag.id+'\n(maj+clic pour enlever.)');
+			$window.alert('Tag n°'+tag.id+'\n(maj+clic ou ctrl+clic pour enlever.)');
 		}
 	};
 	$scope.delCasquettesPanier=function(){
@@ -982,7 +987,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.getPage();
 }]);
 
-app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', 'Link', 'Data', function ($scope, $filter, $http, $location, $routeParams, $uibModal, Link, Data) {
+app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data) {
 	$scope.key='contact/'+$routeParams.id;
 	Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
 	$scope.sv={};
@@ -1079,8 +1084,8 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		cas.id_etab=0;
 		Link.ajax([{action:'modCasquette', params:{cas:cas}}]);
 	};
-	$scope.addCasquetteMod=function(){
-		$scope.modCasquette={donnees:[]};
+	$scope.addCasquetteMod=function(type){
+		$scope.modCasquette={type:type,donnees:[]};
 		var modal = $uibModal.open({
 			templateUrl: 'partials/modcasquettemod.html',
 			controller: 'modCasquetteModCtl',
@@ -1115,6 +1120,15 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 	$scope.addSuivi=function(cas){
 		$location.path('/addsuivi/'+ cas.id +'/0');
 	}
+	$scope.CasTagClick = function(e,tag,cas) {
+		if (e.shiftKey || e.ctrlKey){
+			if ($window.confirm('Supprimer de la catégorie ?')) {
+				$scope.delCasTag(tag,cas);
+			}
+		} else {
+			$window.alert('Tag n°'+tag.id+'\n(maj+clic ou ctrl+clic pour enlever.)');
+		}
+	};
 	$scope.delCasTag = function(tag,cas) {
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
 	};

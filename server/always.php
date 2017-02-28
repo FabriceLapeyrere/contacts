@@ -9,7 +9,42 @@ function Hex2RGB($color){
     return $rgb;
 }
 function get_gps($adresse){
-	return array('x'=>1000,'y'=>1000);
+	$pays=$adresse->pays;
+	$cp=$adresse->cp;
+	$ville=trim(str_replace("cedex",'',$adresse->ville));
+	$adresse=str_replace(',','',str_replace("\n",' ',$adresse->adresse));
+	$query1 = http_build_query([
+	 'q' => "$pays, $cp, $ville, $adresse",
+	 'format' => 'json'
+	]);
+	$query2 = http_build_query([
+	 'q' => "$pays, $cp, $ville",
+	 'format' => 'json'
+	]);
+	$url="http://nominatim.openstreetmap.org/search.php?".$query1;
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL,$url);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_USERAGENT, "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0");
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+	curl_setopt ($ch, CURLOPT_HEADER, 0);
+	$tab=json_decode(curl_exec ($ch));
+	if (count($tab)==0) {
+		$url="http://nominatim.openstreetmap.org/search.php?".$query2;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL,$url);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($ch, CURLOPT_USERAGENT, "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+		curl_setopt ($ch, CURLOPT_HEADER, 0);
+		$tab=json_decode(curl_exec ($ch));
+	}
+	if (count($tab)>0) return array('x'=>$tab[0]->lon,'y'=>$tab[0]->lat);
+	else return array('x'=>'1000','y'=>'1000');
 }
 function filter($txt) {
 	$search = array ('@[\\- ]@i','@[^a-zA-Z0-9_]@');

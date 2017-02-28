@@ -74,10 +74,11 @@
 	<uib-tab heading="Catégories">
         <p>&nbsp;</p>
         <p><span class="btn btn-primary" ng-click="addTagMod()">Nouveau tag</span></p>
-	    <ul class="list-group">
+	   	<uib-pagination ng-init="pageCourante.tags[0]= pageCourante.tags[0] ? pageCourante.tags[0] : 1" ng-if="ts[0].length>itemsParPageTag" boundary-links="true" total-items="ts[0].length" ng-model="pageCourante.tags[0]" items-per-page="itemsParPageTag" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<ul class="list-group">
 		    <li ng-if="Data.modele.tags.length==0" class="list-group-item">Aucun tag</li>
-		    <li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in children({id:0}) | toArray | orderBy:normalizedNom"></li>
-	    </ul>
+		    <li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in (ts[0]=(children({id:0}) | toArray | orderBy:normalizedNom)) | startFrom:(pageCourante.tags[0]-1)*itemsParPageTag | limitTo:itemsParPageTag"></li>
+		</ul>
     </uib-tab>
 	<uib-tab heading="Sélections">
         <p>&nbsp;</p>

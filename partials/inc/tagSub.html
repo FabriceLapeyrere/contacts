@@ -11,8 +11,9 @@
     <span class="mini idtag">#{{tag.id}}</span>
 </div>
 </locked>
-<ul ng-if="hasChild(tag) && tagsOpen.indexOf(tag.id)>=0"class="list-group">
-<li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in children(tag) | toArray | orderBy:normalizedNom"></li>
+<uib-pagination ng-init="pageCourante.tags[tag.id]= pageCourante.tags[tag.id] ? pageCourante.tags[tag.id] : 1" ng-if="hasChild(tag) && tagsOpen.indexOf(tag.id)>=0 && ts[tag.id].length>itemsParPageTag" boundary-links="true" total-items="ts[tag.id].length" ng-model="pageCourante.tags[tag.id]" items-per-page="itemsParPageTag" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+<ul ng-if="hasChild(tag) && tagsOpen.indexOf(tag.id)>=0" class="list-group">
+<li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in (ts[tag.id]=(children(tag) | toArray | orderBy:normalizedNom)) | startFrom:(pageCourante.tags[tag.id]-1)*itemsParPageTag | limitTo:itemsParPageTag"></li>
 </ul>
 <div class="racine" ui-on-Drop="dropOnTag($event,$data,$channel,{id_parent:tag.id_parent,id:tag.id_parent},$ctrl)" drop-channel="tag" data-drop-type="tag"></div>
 

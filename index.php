@@ -47,6 +47,7 @@ session_write_close();
 <script src="lib/moment-with-langs.js"></script>
 <script src="lib/hotkeys.js"></script>
 <script src="lib/ckeditor/ckeditor.js"></script>
+<script src="lib/ckeditor/config.js"></script>
 <script src="lib/ng-ckeditor.js"></script>
 <script src="lib/mousewheel.js"></script>
 <script src="lib/hamster.js"></script>
