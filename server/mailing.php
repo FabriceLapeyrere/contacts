@@ -570,6 +570,8 @@
 			$log_file="$log_path/succes.log";
 			if (!file_exists($log_path)) mkdir($log_path, 0777, true);
 			error_log(json_encode($log)."\n",3,$log_file);
+			$insert = $db->database->prepare('INSERT OR REPLACE INTO envoi_cas (id_envoi,id_cas,emails,date) VALUES (?,?,?,?)');
+			$insert->execute(array($id_envoi,$log['cas']['id'],json_encode($log['cas']['emails']),$log['date']));
 		}
 		public static function log_erreur($id_envoi,$log) {
 			$log_path="./data/files/envois/$id_envoi";
