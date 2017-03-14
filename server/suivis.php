@@ -22,7 +22,7 @@
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$row['verrou']=WS::get_verrou("suivi/".$row['id']);
 				$row['date']=0+$row['date'];
-				$row['groups']= is_array(json_decode($row['groups'])) ? json_decode($row['groups']) : [];
+				$row['groups']= is_array(json_decode($row['groups'])) ? json_decode($row['groups']) : array();
 				$suivis[$row['id']]=$row;
 				$tab[]=$row['id_casquette'];
 			}
