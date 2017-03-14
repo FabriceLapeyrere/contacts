@@ -12,8 +12,15 @@
 	</p>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">{{bouton}}</button>
-    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+	<button class="btn btn-primary" ng-click="ok()">{{bouton}}</button>
+	<button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+	<hr />
+	<div ng-if="Data.modele.tags[modTag.id].id_parent!=0">
+		Ce tag est classé dans <span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in [Data.modele.tags[modTag.id].id_parent]"></span> <br /><span class="mini"><span class="cursor" ng-click="assTag(tag)">Changer</span> | <span class="cursor" ng-click="movTag(modTag,{id:0,id_parent:0})">Mettre à la racine</span></span>
+	</div>
+	<div ng-if="Data.modele.tags[modTag.id].id_parent==0">
+		Ce tag est à la racine. <br /><span class="cursor mini" ng-click="assTag(tag)">Classer</span>
+	</div>
 </div>
 </form>
 
