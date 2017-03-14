@@ -52,7 +52,7 @@ class Imap {
 							CR::maj(array('*'));
 						}
 					}
-					$p=round(100*$i/$total);
+					$p=floor(100*$i/$total);
 					if ($p!=$pp) {
 						Imap::set_status($id,count($exps),$k,1,$p,count($cass));
 						$pp=$p;
