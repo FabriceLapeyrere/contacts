@@ -12,7 +12,7 @@ function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') 
 }
 function test_email($email)
 {
-	if( eregi("^[_\.0-9a-z-]+@([0-9a-z-]+\.)+[a-z]{2,4}$",$email) )
+	if( preg_match("~^[_\.0-9a-z-]+@([0-9a-z-]+\.)+[a-z]{2,4}$~",$email) )
 	{
 	// L'adresse email est valide
 	return true;
