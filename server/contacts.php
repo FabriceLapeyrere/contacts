@@ -442,7 +442,7 @@
 			$db= new DB();
 			$cas=$params->cas;
 			$id_contact=$params->cas->id_contact;
-			$contact=Contacts::get_contact($id_contact,$id);
+			$contact=Contacts::get_contact($id_contact,true,$id);
 			$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
 			$insert->execute(array($id_contact,'contact',json_encode($contact),millisecondes(),$id));
 			$delete = $db->database->prepare('DELETE FROM contacts WHERE id=? ');
