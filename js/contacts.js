@@ -69,11 +69,12 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.tagsOpen=[];
 	$scope.panier=[];
 	$scope.scroll=0;
-	$scope.filtre={suivis:0};
+	$scope.filtre={suivis:0,tags:{}};
 	$scope.total={};
 	$scope.total.casquettes=0;
 	$scope.selected={index:0};
 	$scope.ts={};
+	$scope.tt={};
 	$scope.tabs={};
 	$scope.tabs.admin={};
 	$scope.pageCourante={};
@@ -157,6 +158,20 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		var res={};
 		angular.forEach(Data.modele.tags, function(t){
 			if (t.id_parent==tag.id){
+				res[t.id]=t;
+			}
+		});
+		return res;
+	}
+	$scope.isAncestor=function(tag,ancestor){
+		if (tag.id_parent==0 && tag.id!=ancestor.id) return false;
+		else if (tag.id_parent==ancestor.id || tag.id==ancestor.id) return true;
+		else return $scope.isAncestor(Data.modele.tags[tag.id_parent],ancestor);
+	};
+	$scope.moveok=function(tag){
+		var res={};
+		angular.forEach(Data.modele.tags, function(t){
+			if(!$scope.isAncestor(t,tag)){
 				res[t.id]=t;
 			}
 		});
@@ -864,17 +879,15 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.dropOnTag = function(e,data,channel,tag,ctrl) {
 		if (channel=='tag'){
 			if ($scope.pageCourante.tags[data.id_parent]-1*$scope.itemsParPage==$scope.ts[data.id_parent].length-1) $scope.pageCourante.tags[data.id]--;
-			if (!$scope.isAncestor(tag,data)) Link.ajax([{action:'movTag', params:{tag:data, parent:tag}}]);
+			$scope.movTag(data, tag);
 		}
 		if (channel=='panier'){
-			if (e.shiftKey) Link.ajax([{action:'delPanierTag', params:{tag:tag}}]);
+			if ($scope.dragging.s=='s') Link.ajax([{action:'delPanierTag', params:{tag:tag}}]);
 			else Link.ajax([{action:'addPanierTag', params:{tag:tag}}]);
 		}
 	};
-	$scope.isAncestor=function(tag,ancestor){
-		if (tag.id_parent==0 && tag.id!=ancestor.id) return false;
-		else if (tag.id_parent==ancestor.id || tag.id==ancestor.id) return true;
-		else return $scope.isAncestor(Data.modele.tags[tag.id_parent],ancestor);
+	$scope.movTag=function(tag,parent){
+		if (!$scope.isAncestor(parent,tag)) Link.ajax([{action:'movTag', params:{tag:tag, parent:parent}}]);
 	};
 	$scope.addCasTag = function(e,tag,cas) {
 		Link.ajax([{action:'addCasTag', params:{cas:cas, tag:tag}}]);
@@ -907,6 +920,15 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			templateUrl: 'partials/modtagmod.html',
 			controller: 'modTagModCtl',
 			resolve:{
+				moveok: function () {
+					return $scope.moveok;
+				},
+				movTag: function () {
+					return $scope.movTag;
+				},
+				descTag: function () {
+					return $scope.descTag;
+				},
 				modTag: function () {
 					return modTag;
 				},
@@ -925,6 +947,15 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			templateUrl: 'partials/modtagmod.html',
 			controller: 'modTagModCtl',
 			resolve:{
+				moveok: function () {
+					return $scope.moveok;
+				},
+				movTag: function () {
+					return $scope.movTag;
+				},
+				descTag: function () {
+					return $scope.descTag;
+				},
 				modTag: function () {
 					return modTag;
 				},
@@ -1223,6 +1254,9 @@ app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 
 	$scope.delNews=function(news){
 		Link.ajax([{action:'delNews',params:{news:news}}]);
 	}
+	$scope.dupNews=function(news){
+		Link.ajax([{action:'dupNews',params:{news:news}}]);
+	}
 }]);
 app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($timeout, $window, $scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
 	$scope.mini={bool:false};
@@ -1244,6 +1278,13 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			angular.element(document.getElementById('news-container')).css('transform-origin','top left');
 			angular.element(document.getElementById('news-container')).css('transform','scale(1)');	
 		}
+	};
+	$scope.pdf=function(){
+		var data={
+			type:'news_pdf',
+			id_news:$routeParams.id
+		};			
+		angular.element.redirect('doc.php',data,'POST','_blank');
 	};
 	$scope.modCats=[];
 	$scope.buildModCats=function(){
@@ -1770,7 +1811,7 @@ app.controller('moiCtl', ['$scope', '$http', '$location', '$timeout', 'Link', 'D
 		else Link.ajax([{action:'addUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
 	}
 	$scope.mod=function(){
-		Link.ajax([{action:'modUser',params:{login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
+		Link.ajax([{action:'modUser',params:{id:Data.user.id,login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
 			$location.path('/admin');
 		});
 	};
@@ -2050,8 +2091,29 @@ app.controller('modSelectionModCtl', ['$scope', '$uibModalInstance', '$uibModal'
 		$uibModalInstance.dismiss();
 	};
 }]);
-app.controller('modTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'modTag', 'bouton', function ($scope, $uibModalInstance, $uibModal, modTag, bouton) {
+app.controller('modTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Link', 'Data', 'moveok', 'movTag', 'descTag', 'modTag', 'bouton', function ($scope, $uibModalInstance, $uibModal, Link, Data, moveok, movTag, descTag, modTag, bouton) {
+	$scope.Data=Data;
+	$scope.moveok=moveok;
+	$scope.movTag=movTag;
+	$scope.descTag=descTag;
 	$scope.modTag=modTag;
+	$scope.assTag=function(){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/movtag.html',
+			controller: 'movTagModCtl',
+			resolve: {
+				moveok: function () {
+					return $scope.moveok;
+				},
+				modTag: function () {
+					return $scope.modTag;
+				}
+			}
+		});
+		modal.result.then(function (tag) {
+			$scope.movTag($scope.modTag,tag);
+		});
+	}
 	if (!$scope.modTag.color) $scope.modTag.color='#333333';
 	$scope.bouton=bouton;
 	$scope.form={};
@@ -2224,6 +2286,39 @@ app.controller('assCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal'
 }]);
 app.controller('assTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data',  function ($scope, $uibModalInstance, $uibModal, Data) {
 	$scope.Data=Data;
+	$scope.descTagRec=function(tag){
+		var h=[tag];
+		if (tag.id_parent!=0){
+			angular.forEach($scope.descTagRec($scope.Data.modele.tags[tag.id_parent]), function(t){
+				h.push(t);
+			});
+		}
+		return h;
+	};
+	$scope.descTag=function(tag){
+		var h=$scope.descTagRec(tag);
+		return h.reverse();
+	};
+	$scope.notNull=function(){
+		return function( item ) {
+			return item.id != 0;
+		};
+	}
+	$scope.assTag = function (tag) {
+		$uibModalInstance.close(tag);
+	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+	$scope.currentPage=1;
+	$scope.itemsParPage=5;
+	$scope.maxSize=5;
+	
+}]);
+app.controller('movTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data', 'moveok', 'modTag',  function ($scope, $uibModalInstance, $uibModal, Data, moveok, modTag) {
+	$scope.Data=Data;
+	$scope.moveok=moveok;
+	$scope.modTag=modTag;
 	$scope.descTagRec=function(tag){
 		var h=[tag];
 		if (tag.id_parent!=0){

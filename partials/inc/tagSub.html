@@ -5,15 +5,19 @@
 		<span class="glyphicon glyphicon-plus" ng-if="tagsOpen.indexOf(tag.id)==-1" ng-click="tagsOpen.push(tag.id)"></span>
 	</span>
 	<span ui-draggable="true" drag="tag" drag-channel="tag" style="color:{{tag.color}};">{{tag.nom}}</span> 
-	<span ng-if="ht=hasChild(tag)" class="glyphicon glyphicon-trash pull-right" style="opacity:0.2;margin-right:5px;font-size:0.7em;"></span>
-	<span ng-if="!ht" class="glyphicon glyphicon-trash pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-confirm-click="delTag(tag)" ng-confirm-message="Sûr? Attention cela effacera tous les liens entre les contacts et ce tag !"></span>
-    <span class="glyphicon glyphicon-pencil pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-click="modTagMod(tag)"></span>
+	<div class="mini-menu">
+		<span class="glyphicon glyphicon-pencil cursor" ng-click="modTagMod(tag)"></span>
+		<span ng-if="ht=hasChild(tag)" class="glyphicon glyphicon-trash" style="opacity:0.2;"></span>
+		<span ng-if="!ht" class="glyphicon glyphicon-trash cursor" ng-confirm-click="delTag(tag)" ng-confirm-message="Sûr? Attention cela effacera tous les liens entre les contacts et ce tag !"></span>
+	</div>
     <span class="mini idtag">#{{tag.id}}</span>
 </div>
 </locked>
+<p ng-if="bb=hasChild(tag) && tagsOpen.indexOf(tag.id)>=0 && tt[tag.id].length>itemsParPageTag">&nbsp;</p>
+<input type="text" ng-model="filtre.tags[tag.id].nom" class="form-control" placeholder="filtre" ng-if="bb"/>
 <uib-pagination ng-init="pageCourante.tags[tag.id]= pageCourante.tags[tag.id] ? pageCourante.tags[tag.id] : 1" ng-if="hasChild(tag) && tagsOpen.indexOf(tag.id)>=0 && ts[tag.id].length>itemsParPageTag" boundary-links="true" total-items="ts[tag.id].length" ng-model="pageCourante.tags[tag.id]" items-per-page="itemsParPageTag" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 <ul ng-if="hasChild(tag) && tagsOpen.indexOf(tag.id)>=0" class="list-group">
-<li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in (ts[tag.id]=(children(tag) | toArray | orderBy:normalizedNom)) | startFrom:(pageCourante.tags[tag.id]-1)*itemsParPageTag | limitTo:itemsParPageTag"></li>
+<li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in (ts[tag.id]=((tt[tag.id]=(children(tag) | toArray)) | filter:filtre.tags[tag.id] | orderBy:normalizedNom)) | startFrom:(pageCourante.tags[tag.id]-1)*itemsParPageTag | limitTo:itemsParPageTag"></li>
 </ul>
 <div class="racine" ui-on-Drop="dropOnTag($event,$data,$channel,{id_parent:tag.id_parent,id:tag.id_parent},$ctrl)" drop-channel="tag" data-drop-type="tag"></div>
 
