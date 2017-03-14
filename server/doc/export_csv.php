@@ -5,13 +5,6 @@
  * @author	 Fabrice Lapeyrere <fabrice@surlefil.org>
  */
 set_time_limit(0);
-foreach (glob("server/*.php") as $filename)
-{
-	include $filename;
-}
-include 'fake_ws/conf.php';
-include 'conf/main.php';
-include 'conf/auth.php';
 
 	$params=json_decode(json_encode($_POST));
 	$filename="data/tmp/export".time().".csv";
