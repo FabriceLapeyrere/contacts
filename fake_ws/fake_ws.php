@@ -162,7 +162,7 @@
             global $t;
             $t0=microtime(true);
             foreach(WS::get_subs() as $uid=>$sub) {
-                if ($t0-$sub->time>30) {
+                if ($t0-$sub->time>120) {
                     error_log(":::: clear old sub $t\n",3,"./data/log/link.log");
                     WS::del_sub($uid);
                     WS::del_old_verrous();

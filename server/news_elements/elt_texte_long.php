@@ -7,14 +7,19 @@
 		if (isset($tab[2])) {
 			$color=$tab[2];
 			$doc = new DOMDocument();
-			$doc->loadHTML($valeur);
+			$cv = mb_convert_encoding($valeur, 'HTML-ENTITIES', "UTF-8");
+			$doc->loadHTML($cv);
 			$xpath = new DOMXpath($doc);
 			$nodes = $xpath->query('//a');
 			foreach($nodes as $node) {
 				$href=$node->getAttribute('href');
 				$node->setAttribute('style',"text-decoration:none;color:$color;");
 			}
-			$valeur=$doc->saveHTML($doc->getElementsByTagName('body')->item(0));
+			$innerHTML="";
+			foreach ($doc->getElementsByTagName('body')->item(0)->childNodes as $child) {
+				$innerHTML.= $doc->saveXML($child);
+			}
+			$valeur=$innerHTML;
 		}
 	}
 ?>

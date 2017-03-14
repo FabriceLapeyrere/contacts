@@ -1,14 +1,14 @@
 <div loading="key" data="Data">
 	<div class="col-xs-12 col-md-8 col-lg-9" id="news-Parent">
 		<form>
-		<p><button class="btn btn-default" ng-click="envoyer('news',Data.modele[key])">Envoyer à</button></p>
-	    <locked verrou="Data.modele[key].verrou" data="Data">
-		    <p>
-			    <h3 ng-click="modSujetMod()" class="cursor individu">{{Data.modele[key].sujet}}</h3>
-		    </p>
-		    <p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
-		    </p>
-		    </locked>
+		<p><button class="btn btn-default" ng-click="envoyer('news',Data.modele[key])">Envoyer à</button> <button class="btn btn-default" ng-click="pdf()">PDF</button></p>
+		<locked verrou="Data.modele[key].verrou" data="Data">
+			<p>
+				<h3 ng-click="modSujetMod()" class="cursor individu">{{Data.modele[key].sujet}}</h3>
+			</p>
+			<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+			</p>
+			</locked>
 		</form>
 		<div class="news" id="news-container">
 			<style scoped ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
@@ -17,7 +17,7 @@
 				Glisser les blocs ici...
 			</div>
 			<div ui-on-drop="drop($event,$data,$index,$channel)" drop-channel="order,bloc" ui-draggable="true" drag="$index+1" drag-channel="order" class="bloc" ng-repeat="bloc in Data.modele[key].blocs" ng-class="{'pair':$index%2==0, 'impair':$index%2==1}">
-                <locked verrou="bloc.verrou" data="Data">
+				<locked verrou="bloc.verrou" data="Data">
 				<div class='menuBloc' >
 					<p><span ng-click="modBlocMod($index)" class='glyphicon glyphicon-pencil cursor'></span></p>
 					<p><span ng-confirm-click="delBloc($index)"  ng-confirm-message="Sûr?" class='glyphicon glyphicon-trash cursor'></span></p>
@@ -25,7 +25,7 @@
 					<p><span ng-show="mini.bool" ng-click="mini.bool=!mini.bool" class='glyphicon glyphicon-resize-full cursor'></span></p>
 				</div>
 				<div class="yui3-cssreset yui3-cssbase bloc-item" ng-class="{'minis':mini.bool}" ng-bind-html="trust(bloc.html)"></div>
-                </locked>
+				</locked>
 			</div>
 			<div class="news-last" ui-on-Drop="drop($event,$data,Data.modele[key].blocs.length,$channel)" drop-channel="bloc,order"></div>
 		</div>
@@ -38,14 +38,14 @@
 			<p><span class="btn btn-primary"ng-click="addModeleMod()">Nouveau modèle</span></p>
 			<uib-tabset>
 				<uib-tab ng-repeat="nomCat in modCats">
-                    <uib-tab-heading>
-                        {{nomCat.label}} <span ng-if="nomCat.nom!='Sans thème'" class="glyphicon glyphicon-pencil cursor" style="font-size:0.7em;" ng-click="modNomCat(nomCat.nom)"></span>
-                    </uib-tab-heading>
-                    <ul class="list-group">
+					<uib-tab-heading>
+						{{nomCat.label}} <span ng-if="nomCat.nom!='Sans thème'" class="glyphicon glyphicon-pencil cursor" style="font-size:0.7em;" ng-click="modNomCat(nomCat.nom)"></span>
+					</uib-tab-heading>
+					<ul class="list-group">
 						<li class="list-group-item" ng-repeat="modele in Data.modele.modeles | exists | nomCat:nomCat.nom | orderBy:'nom'" ui-draggable="true" drag="modele" drag-channel="bloc">
 							<locked verrou="modele.verrou" data="Data">
-                            <a href="modmodele/{{modele.id}}">{{modele.nom|nomModele}}</a>
-                            </locked>
+							<a href="modmodele/{{modele.id}}">{{modele.nom|nomModele}}</a>
+							</locked>
 						</li>
 					</ul>
 				</uib-tab>
@@ -58,17 +58,17 @@
 					<button ng-if="!pj.used" ng-confirm-click="delPj(pj)" ng-confirm-message="Sûr ?" class='btn btn-default btn-xs pull-right'>x</button>
 				</li>
 			</ul>
-			    <div ng-show="uploaders[key].queue.length>0 && uploaders[key].progress<100">
-		                <div>
-		                    <div class="progress" style="">
-		                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploaders[key].progress + '%' }"></div>
-		                    </div>
-		                </div>
-		            </div>
+				<div ng-show="uploaders[key].queue.length>0 && uploaders[key].progress<100">
+						<div>
+							<div class="progress" style="">
+								<div class="progress-bar" role="progressbar" ng-style="{ 'width': uploaders[key].progress + '%' }"></div>
+							</div>
+						</div>
+					</div>
 		
 			<div ng-show="uploaders[key].isHTML5">
 				<div class="well my-drop-zone" nv-file-over="" uploader="uploaders[key]" nv-file-drop="">
-				    Déposer les fichiers ici
+					Déposer les fichiers ici
 				</div>
 			</div>
 			<input type="file" nv-file-select uploader="uploaders[key]" multiple/>

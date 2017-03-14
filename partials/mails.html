@@ -7,8 +7,11 @@
 		<ul class="list-group">
 			<li class="list-group-item" ng-repeat="mail in (mails=(Data.modele.mails | toArray | filter:filtre.mails | orderBy:'creationdate':true)) | startFrom:(pageCourante.mails-1)*itemsParPage | limitTo:itemsParPage">
             <locked verrou="mail.verrou" data="Data">
-				<a href="modmail/{{mail.id}}">{{mail.sujet ? mail.sujet : '(sans titre)'}}</a> - {{calendar(mail.modificationdate)}} par {{Data.modele.users[mail.modifiedby].name}}
-				<span style="font-size:0.8em;" class="glyphicon glyphicon-trash pull-right cursor" ng-confirm-click="delMail(mail)" ng-confirm-message="Sûr?"></span> 
+				<a href="modmail/{{mail.id}}">{{mail.sujet ? mail.sujet : '(sans titre)'}}</a> <span class="mini">{{calendar(mail.modificationdate)}} par {{Data.modele.users[mail.modifiedby].name}}</span>
+				<div class="mini-menu">
+					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delMail(mail)" ng-confirm-message="Sûr?"></span>
+				<div>
+				
             </locked>
 			</li>
 		</ul>
