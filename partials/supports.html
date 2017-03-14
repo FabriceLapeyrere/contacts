@@ -5,8 +5,11 @@
 		<ul class="list-group">
 			<li class="list-group-item" ng-repeat="support in Data.modele.supports">
             <locked verrou="support.verrou" data="Data">
-				<a href="modsupport/{{support.id}}">{{support.nom ? support.nom : '(sans titre)'}}</a> - {{calendar(support.modificationdate)}} par {{Data.modele.users[support.modifiedby].name}}
-				<span style="font-size:0.8em;" class="glyphicon glyphicon-trash pull-right cursor" ng-confirm-click="delSupport(support)" ng-confirm-message="Sûr?"></span>
+				<a href="modsupport/{{support.id}}">{{support.nom ? support.nom : '(sans titre)'}}</a> <span class="mini">{{calendar(support.modificationdate)}} par {{Data.modele.users[support.modifiedby].name}}</span>
+				<div class="mini-menu">
+					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delSupport(support)" ng-confirm-message="Sûr?"></span>
+				<div>
+				
             </locked>
 			</li>
 		</ul>
