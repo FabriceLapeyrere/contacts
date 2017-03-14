@@ -1,5 +1,5 @@
 <?php
 	if ($valeur=='') {
-		$valeur="#000000";
+		$valeur=isset($tab[2]) ? $tab[2] : "#000000";
 	}
 ?>
