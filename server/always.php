@@ -13,14 +13,14 @@ function get_gps($adresse){
 	$cp=$adresse->cp;
 	$ville=trim(str_replace("cedex",'',$adresse->ville));
 	$adresse=str_replace(',','',str_replace("\n",' ',$adresse->adresse));
-	$query1 = http_build_query([
+	$query1 = http_build_query(array(
 	 'q' => "$pays, $cp, $ville, $adresse",
 	 'format' => 'json'
-	]);
-	$query2 = http_build_query([
+	));
+	$query2 = http_build_query(array(
 	 'q' => "$pays, $cp, $ville",
 	 'format' => 'json'
-	]);
+	));
 	$url="http://nominatim.openstreetmap.org/search.php?".$query1;
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL,$url);
