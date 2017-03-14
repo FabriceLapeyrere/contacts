@@ -5,7 +5,7 @@ $db->database->beginTransaction();
 $i=1;
 foreach($casquettes['collection'] as $cas) {
 	$donnees=$cas['donnees'];
-	$update = $db->database->prepare('UPDATE casquettes SET nom=?, donnees=?, id_etab=?, emails=?, email_erreur=?, fonction=?, cp=?, WHERE id=?');
+	$update = $db->database->prepare('UPDATE casquettes SET nom=?, donnees=?, id_etab=?, emails=?, email_erreur=?, fonction=?, cp=? WHERE id=?');
 	$update->execute(array($cas['nom_cas'],json_encode($donnees),$cas['id_etab'],emails($donnees),email_erreur($donnees),fonction($donnees),cp($donnees),$cas['id']));
 	$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
 	$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($donnees),$cas['id']));
