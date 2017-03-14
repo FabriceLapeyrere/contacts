@@ -228,6 +228,10 @@
 			global $S;
 			return Mailing::del_news($params,$S['user']['id']);
 		}
+		public static function dupNews($params){
+			global $S;
+			return Mailing::dup_news($params,$S['user']['id']);
+		}
 		public static function addModele($params){
 			global $S;
 			return Mailing::add_modele($params,$S['user']['id']);

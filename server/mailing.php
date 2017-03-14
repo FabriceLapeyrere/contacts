@@ -78,9 +78,21 @@
 		public static function add_news($params,$id) {
 			$db= new DB();
 			$sujet= isset($params->news->sujet) ? $params->news->sujet : "";
+			$t=millisecondes();
 			$insert = $db->database->prepare('INSERT INTO news (sujet, blocs, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?)');
-			$insert->execute(array($sujet, '[]', millisecondes(), $id, millisecondes(), $id));
+			$insert->execute(array($sujet, '[]', $t, $id, $t, $id));
 			$id_news = $db->database->lastInsertId();
+			CR::maj(array("newss","news/$id_news"));
+			return $id_news;
+		}
+		public static function dup_news($params,$id) {
+			$db= new DB();
+			$news=Mailing::get_news($params->news->id,$id);
+			$t=millisecondes();
+			$insert = $db->database->prepare('INSERT INTO news (sujet, blocs, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?)');
+			$insert->execute(array($news['sujet']." (copie)", json_encode($news['blocs']), $t, $id, $t, $id));
+			$id_news = $db->database->lastInsertId();
+			smartCopy("./data/files/news/".$params->news->id, "./data/files/news/$id_news");
 			CR::maj(array("newss","news/$id_news"));
 			return $id_news;
 		}
@@ -161,6 +173,8 @@
 							);
 						}
 					}
+				} else {
+					unset($row['blocs']);
 				}
 				$newss[$row['id']]=$row;
 			}
