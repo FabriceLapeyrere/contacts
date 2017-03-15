@@ -76,7 +76,7 @@ if($envoi['statut']==1) {
 			);
 			$htmlr=replaceHref($htmlr, $redirect_url, $params);
 		}
-		$c=Contacts::get_casquette($m['id_cas'],1);
+		$c=Contacts::get_casquette($m['id_cas'],true,1);
 		$usbcr_hash=base64_encode(json_encode(array("emails"=>$c['emails'])));
 		$unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
 		$htmlr=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);

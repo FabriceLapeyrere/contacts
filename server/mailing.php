@@ -328,6 +328,16 @@
 			return $modeles;
 		}	
 		//envois
+		public static function get_envois_casquette($id_cas,$id) {
+			$db= new DB();
+			$query = "SELECT t1.*, t2.sujet, t2.type, t2.id_type, t2.date FROM envoi_cas as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_cas=$id_cas ORDER BY id ASC";
+			$envois=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$row['emails']=json_decode($row['emails']);
+				$envois[]=$row;
+			}
+			return $envois;
+		}
 		public static function get_envoi($id_envoi,$params='',$id) {
 			$db= new DB();
 			if ($params!='') {
@@ -487,8 +497,8 @@
 			$selection=$casquettes['collection'];
 			$nb=$casquettes['total'];
 
-			$insert = $db->database->prepare('INSERT INTO envois (sujet, html, pjs, expediteur, nb, statut, date, by) VALUES (?,?,?,?,?,?,?,?)');
-			$insert->execute(array($sujet,$html,json_encode($pjs),json_encode($expediteur),$nb,1,millisecondes(),$id));
+			$insert = $db->database->prepare('INSERT INTO envois (sujet, html, pjs, expediteur, type, id_type, nb, statut, date, by) VALUES (?,?,?,?,?,?,?,?,?,?)');
+			$insert->execute(array($sujet,$html,json_encode($pjs),json_encode($expediteur),$params->type,$params->e->id,$nb,1,millisecondes(),$id));
 			$id_envoi = $db->database->lastInsertId();
 			//on met à jour les liens vers les fichiers
 			$html=str_replace("./data/files/{$params->type}/{$params->e->id}","./data/files/envois/$id_envoi",$html);
@@ -580,12 +590,14 @@
 			$update->execute(array($erreur,$id_message));
 		}
 		public static function log_succes($id_envoi,$log) {
+			$db= new DB();
 			$log_path="./data/files/envois/$id_envoi";
 			$log_file="$log_path/succes.log";
 			if (!file_exists($log_path)) mkdir($log_path, 0777, true);
 			error_log(json_encode($log)."\n",3,$log_file);
 			$insert = $db->database->prepare('INSERT OR REPLACE INTO envoi_cas (id_envoi,id_cas,emails,date) VALUES (?,?,?,?)');
 			$insert->execute(array($id_envoi,$log['cas']['id'],json_encode($log['cas']['emails']),$log['date']));
+			CR::maj(array("contact/".$log['cas']['id_contact']));	
 		}
 		public static function log_erreur($id_envoi,$log) {
 			$log_path="./data/files/envois/$id_envoi";

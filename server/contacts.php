@@ -69,6 +69,7 @@
 			$cas=$casquette['collection'][0];
 			if ($full && $cas['id_etab']>0) {
 				$cas['etab']=Contacts::get_casquette($cas['id_etab'],false,$id);
+				$cas['envois']=Mailing::get_envois_casquette($id_cas,$id);
 			}
 			return $cas;
 		}

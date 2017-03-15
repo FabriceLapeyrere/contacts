@@ -1,6 +1,11 @@
 <div loading="key" data="Data">
 	<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
-		<h1>{{Data.modele[key].sujet}} <small ng-if="Data.modele[key].boite_envoi.total==0">Envoi terminé</small></h1>
+		<h1>{{Data.modele[key].sujet}}</h1>
+		<p><small ng-if="Data.modele[key].boite_envoi.total==0">Envoi terminé</small></p>
+		<p>
+			<a href="modnews/{{Data.modele[key].id_type}}" ng-if="Data.modele[key].type=='news'">Newsletter n°{{Data.modele[key].id_type}}</a>
+			<a href="modmail/{{Data.modele[key].id_type}}" ng-if="Data.modele[key].type=='mail'">E-mail n°{{Data.modele[key].id_type}}</a>
+		</p>
 		<p> De : {{Data.modele[key].expediteur.nom}} <{{Data.modele[key].expediteur.email}}></p>
 		<p> <span class="mini">{{calendar(Data.modele[key].date)}} par {{Data.modele.users[Data.modele[key].by].name}}.</span>
 		</p>

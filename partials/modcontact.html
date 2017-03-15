@@ -98,15 +98,25 @@
 						</div>
 					</div>
 					<div class="col-xs-12 inter clearfix"></div>
-					<div ng-if="envoisContact[cas.id].length>0" class="col-xs-12 clearfix list-group-item">
-						<small class="mini">Envois associés</small>
-						<div ng-repeat="e in envoisContact[cas.id]"><small><a href='modenvoi/{{e.id}}'>{{e.sujet}}</a></small> <small class="mini">{{calendar(e.date)}}</small></div>
+					<div ng-if="cas.envois.length>0" class="col-xs-12 clearfix list-group-item">
+						<span class="label-contact">Envois ({{cas.envois.length}})</span>
+						<span class="cursor mini" ng-if="!ev[cas.id]" ng-click="ev[cas.id]=true">voir</span>
+						<span class="cursor mini" ng-if="ev[cas.id]" ng-click="ev[cas.id]=false">cacher</span>
+						<div ng-if="ev[cas.id]" ng-repeat="e in cas.envois">
+							<small>
+								<a href='modenvoi/{{e.id}}'>{{e.sujet}}</a> - 
+								<a href="modnews/{{e.id_type}}" ng-if="e.type=='news'">Newsletter n°{{e.id_type}}</a>
+								<a href="modmail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
+								>&nbsp;<span ng-repeat="m in e.emails">{{m}} </span>
+							</small>
+							<small class="mini">{{calendar(e.date)}}</small>
+						</div>
 					</div>
 					<div class="col-xs-12 inter clearfix"></div>
 					<div ng-show="suivisCas.length>0" class="list-group-item col-xs-12">
-						<span class="label-contact">Suivi (<b>{{(suivisCas.length-suivisTermines.length)}}</b>, {{(suivisTermines=(suivisCas|termines)).length}})</span>
-						<span class="cursor mini" ng-if="!sv[cas.id]" ng-click="voir(cas)">voir</span>
-						<span class="cursor mini" ng-if="sv[cas.id]" ng-click="cacher(cas)">cacher</span>
+						<span class="label-contact">Suivis (<b>{{(suivisCas.length-suivisTermines.length)}}</b>, {{(suivisTermines=(suivisCas|termines)).length}})</span>
+						<span class="cursor mini" ng-if="!sv[cas.id]" ng-click="sv[cas.id]=true">voir</span>
+						<span class="cursor mini" ng-if="sv[cas.id]" ng-click="sv[cas.id]=false">cacher</span>
 						<div ng-if="sv[cas.id]" ng-repeat="suivi in (suivisCas=(Data.modele.suivis | toArray | suivisCas:cas.id | orderBy:'date':true))">
 							<locked verrou="suivi.verrou" data="Data">
                             <i>{{calendarSansHeure(suivi.date)}} - <a ng-class="{termine:suivi.statut==1}" href="modsuivi/{{suivi.id}}">{{suivi.titre}} <span ng-if="!suivi.titre">(sans-titre)</span></a> <span class="mini">({{Data.modele.usersall[suivi.createdby].name}}/{{Data.modele.usersall[suivi.modifiedby].name}})</span> <span class="cursor" ng-if="suivi.desc && !svDesc[suivi.id]" ng-click="svDesc[suivi.id]=true">voir</span><span class="cursor" ng-if="suivi.desc && svDesc[suivi.id]" ng-click="svDesc[suivi.id]=false">cacher</span></i>
