@@ -2489,7 +2489,7 @@ app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'F
 	$scope.descTagRec=function(tag){
 		var h=[tag];
 		if (tag.id_parent!=0){
-			angular.forEach($scope.descTagRec($scope.byId($scope.tags,tag.id_parent)), function(t){
+			angular.forEach($scope.descTagRec(Data.modele.tags[tag.id_parent]), function(t){
 				h.push(t);
 			});
 		}
