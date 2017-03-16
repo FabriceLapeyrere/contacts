@@ -28,7 +28,11 @@
 			}
 			$casquettes=Contacts::get_nom_casquettes(array_unique($tab));
 			foreach($suivis as $k=>$v){
-				$suivis[$k]['cas']=$casquettes[$v['id_casquette']];
+				if (isset($casquettes[$v['id_casquette']])) {
+					$suivis[$k]['cas']=$casquettes[$v['id_casquette']];
+				} else {
+					$suivis[$k]['cas']=array('id'=>$v['id_casquette'],'nom'=>'Contact supprimé','prenom'=>'','type'=>'1');
+				}
 			}
 			return $suivis;
 		}
