@@ -23,6 +23,18 @@ integer "integer"
   / ':type' id:[12]+ { return id==1 ? 'est un individu' : 'est une structure'; }
   / ':cp' id:[0-9AB]+ { return '::dpt'+id.join("")+'::'; }
   / '!:cp' id:[0-9AB]+ { return 'pas ::dpt'+id.join("")+'::'; }
+  / ':cps(' ids:[,0-9AB]+ ')' {
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return 'dans l\'un des departements suivants : ::dpts/'+list+'::';
+	}
+  / '!:cps(' ids:[,0-9AB]+ ')' {
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return 'dans aucun des departements suivants : ::dpts/'+list+'::';
+	}
   / ':aucun_tag' { 
 	return 'n\'a aucun tag';
 	}

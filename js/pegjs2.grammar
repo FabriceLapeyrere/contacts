@@ -23,6 +23,18 @@ integer "integer"
   / ':type' id:[12]+ { return id==1 ? '::type/1::' : '::type/2::'; }
   / ':cp' id:[0-9AB]+ { return '::cp/'+id.join("")+'::'; }
   / '!:cp' id:[0-9AB]+ { return 'NOT (::cp/'+id.join("")+'::)'; }
+  / ':cps(' ids:[,0-9AB]+ ')' {
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return '::cps/'+list+'::';
+	}
+  / '!:cps(' ids:[,0-9AB]+ ')' {
+	var list=ids.join("");
+	if(list[0]==',') list=list.substring(1);
+	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
+	return 'NOT (::cps/'+list+'::)';
+	}
   / ':aucun_tag' { 
 	return '::aucun_tag::';
 	}

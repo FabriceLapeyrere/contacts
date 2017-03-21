@@ -385,6 +385,15 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 					while (tab = dpt.exec(p)) {
 						p=p.replace(tab[0],'<span class="tag" style="background-color:#CCC;color:#FFF;">'+departement(tab[1]).nom+'</span>');
 					}
+					var dpts = /::dpts\/([,AB0-9]+)::/;
+					while (tab = dpts.exec(p)) {
+						var cps=tab[1].split(',');
+						var html='';
+						for(var i=0;i<cps.length;i++){
+							html+='<span class="tag" style="background-color:#CCC;color:#FFF;">'+departement(cps[i]).nom+'</span> ';
+						}
+						p=p.replace(tab[0],html);		
+					}
 				}
 			}
 			return p;

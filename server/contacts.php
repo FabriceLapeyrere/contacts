@@ -259,6 +259,14 @@
 					case 'cp':
 						$valeur="(t2.cp='".strtoupper($param)."' OR t2.cp='' AND t2.id_etab in (SELECT id FROM casquettes WHERE cp='".strtoupper($param)."'))";
 						break;
+					case 'cps':
+						$t=explode(',',strtoupper($param));
+						$cps=array();
+						foreach($t as $cp) {
+							$cps[]="'$cp'";
+						}
+						$valeur="(t2.cp in (".implode(',',$cps).") OR t2.cp='' AND t2.id_etab in (SELECT id FROM casquettes WHERE cp in (".implode(',',$cps).")))";
+						break;
 					case 'text':
 						$valeur="t2.id IN (SELECT id from casquettes_fts WHERE idx MATCH '".str_replace("'","''",normalizeChars($param))."')";
 						break;
