@@ -670,7 +670,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		if (n!=o) {
 			$scope.getPage(1);
 		}
-	},200));
+	},500));
 	$scope.$watch('Data.modele.casquettes',function(n,o){
 		if (n!=o && Data.modele.casquettes && Data.modele.casquettes.collection[$scope.selected.index]) {
 			if ($scope.selected.index<0) $scope.selected.index=$scope.itemsParPage-1;
@@ -686,7 +686,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			if (n<o && $scope.selected.index!=$scope.itemsParPage-1) $scope.selected.index=0;
 			if (n>o) $scope.selected.index=0;
 		}
-	},200));
+	},500));
 	$scope.getPage=function(init){
 		var page;
 		var query=$scope.parsed.back(Data.mainQuery);
