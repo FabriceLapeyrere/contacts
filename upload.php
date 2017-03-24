@@ -78,7 +78,9 @@ if ( !empty( $_FILES ) ) {
 				'adresse',
 				'cp',
 				'ville',
-				'pays'
+				'pays',
+				'id',
+				'idstr'
 			);
 			$labels=array(
 				'Contact/Structure',
@@ -91,7 +93,9 @@ if ( !empty( $_FILES ) ) {
 				'Adresse',
 				'Cp',
 				'Ville',
-				'Pays'
+				'Pays',
+				'Identifiant',
+				'Identifiant de la structure'
 			);
 			$map_labels=array();
 			$map=array();
@@ -120,6 +124,8 @@ if ( !empty( $_FILES ) ) {
 					foreach($keys as $k=>$v) {
 						if ($exemple[$k]!='') {
 							if ($i==0) {
+								if ($type=='id') $contact['id']=$exemple[$k]; 
+								if ($type=='idstr') $contact['idstr']=$exemple[$k]; 
 								if ($type=='nom') $contact['nom']=$exemple[$k]; 
 								if ($type=='prenom') $contact['prenom']=$exemple[$k]; 
 								if ($type=='type') $contact['type']=$exemple[$k]; 
@@ -144,6 +150,16 @@ if ( !empty( $_FILES ) ) {
 				}
 				$contact['donnees']=$donnees;
 				$contacts[]=$contact;
+			}
+			foreach($contacts as $indexc=>$c) {
+				if (array_key_exists('idstr',$c)) {
+					$idstr=$c['idstr'];
+					foreach($contacts as $indexs=>$s) {
+						if (array_key_exists('id',$s) && $s['id']==$idstr && $s['type']==2) {
+							$contacts[$indexc]['str']=$s;
+						}
+					}
+				}
 			}
 			$answer = array(
 				'status'=> 'ok',

@@ -698,7 +698,36 @@
 			$update = $db->database->prepare('UPDATE casquettes SET id_etab=0, modificationdate=?, modifiedby=? WHERE id_etab=?');
 			$update->execute(array(millisecondes(),$id,$params->cas->id));
 			Contacts::touch_contact($params->cas->id_contact,$id);
-			CR::maj(array("casquettes","contact/*","suivis"));
+			$p= (object) array('nouveaux'=>array($params->cas->id));
+			User::del_panier($p,$id);
+			CR::maj(array("casquettes","contact/*","suivis","panier"));
+			return 1;
+		}
+		public static function del_casquettes_panier($params,$id) {
+			$db= new DB();
+			$cass=Contacts::get_casquettes(array('query'=>'::panier::','page'=>1,'nb'=>10,'all'=>1),0,$id);
+			$db->database->beginTransaction();
+			$panier=array();
+			foreach($cass['collection'] as $cas){
+				$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
+				$insert->execute(array( $cas['id'],'casquette',json_encode($cas),millisecondes(),$id));
+				$delete = $db->database->prepare('DELETE FROM casquettes WHERE id=? ');
+				$delete->execute(array( $cas['id']));
+				$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
+				$delete->execute(array( $cas['id']));
+				$delete = $db->database->prepare('DELETE FROM suivis WHERE id_casquette=? ');
+				$delete->execute(array( $cas['id']));
+				$update = $db->database->prepare('UPDATE casquettes SET id_etab=0, modificationdate=?, modifiedby=? WHERE id_etab=?');
+				$update->execute(array(millisecondes(),$id, $cas['id']));
+				$update = $db->database->prepare('UPDATE contacts SET modificationdate=?, modifiedby=? WHERE id=?');
+				$update->execute(array(millisecondes(),$cas['id_contact']));
+				$panier[]=$cas['id'];
+			}
+			$delete = $db->database->exec('DELETE FROM contacts WHERE 0=(select count(*) from casquettes where id_contact=contacts.id)');
+			$db->database->commit();
+			$p= (object) array('nouveaux'=>$panier);
+			User::del_panier($p,$id);
+			CR::maj(array("casquettes","contact/*","suivis","panier"));
 			return 1;
 		}
 		public static function cas_has_tag($id_cas,$id_tag)
@@ -801,6 +830,8 @@
 					foreach($keys as $k=>$label) {
 						if ($row[$k]!='') {
 							if ($i==0) {
+								if ($type=='id') $contact['id']=$row[$k]; 
+								if ($type=='idstr') $contact['idstr']=$row[$k]; 
 								if ($type=='nom') $contact['nom']=$row[$k]; 
 								if ($type=='prenom') $contact['prenom']=$row[$k]; 
 								if ($type=='type') $contact['type']=$row[$k]; 
@@ -828,7 +859,7 @@
 			}
 			$cass=array();
 			$db->database->beginTransaction();
-			foreach($contacts as $contact) {
+			foreach($contacts as $index=>$contact) {
 				$nom=$contact['nom'];
 				$prenom = isset($contact['prenom']) ? $contact['prenom'] : '';
 				$sort=filter2("$nom $prenom");
@@ -844,6 +875,7 @@
 				$insert = $db->database->prepare('INSERT INTO casquettes (nom,donnees,emails,email_erreur,fonction,cp,gps_x,gps_y,id_etab,id_contact,creationdate,createdby,modificationdate,modifiedby) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
 				$insert->execute(array($nom_cas,json_encode($donnees),emails($donnees),0,fonction($donnees),cp($donnees),1000,1000,0,$id_contact,millisecondes(),$id,millisecondes(),$id));
 				$id_cas = $db->database->lastInsertId();
+				$contacts[$index]['id_cas']=$id_cas;
 				$insert = $db->database->prepare('INSERT INTO casquettes_fts (id,idx) VALUES (?,?)');
 				$insert->execute(array($id_cas,strtolower(normalizeChars($nom." ".$prenom)).idx($donnees)));
 				//on associe les tags
@@ -852,6 +884,16 @@
 					$insert->execute(array($id_tag,$id_cas,millisecondes()));
 				}
 				$cass[]=$id_cas;
+			}
+			foreach($contacts as $c) {
+				if (array_key_exists('idstr',$c)) {
+					foreach($contacts as $s) {
+						if (array_key_exists('id',$s) && $s['id']==$c['idstr'] && $s['type']==2) {
+							$update = $db->database->prepare('UPDATE casquettes SET id_etab=? WHERE id=?');
+							$update->execute(array($s['id_cas'],$c['id_cas']));
+						}
+					}
+				}
 			}
 			$db->database->commit();
 			if (count($cass)>0) ldap_update_array($cass);

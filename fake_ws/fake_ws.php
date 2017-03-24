@@ -54,7 +54,7 @@
         public static function del_nots($uid) {
             global $mc;
             while($mc->get(LINK_PREFIX."nots_locked")==1){
-                usleep(1000);
+                usleep(20000);
             }
             $mc->set(LINK_PREFIX."nots_locked",1);
             $nots=$mc->get(LINK_PREFIX."nots");
@@ -65,7 +65,7 @@
         public static function make_nots($nots) {
             global $mc;
             while($mc->get(LINK_PREFIX."nots_locked")==1){
-                usleep(1000);
+                usleep(20000);
             }
             $mc->set(LINK_PREFIX."nots_locked",1);
             $cnots=$mc->get(LINK_PREFIX."nots");
@@ -97,7 +97,7 @@
         public static function del_cache($types) {
             global $mc;
             while($mc->get(LINK_PREFIX."cache_locked")==1){
-                usleep(1000);
+                usleep(20000);
             }
             $mc->set(LINK_PREFIX."cache_locked",1);
             $cache=$mc->get(LINK_PREFIX."cache");
@@ -110,7 +110,7 @@
         public static function del_cache_all() {
             global $mc;
             while($mc->get(LINK_PREFIX."cache_locked")==1){
-                usleep(1000);
+                usleep(20000);
             }
             $mc->set(LINK_PREFIX."cache_locked",1);
             $mc->set(LINK_PREFIX."cache",array());
@@ -131,7 +131,7 @@
             $params=$context->params;
             $key=md5(json_encode($params));
             while($mc->get(LINK_PREFIX."cache_locked")==1){
-                usleep(1000);
+                usleep(20000);
             }
             $mc->set(LINK_PREFIX."cache_locked",1);
             $cache=$mc->get(LINK_PREFIX."cache");
@@ -188,7 +188,7 @@
         public static function del_sub($uid) {
             global $mc;
             while($mc->get(LINK_PREFIX."subs_locked")==1){
-                usleep(1000);
+                usleep(20000);
             }
             $mc->set(LINK_PREFIX."subs_locked",1);
             $subs=WS::get_subs();
@@ -201,7 +201,7 @@
         public static function set_sub($uid,$contexts) {
             global $mc, $S;
             while($mc->get(LINK_PREFIX."subs_locked")==1){
-                usleep(1000);
+                usleep(20000);
             }
             $mc->set(LINK_PREFIX."subs_locked",1);
             $subs=$mc->get(LINK_PREFIX."subs");

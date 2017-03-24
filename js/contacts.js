@@ -577,6 +577,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.history=function(e){
 		if (e.keyCode==38) $scope.historyPrev();
 		if (e.keyCode==40) $scope.historyNext();
+		if (e.keyCode==13) $scope.getPage(1);
 	};
 	$scope.normalizedNom = function(tag) {
 		return removeDiacritics(tag.nom);
@@ -670,7 +671,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		if (n!=o) {
 			$scope.getPage(1);
 		}
-	},500));
+	},1000));
 	$scope.$watch('Data.modele.casquettes',function(n,o){
 		if (n!=o && Data.modele.casquettes && Data.modele.casquettes.collection[$scope.selected.index]) {
 			if ($scope.selected.index<0) $scope.selected.index=$scope.itemsParPage-1;
@@ -686,7 +687,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			if (n<o && $scope.selected.index!=$scope.itemsParPage-1) $scope.selected.index=0;
 			if (n>o) $scope.selected.index=0;
 		}
-	},500));
+	},1000));
 	$scope.getPage=function(init){
 		var page;
 		var query=$scope.parsed.back(Data.mainQuery);
@@ -709,6 +710,9 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	};
 	$scope.delContact=function(cas){
 		Link.ajax([{action:'delContact', params:{cas:cas}}]);		
+	};
+	$scope.delCasquettesPanier=function(cas){
+		Link.ajax([{action:'delCasquettesPanier', params:{}}]);		
 	};
 	var tagsScroll=undefined;
 	$scope.dragging={active:false,c:'nc',s:'ns'};
@@ -913,10 +917,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			$window.alert('Tag n°'+tag.id+'\n(maj+clic ou ctrl+clic pour enlever.)');
 		}
 	};
-	$scope.delCasquettesPanier=function(){
-		Link.ajax([{action:'delContactsPanier',params:{panier:Data.modele.panier}}]);
-	};
-   	$scope.delTag = function(tag) {
+	$scope.delTag = function(tag) {
 		Link.ajax([{action:'delTag', params:{tag:tag}}]);
 	};
 	$scope.delSelection = function(sel) {
