@@ -278,9 +278,11 @@ function replaceHref($html, $redirect, $params)
 	/**
 	* Escapes an LDAP AttributeValue
 	*/
-	function ldap_escape($string)
-	{
-	    return stripslashes($string);
+	if (!function_exists('ldap_escape')) {
+		function ldap_escape($string)
+		{
+		    return stripslashes($string);
+		}
 	}
 	function ldap_update_array($cass) {
 		$command = "nohup /usr/bin/php exec.php ldap_update ".implode(' ',$cass)." > /dev/null 2>&1 &";
