@@ -116,6 +116,7 @@ if ( !empty( $_FILES ) ) {
 			}
 			$contacts=array();
 			foreach($exemples as $exemple) {
+				$note="";
 				$contact=array();
 				$donnees=array();
 				$adresse=array();
@@ -129,20 +130,27 @@ if ( !empty( $_FILES ) ) {
 								if ($type=='nom') $contact['nom']=$exemple[$k]; 
 								if ($type=='prenom') $contact['prenom']=$exemple[$k]; 
 								if ($type=='type') $contact['type']=$exemple[$k]; 
-								if ($type=='note') $donnees[]=array('type'=>'note','k'=>$k,'value'=>$exemple[$k]);
+								if ($type=='note') $note.="\n".$exemple[$k];
 								if ($type=='fonction') $donnees[]=array('type'=>'fonction','k'=>$k,'value'=>$exemple[$k]);
 								if ($type=='adresse') $adresse['adresse']=trim($exemple[$k]); 
 								if ($type=='cp') $adresse['cp']=$exemple[$k]; 
 								if ($type=='ville') $adresse['ville']=$exemple[$k]; 
 								if ($type=='pays') $adresse['pays']=$exemple[$k];
 							}
-							if ($type=='email') $donnees[]=array('type'=>'email','k'=>$k,'value'=>$exemple[$k]);		
+							if ($type=='email') {
+								foreach(extractEmailsFromString($exemple[$k]) as $m) {
+									$donnees[]=array('type'=>'email','k'=>$k,'value'=>$m);
+								}
+							}
 							if ($type=='tel') $donnees[]=array('type'=>'tel','k'=>$k,'value'=>$exemple[$k]);
 						}
 						$i++;
 					}
 				}
-				if (array_key_exists('cp',$map)) {
+				if ($note!='') {
+					$donnees[]=array('type'=>'note','label'=>'Note','value'=>trim($note));
+				}
+				if (array_key_exists('cp',$map) && $adresse['cp']!='') {
 					$donnees[]=array('type'=>'adresse','label'=>'Adresse','value'=>$adresse);
 				}
 				if (!array_key_exists('type',$map)) {

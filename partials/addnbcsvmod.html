@@ -61,7 +61,7 @@
 						{{d.value.pays}}
 					</div>
 					<div ng-if="d.type=='note'">
-						<span class="label-contact">{{map[d.type][d.k]}} : </span><br />
+						<span class="label-contact">{{d.label}} : </span><br />
 						<div ng-bind-html="d.value | nl2br"></div>
 					</div>
 				</div>

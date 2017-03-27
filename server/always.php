@@ -1,4 +1,12 @@
 <?php
+function extractEmailsFromString($sChaine) {
+	if(false !== preg_match_all('`\w(?:[-_.]?\w)*@\w(?:[-_.]?\w)*\.(?:[a-z]{2,4})`', $sChaine, $aEmails)) {
+		if(is_array($aEmails[0]) && sizeof($aEmails[0])>0) {
+			return array_unique($aEmails[0]);
+		}
+	}
+	return null;
+}
 function Hex2RGB($color){
     $color = str_replace('#', '', $color);
     if (strlen($color) != 6){ return array(0,0,0); }

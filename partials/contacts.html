@@ -10,7 +10,7 @@
 	</form>
    <span class="label label-primary" ui-draggable="true" drag="panier" drag-channel="panier">Panier {{Data.modele[panierKey].length}} contact(s)</span>
     (<span class="cursor" ng-confirm-click="panierVide()" ng-confirm-message="Sûr ?">vider le panier</span>,
-    <span class="cursor" ng-confirm-click="panierAll()" ng-confirm-message="Sûr ?">tout cocher</span> <span class="cursor mini" ng-show="p==0" ng-click="p=1">>></span><span class="cursor mini" ng-show="p==1" ng-click="p=0"><<</span> <span ng-click="p=0" class="cursor" ng-show="p==1" ng-confirm-click="delCasquettesPanier()" ng-confirm-message="Êtes-vous sûr de vouloir supprimer tous les contacts du panier ?">supprimer tous les contacts du panier</span>)
+    <span class="cursor" ng-confirm-click="panierAll()" ng-confirm-message="Sûr ?">tout cocher</span> <span class="cursor mini" ng-show="p==0" ng-click="p=1">>></span><span class="cursor mini" ng-show="p==1" ng-click="p=0"><<</span> <span ng-click="p=0" class="cursor mini" ng-show="p==1" ng-confirm-click="delCasquettesPanier()" ng-confirm-message="Êtes-vous sûr de vouloir supprimer tous les contacts qui sont dans le panier ?">supprimer de la base tous les contacts qui sont dans le panier</span>)
     <div class="clearfix"></div>
 	<uib-pagination boundary-links="true" total-items="Data.modele.casquettes.total" ng-model="Data.pageContacts" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 	<input id="input-page" type="text" ng-model="Data.pageContacts" class="hidden-xs form-control pagination-input" ng-model-options="{debounce:200}"/>
