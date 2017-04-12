@@ -156,6 +156,9 @@ if ( !empty( $_FILES ) ) {
 				if (!array_key_exists('type',$map)) {
 					$contact['type']=1;
 				}
+				if ($contact['type']==2) {
+					$contact['cols']=array();
+				}
 				$contact['donnees']=$donnees;
 				$contacts[]=$contact;
 			}
@@ -165,6 +168,7 @@ if ( !empty( $_FILES ) ) {
 					foreach($contacts as $indexs=>$s) {
 						if (array_key_exists('id',$s) && $s['id']==$idstr && $s['type']==2) {
 							$contacts[$indexc]['str']=$s;
+							$contacts[$indexs]['cols'][]=$c;
 						}
 					}
 				}

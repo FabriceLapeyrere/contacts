@@ -749,6 +749,10 @@
 			}
 			return $res;
 		}
+		public static function index_gps(){
+			$command = "nohup /usr/bin/php exec.php get_gps > /dev/null 2>&1 &";
+			exec($command);
+		}	
 		public static function add_nb_contacts($params,$id){
 			$db= new DB();
 			$contacts=array();
@@ -906,6 +910,7 @@
 			$db->database->commit();
 			if (count($cass)>0) ldap_update_array($cass);
 			CR::maj(array('*'));
+			Contacts::index_gps();
 		}
 	}
 ?>
