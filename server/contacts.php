@@ -640,7 +640,7 @@
 			$insert = $db->database->prepare('INSERT OR REPLACE INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');
 			$insert->execute(array($params->tag->id,$params->cas->id,millisecondes()));
 			ldap_update($params->cas->id);
-		   		CR::maj(array('contact/'.$params->cas->id_contact));
+		   	CR::maj(array('contact/'.$params->cas->id_contact));
 			return 1;
 		}
 		public static function del_cas_tag($params,$id) {
