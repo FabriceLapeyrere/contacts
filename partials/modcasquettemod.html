@@ -26,7 +26,7 @@
 		<input ng-if="donnee.type == 'fonction'" class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
 		<input ng-if="donnee.type == 'civilite'" class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
 		<div ng-if="donnee.type == 'adresse'">
-			<div class="col-xs-12"><textarea placeholder="Adresse" class="form-control autoFocus" type="text" ng-model="donnee.value.adresse" required></textarea></div>
+			<div class="col-xs-12"><textarea placeholder="Adresse" class="form-control autoFocus" type="text" ng-model="donnee.value.adresse"></textarea></div>
 			<div class="clearfix inter col-xs-12"></div>
 			<div class="col-xs-3"><input class="form-control" type="text" ng-model="donnee.value.cp" required placeholder="cp"/></div>
 			<div class="col-xs-9"><input class="form-control" type="text" ng-model="donnee.value.ville" required required placeholder="ville"/></div>
