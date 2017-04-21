@@ -113,7 +113,7 @@
 		public static function del_news($params,$id) {
 			$db= new DB();
 			$id_news=$params->news->id;
-			$news=Mailing::get_news($id_news);
+			$news=Mailing::get_news($id_news,$id);
 			$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
 			$insert->execute(array($id_news,'news',json_encode($news),millisecondes(),$id));
 			$delete = $db->database->prepare('DELETE FROM news WHERE id=?');
