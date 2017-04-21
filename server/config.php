@@ -51,8 +51,14 @@ class Config {
                     'srv'=>array('value'=>'','label'=>'Serveur LDAP','type'=>'texte_court','show'=>'active'),
                     'rdn'=>array('value'=>'','label'=>'Utilisateur LDAP','type'=>'texte_court','show'=>'active'),
                     'pwd'=>array('value'=>'','label'=>'Mot de passe','type'=>'passwd','show'=>'active'),
-                    'base'=>array('value'=>'','label'=>'OU de base','type'=>'texte_court','show'=>'active')
-                ),
+                    'base'=>array('value'=>'','label'=>'OU de base pour tous les contacts','type'=>'texte_court','show'=>'active'),
+                    'tags'=>array('value'=>array(
+                        array(
+                            'idtag'=>array('value'=>'','label'=>'N° du tag','type'=>'integer'),
+                            'base'=>array('value'=>'','label'=>'OU de base','type'=>'texte_court')
+                        )
+                    ),'label'=>'OU de base par tag','type'=>'array')
+               ),
                 'news'=>array(
                     'wrapper'=>array('value'=>"<div style='margin: 0 auto;width:700px;font-family: verdana, sans-serif;font-size:12px;text-align:left;background:#fff;'>::code::</div>",'label'=>'Code du conteneur de newsletter','type'=>'texte_long'),
                     'css'=>array('value'=>"",'label'=>'CSS','type'=>'texte_long')

@@ -1,8 +1,11 @@
 <?php
-$contacts= new Contacts();
+$db= new DB();
 $query = "SELECT id FROM casquettes";
 $res=array();
-foreach($contacts->database->query($query, PDO::FETCH_ASSOC) as $row){
-	ldap_update($row['id']);
-	echo "             \r".$row['id'];
+foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+	$res[]=$row['id'];
+}
+foreach($res as $id){
+	ldap_update($id);
+	echo "             \r".$id;
 }
