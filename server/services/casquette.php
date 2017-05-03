@@ -5,16 +5,15 @@
  */
 $email=$params['email'];
 
-$contacts=new Contacts();
+$db=new DB();
 $query="select id from casquettes where emails like '%$email%'";
 $id=0;
-foreach($contacts->database->query($query, PDO::FETCH_ASSOC) as $row){
+foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 	$id=$row['id'];
 }
-error_log($id." ".$email."\n",3,'/tmp/fab.log');
 $casquette=array();
 if ($id>0) {
-	$casquette[]=$contacts->get_casquette($id);
+	$casquette[]=Contacts::get_casquette($id);
 }
 echo json_encode($casquette);
 ?>
