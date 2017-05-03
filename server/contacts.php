@@ -169,6 +169,7 @@
 				t2.id_etab as id_etab,
 				t2.donnees as donnees,
 				t2.emails as emails,
+				t2.fonction as fonction,
 				t2.email_erreur as email_erreur,
 				t2.cp as cp,
 				t2.gps_x as gps_x,
