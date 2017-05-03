@@ -242,15 +242,19 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.delPanier=function(nouveaux){
 		Link.ajax([{action:'delPanier', params:{nouveaux:nouveaux}}]);
 	};
-	$scope.panierAdd=function(cas){
+	$scope.panierAdd=function(cas,i){
 		var nouveaux=[cas.id];
 		Data.modele.panier.push(cas.id);
 		$scope.addPanier(nouveaux);
+		var i = (typeof i !== 'undefined') ? i : -1;
+		if (i>=0) $scope.selected.index=i;
 	};
-	$scope.panierDel=function(cas){
+	$scope.panierDel=function(cas,i){
 		var nouveaux=[cas.id];
 		Data.modele.panier.splice(Data.modele.panier.indexOf(cas.id),1);
 		$scope.delPanier(nouveaux);
+		var i = (typeof i !== 'undefined') ? i : -1;
+		if (i>=0) $scope.selected.index=i;
 	};
 	$scope.panierVide=function(){
 		if (Data.user.id) {
@@ -1295,6 +1299,14 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			id_news:$routeParams.id
 		};			
 		angular.element.redirect('doc.php',data,'POST','_blank');
+	};
+	$scope.publie=function(){
+		Data.modele[$scope.key].publie=1;
+		$scope.save();		
+	};
+	$scope.unpublie=function(){
+		Data.modele[$scope.key].publie=0;
+		$scope.save();		
 	};
 	$scope.modCats=[];
 	$scope.buildModCats=function(){
