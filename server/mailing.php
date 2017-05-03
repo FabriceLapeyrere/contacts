@@ -100,10 +100,11 @@
 			$db= new DB();
 			$id_news=$params->news->id;
 			$sujet=$params->news->sujet;
+			$publie=$params->news->publie;
 			$blocs=$params->news->blocs;
 			$t=millisecondes();
-			$update = $db->database->prepare('UPDATE news SET sujet=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
-			$update->execute(array($sujet, json_encode($blocs), $t, $id, $id_news));
+			$update = $db->database->prepare('UPDATE news SET sujet=?, publie=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
+			$update->execute(array($sujet, $publie, json_encode($blocs), $t, $id, $id_news));
 			CR::maj(array("newss","news/$id_news"));
 			return $id;
 		}
