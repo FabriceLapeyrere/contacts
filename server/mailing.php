@@ -456,7 +456,7 @@
 		}
 		public static function get_envois($id) {
 			$db= new DB();
-			$query = "SELECT by,date,id,sujet FROM envois ORDER BY date DESC";
+			$query = "SELECT t1.by as by, t1.date as date, t1.id as id, t1.sujet as sujet, t1.statut as statut, (SELECT count(*) FROM boite_envoi WHERE id_envoi=t1.id) as nbleft FROM envois as t1 ORDER BY date DESC;";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$res[]=$row;

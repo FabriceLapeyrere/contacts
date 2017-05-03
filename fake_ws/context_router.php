@@ -163,6 +163,9 @@
 				case 'casquettes':
 					$res=array($type,'etabs');
 					break;
+				case 'envoi':
+					$res=array($type,'envois');
+					break;
 				case 'suivi':
 					$res=array($type,'suivis');
 					break;

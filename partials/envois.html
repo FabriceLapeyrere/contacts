@@ -5,6 +5,7 @@
 		<ul class="list-group">
 			<li class="list-group-item" ng-repeat="envoi in (envois=(Data.modele.envois | toArray | orderBy:'date':true)) | startFrom:(pageCourante.envois-1)*itemsParPage | limitTo:itemsParPage">
 				<a href="modenvoi/{{envoi.id}}">{{envoi.sujet}}</a> - {{calendar(envoi.date)}} par {{Data.modele.users[envoi.by].name}}
+				<div class='bas-droite'><span class='mini bleu' ng-if="envoi.nbleft>0"><span ng-if="envoi.statut==0">en cours</span><span ng-if="envoi.statut==1">en pause</span>, reste {{envoi.nbleft}}</span><span class='mini vert' ng-if="envoi.nbleft==0">terminé</span></div>
 			</li>
 		</ul>
 	</div>
