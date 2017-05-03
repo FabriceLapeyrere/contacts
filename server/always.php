@@ -180,25 +180,28 @@ function replaceHref($html, $redirect, $params)
 
 	//Evaluate Anchor tag in HTML
 	$xpath = new DOMXPath($dom);
-	$hrefs = $xpath->evaluate("/html/body//a");
+	$sets=array();
+	
+	$sets[] = $xpath->evaluate("/html/body//a");
+	$sets[] = $xpath->evaluate("/html/body//area");
+	foreach ($sets as $hrefs) {
+		for ($i = 0; $i < $hrefs->length; $i++) {
+			$href = $hrefs->item($i);
+			$url = $href->getAttribute('href');
+			if ($url!="##UNSUBSCRIBEURL##") {
+				$p=$params;
+				$p['url']=$url;
+				$hash=json_encode($p);
+				$hash=base64_encode($hash);
+				//remove and set target attribute       
+				$newURL=$redirect."?h=".$hash;
 
-	for ($i = 0; $i < $hrefs->length; $i++) {
-		$href = $hrefs->item($i);
-		$url = $href->getAttribute('href');
-		if ($url!="##UNSUBSCRIBEURL##") {
-			$p=$params;
-			$p['url']=$url;
-			$hash=json_encode($p);
-			$hash=base64_encode($hash);
-			//remove and set target attribute       
-			$newURL=$redirect."?h=".$hash;
-
-			//remove and set href attribute       
-			$href->removeAttribute('href');
-			$href->setAttribute("href", $newURL);
+				//remove and set href attribute       
+				$href->removeAttribute('href');
+				$href->setAttribute("href", $newURL);
+			}
 		}
 	}
-
 	// save html
 	$html=$dom->saveHTML();
 	return $html;
