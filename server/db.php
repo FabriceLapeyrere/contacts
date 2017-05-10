@@ -246,6 +246,8 @@
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
 						array('nom'=>'sujet','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'html','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'type','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'id_type','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'pjs','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'expediteur','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'log','type'=>'TEXT','defaut'=>'','options'=>''),

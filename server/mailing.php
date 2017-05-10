@@ -476,7 +476,7 @@
 				$html='';
 				foreach($news['blocs'] as $b){
 					$html.=$b->html."\n";
-				};
+				}
 				$pjs=$news['pjs'];
 			}
 			if ($params->type=='mail') {
@@ -489,8 +489,8 @@
 			$selection=$casquettes['collection'];
 			$nb=$casquettes['total'];
 
-			$insert = $db->database->prepare('INSERT INTO envois (sujet, html, pjs, expediteur, nb, statut, date, by) VALUES (?,?,?,?,?,?,?,?)');
-			$insert->execute(array($sujet,$html,json_encode($pjs),json_encode($expediteur),$nb,1,millisecondes(),$id));
+			$insert = $db->database->prepare('INSERT INTO envois (sujet, html, pjs, expediteur, type, id_type, nb, statut, date, by) VALUES (?,?,?,?,?,?,?,?,?,?)');
+			$insert->execute(array($sujet,$html,json_encode($pjs),json_encode($expediteur),$params->type,$params->e->id,$nb,1,millisecondes(),$id));
 			$id_envoi = $db->database->lastInsertId();
 			//on met à jour les liens vers les fichiers
 			$html=str_replace("./data/files/{$params->type}/{$params->e->id}","./data/files/envois/$id_envoi",$html);
