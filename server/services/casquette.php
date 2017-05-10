@@ -13,7 +13,7 @@ foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 }
 $casquette=array();
 if ($id>0) {
-	$casquette[]=Contacts::get_casquette($id);
+	$casquette[]=Contacts::get_casquette($id,false,1);
 }
 echo json_encode($casquette);
 ?>

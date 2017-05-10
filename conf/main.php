@@ -6,4 +6,5 @@ if (PHP_SAPI !== 'cli')
 }
 define("RACINE",$racine);
 $config=new Config();
-$C=$config->get();
+$C_all=$config->get_config();
+$C=$C_all['config'];

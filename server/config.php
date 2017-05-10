@@ -101,6 +101,17 @@ class Config {
 	</tr>
 </table>",'label'=>'Code du conteneur de newsletter','type'=>'texte_long'),
 					'css'=>array('value'=>"",'label'=>'CSS','type'=>'texte_long')
+				),
+				'email'=>array(
+					'main_wrapper'=>array('value'=>"<head>
+	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>
+	<title>::sujet::</title>
+	<style>::css::</style>
+</head>
+<body>
+	::html::
+</body>",'label'=>'Code du conteneur global de mail','type'=>'texte_long'),
+					'css'=>array('value'=>"",'label'=>'CSS','type'=>'texte_long')
 				)
 			);
 			if($rebuild) { $this->rebuild_config(); }
@@ -115,67 +126,68 @@ class Config {
 			return $this->base_config;
 		}
 		public function get_config(){
+			$old=json_decode(file_get_contents($this->file));
 			$current=json_decode(file_get_contents($this->file));
-			$old=$current;
 			$base=$this->base_config;
 			foreach($base as $key=>$tab){
+				if (!isset($current->$key)) $current->$key=json_decode(json_encode($tab));
 				$j=0;								
 				foreach($tab as $k=>$v){
+					if(!isset($current->$key->$k)) $current->$key->$k=json_decode(json_encode($v));
 					if ($v['type']!='array'){
-						if(isset($current->$key->$k)) {
-							$current->$key->$k->label=$v['label'];
-							$current->$key->$k->type=$v['type'];
-							if (isset($v['show'])) $current->$key->$k->show=$v['show'];
-							else unset($current->$key->$k->show);
-						} else {
-							$current->$key->$k=$v;
-						}
+						$current->$key->$k->label=$v['label'];
+						$current->$key->$k->type=$v['type'];
+						if (isset($v['show'])) $current->$key->$k->show=$v['show'];
+						else unset($current->$key->$k->show);
+						$current->$key->$k->num=$j;
 					} else {
-						if(isset($current->$key->$k)){
-							if ($current->$key->$k->type=='array') {
-								foreach($v['value'] as $t){
-									$i=0;
-									foreach($t as $tk=>$tv){
-										foreach($current->$key->$k->value as $ic=>$tc){
-											if(isset($current->$key->$k->value[$ic]->$tk)){
-												$current->$key->$k->value[$ic]->$tk->id=$ic;
-												$current->$key->$k->value[$ic]->$tk->num=$i;
-												$current->$key->$k->value[$ic]->$tk->label=$tv['label'];
-												$current->$key->$k->value[$ic]->$tk->type=$tv['type'];
-												if (isset($tv['show'])) $current->$key->$k->value[$ic]->$tk->show=$tv['show'];
-												else unset($current->$key->$k->value[$ic]->$tk->show);
-											} else {
-												$tv['num']=$i;
-												$current->$key->$k->value[$ic]->$tk=$tv;
-											}
-										}
-										$i++; 
+						foreach($v['value'] as $t){
+							$i=0;
+							foreach($t as $tk=>$tv){
+								foreach($current->$key->$k->value as $ic=>$tc){
+									if(isset($current->$key->$k->value[$ic]->$tk)){
+										$current->$key->$k->value[$ic]->$tk->id=$ic;
+										$current->$key->$k->value[$ic]->$tk->num=$i;
+										$current->$key->$k->value[$ic]->$tk->label=$tv['label'];
+										$current->$key->$k->value[$ic]->$tk->type=$tv['type'];
+										if (isset($tv['show'])) $current->$key->$k->value[$ic]->$tk->show=$tv['show'];
+										else unset($current->$key->$k->value[$ic]->$tk->show);
+									} else {
+										$tv['num']=$i;
+										$current->$key->$k->value[$ic]->$tk=$tv;
 									}
 								}
-							} else {
-								$current->$key->$k=$v;
+								$i++; 
 							}
-							$current->$key->$k->num=$j;
 						}
+						$current->$key->$k->num=$j;
 					}
 					$j++;
 				}
 			}
 			foreach($current as $key=>$tab){
-				foreach($tab as $k=>$v){
-					if(!isset($base[$key][$k])) unset($current->$key->$k);
-					else {
-						if($current->$key->$k->type=='array') {
-							foreach($current->$key->$k->value as $ic=>$tc){
-								foreach($tc as $tk=>$tv) {
-									if (!isset($base[$key][$k]['value'][0][$tk])) unset($current->$key->$k->value[$ic]->$tk);
+				if(!isset($base[$key])) {
+					unset($current->$key);
+				} else {
+					foreach($tab as $k=>$v){
+						if(!isset($base[$key][$k])) unset($current->$key->$k);
+						else {
+							if($current->$key->$k->type=='array') {
+								foreach($current->$key->$k->value as $ic=>$tc){
+									foreach($tc as $tk=>$tv) {
+										if (!isset($base[$key][$k]['value'][0][$tk])) unset($current->$key->$k->value[$ic]->$tk);
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-			if($old!=$current) CR::maj(array('config'));
+					
+			if($old!=$current) {
+				CR::maj(array('config'));
+				file_put_contents($this->file,json_encode($current));
+			}
 			$config['config']=$current;
 			$config['base_config']=$base;
 			$config['verrou']=WS::get_verrou('config');

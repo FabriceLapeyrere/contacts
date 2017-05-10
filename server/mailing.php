@@ -486,7 +486,7 @@
 				$html='';
 				foreach($news['blocs'] as $b){
 					$html.=$b->html."\n";
-				};
+				}
 				$pjs=$news['pjs'];
 			}
 			if ($params->type=='mail') {

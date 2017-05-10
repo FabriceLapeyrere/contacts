@@ -408,13 +408,15 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 				@ldap_delete($ldapconn,$contact);
 				$r=ldap_add($ldapconn, $contact, $entry_new);
 				foreach($C->ldap->tags->value as $t){
-					error_log($t->idtag->value." ".$t->base->value."\n",3,"./data/log/debug.log");
-					$contact="uid=$id,".$t->base->value;
-					error_log("suppression casquette n°$id de ".$t->base->value."\n",3,"./data/log/debug.log");
-					@ldap_delete($ldapconn,$contact);
-					if (Contacts::cas_has_tag($id,$t->idtag->value)) {
-						error_log("ajout casquette n°$id à ".$t->base->value."\n",3,"./data/log/debug.log");
-						$r=ldap_add($ldapconn, $contact, $entry_new);
+					if ($t->idtag->value>0) {
+						error_log($t->idtag->value." ".$t->base->value."\n",3,"./data/log/debug.log");
+						$contact="uid=$id,".$t->base->value;
+						error_log("suppression casquette n°$id de ".$t->base->value."\n",3,"./data/log/debug.log");
+						@ldap_delete($ldapconn,$contact);
+						if (Contacts::cas_has_tag($id,$t->idtag->value)) {
+							error_log("ajout casquette n°$id à ".$t->base->value."\n",3,"./data/log/debug.log");
+							$r=ldap_add($ldapconn, $contact, $entry_new);
+						}
 					}
 				}			
 				ldap_close($ldapconn);

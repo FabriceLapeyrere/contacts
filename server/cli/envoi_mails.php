@@ -11,10 +11,19 @@ if($envoi['statut']==1) {
 	Mailing::play_envoi($id_envoi);
 	error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi commencé.\n", 3, "data/log/envoi.log");
 	$sujet=$envoi['sujet'];
-	$html=$C->news->main_wrapper->value;
-	$html=str_replace('::sujet::',$sujet,$html);
-	$html=str_replace('::css::',$C->news->css->value,$html);
-	$html=str_replace('::html::',$envoi['html'],$html);
+	$html=$envoi['html'];
+	if ($envoi['type']=='news') {
+		$html=$C->news->main_wrapper->value;
+		$html=str_replace('::sujet::',$sujet,$html);
+		$html=str_replace('::css::',$C->news->css->value,$html);
+		$html=str_replace('::html::',$envoi['html'],$html);
+	}
+	if ($envoi['type']=='mail') {
+		$html=$C->email->main_wrapper->value;
+		$html=str_replace('::sujet::',$sujet,$html);
+		$html=str_replace('::css::',$C->email->css->value,$html);
+		$html=str_replace('::html::',$envoi['html'],$html);
+	}
 	$nb=$envoi['nb'];
 	$expediteur=$envoi['expediteur'];
 	$pjs=$envoi['pjs'];
