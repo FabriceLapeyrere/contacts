@@ -100,10 +100,11 @@
 			$db= new DB();
 			$id_news=$params->news->id;
 			$sujet=$params->news->sujet;
+			$publie=$params->news->publie;
 			$blocs=$params->news->blocs;
 			$t=millisecondes();
-			$update = $db->database->prepare('UPDATE news SET sujet=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
-			$update->execute(array($sujet, json_encode($blocs), $t, $id, $id_news));
+			$update = $db->database->prepare('UPDATE news SET sujet=?, publie=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
+			$update->execute(array($sujet, $publie, json_encode($blocs), $t, $id, $id_news));
 			CR::maj(array("newss","news/$id_news"));
 			return $id;
 		}
@@ -113,7 +114,7 @@
 		public static function del_news($params,$id) {
 			$db= new DB();
 			$id_news=$params->news->id;
-			$news=Mailing::get_news($id_news);
+			$news=Mailing::get_news($id_news,$id);
 			$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
 			$insert->execute(array($id_news,'news',json_encode($news),millisecondes(),$id));
 			$delete = $db->database->prepare('DELETE FROM news WHERE id=?');
@@ -226,7 +227,7 @@
 			}
 			return $donnees_ok;
 		}
-		public static function html_bloc($id_news,$id_modele,$donnees,$id,$k) {
+		public static function html_bloc($id_news,$id_modele,$donnees,$id,$n) {
 			global $C;
 			$modele=Mailing::get_modele($id_modele);
 			$nom=$modele['nom'];
@@ -252,7 +253,8 @@
 				elseif(file_exists("server/news_elements/elt_$type.php")) include "server/news_elements/elt_$type.php";
 				$html=str_replace($code,$valeur,$html);
 			}
-			$html=str_replace('::code::',$html,$C->news->wrapper->value);
+			$wrap=str_replace('::nBloc::',$n,$C->news->wrapper->value);
+			$html=str_replace('::code::',$html,$wrap);
 			return array($html,$donneeshtml);
 		}
 		public static function del_news_pj($params,$id)
@@ -465,7 +467,7 @@
 		}
 		public static function get_envois($id) {
 			$db= new DB();
-			$query = "SELECT by,date,id,sujet FROM envois ORDER BY date DESC";
+			$query = "SELECT t1.by as by, t1.date as date, t1.id as id, t1.sujet as sujet, t1.statut as statut, (SELECT count(*) FROM boite_envoi WHERE id_envoi=t1.id) as nbleft FROM envois as t1 ORDER BY date DESC;";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$res[]=$row;

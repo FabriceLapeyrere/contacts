@@ -78,7 +78,9 @@ if ( !empty( $_FILES ) ) {
 				'adresse',
 				'cp',
 				'ville',
-				'pays'
+				'pays',
+				'id',
+				'idstr'
 			);
 			$labels=array(
 				'Contact/Structure',
@@ -91,7 +93,9 @@ if ( !empty( $_FILES ) ) {
 				'Adresse',
 				'Cp',
 				'Ville',
-				'Pays'
+				'Pays',
+				'Identifiant',
+				'Identifiant de la structure'
 			);
 			$map_labels=array();
 			$map=array();
@@ -112,6 +116,7 @@ if ( !empty( $_FILES ) ) {
 			}
 			$contacts=array();
 			foreach($exemples as $exemple) {
+				$note="";
 				$contact=array();
 				$donnees=array();
 				$adresse=array();
@@ -120,30 +125,53 @@ if ( !empty( $_FILES ) ) {
 					foreach($keys as $k=>$v) {
 						if ($exemple[$k]!='') {
 							if ($i==0) {
+								if ($type=='id') $contact['id']=$exemple[$k]; 
+								if ($type=='idstr') $contact['idstr']=$exemple[$k]; 
 								if ($type=='nom') $contact['nom']=$exemple[$k]; 
 								if ($type=='prenom') $contact['prenom']=$exemple[$k]; 
 								if ($type=='type') $contact['type']=$exemple[$k]; 
-								if ($type=='note') $donnees[]=array('type'=>'note','k'=>$k,'value'=>$exemple[$k]);
+								if ($type=='note') $note.="\n".$exemple[$k];
 								if ($type=='fonction') $donnees[]=array('type'=>'fonction','k'=>$k,'value'=>$exemple[$k]);
 								if ($type=='adresse') $adresse['adresse']=trim($exemple[$k]); 
 								if ($type=='cp') $adresse['cp']=$exemple[$k]; 
 								if ($type=='ville') $adresse['ville']=$exemple[$k]; 
 								if ($type=='pays') $adresse['pays']=$exemple[$k];
 							}
-							if ($type=='email') $donnees[]=array('type'=>'email','k'=>$k,'value'=>$exemple[$k]);		
+							if ($type=='email') {
+								foreach(extractEmailsFromString($exemple[$k]) as $m) {
+									$donnees[]=array('type'=>'email','k'=>$k,'value'=>$m);
+								}
+							}
 							if ($type=='tel') $donnees[]=array('type'=>'tel','k'=>$k,'value'=>$exemple[$k]);
 						}
 						$i++;
 					}
 				}
-				if (array_key_exists('cp',$map)) {
+				if ($note!='') {
+					$donnees[]=array('type'=>'note','label'=>'Note','value'=>trim($note));
+				}
+				if (array_key_exists('cp',$map) && $adresse['cp']!='') {
 					$donnees[]=array('type'=>'adresse','label'=>'Adresse','value'=>$adresse);
 				}
 				if (!array_key_exists('type',$map)) {
 					$contact['type']=1;
 				}
+				if ($contact['type']==2) {
+					$contact['cols']=array();
+				}
 				$contact['donnees']=$donnees;
 				$contacts[]=$contact;
+			}
+			foreach($contacts as $indexc=>$c) {
+				if (array_key_exists('idstr',$c)) {
+					$idstr=$c['idstr'];
+					foreach($contacts as $indexs=>$s) {
+						if (array_key_exists('id',$s) && $s['id']==$idstr && $s['type']==2) {
+							$contacts[$indexc]['str']=$s;
+							$contacts[$indexs]['cols'][]=$c;
+						}
+					}
+				}
 			}
 			$answer = array(
 				'status'=> 'ok',

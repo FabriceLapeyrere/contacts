@@ -135,6 +135,10 @@
 			global $S;
 			return Contacts::del_contact($params,$S['user']['id']);
 		}
+		public static function delCasquettesPanier($params){
+			global $S;
+			return Contacts::del_casquettes_panier($params,$S['user']['id']);
+		}
 		public static function modCasquette($params){
 			global $S;
 			return Contacts::mod_casquette($params,$S['user']['id']);

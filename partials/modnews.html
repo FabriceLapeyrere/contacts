@@ -1,10 +1,11 @@
 <div loading="key" data="Data">
 	<div class="col-xs-12 col-md-8 col-lg-9" id="news-Parent">
 		<form>
-		<p><button class="btn btn-default" ng-click="envoyer('news',Data.modele[key])">Envoyer à</button> <button class="btn btn-default" ng-click="pdf()">PDF</button></p>
+		<p><button class="btn btn-default" ng-click="envoyer('news',Data.modele[key])">Envoyer à</button> <button class="btn btn-default" ng-click="pdf()">PDF</button> <button class="btn btn-primary" ng-click="unpublie()" ng-if="p=(Data.modele[key].publie==1)">Publié</button><button class="btn btn-default" ng-click="publie()" ng-if="!p">Non publié</button></p>
 		<locked verrou="Data.modele[key].verrou" data="Data">
 			<p>
 				<h3 ng-click="modSujetMod()" class="cursor individu">{{Data.modele[key].sujet}}</h3>
+				<a ng-if="p" href="news.php?id={{Data.modele[key].id}}" target="_blank">voir en ligne</a>
 			</p>
 			<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
 			</p>
@@ -24,6 +25,7 @@
 					<p><span ng-show="!mini.bool" ng-click="mini.bool=!mini.bool" class='glyphicon glyphicon-resize-small cursor'></span></p>
 					<p><span ng-show="mini.bool" ng-click="mini.bool=!mini.bool" class='glyphicon glyphicon-resize-full cursor'></span></p>
 				</div>
+				<div class='nBloc'>#{{$index}}</div>
 				<div class="yui3-cssreset yui3-cssbase bloc-item" ng-class="{'minis':mini.bool}" ng-bind-html="trust(bloc.html)"></div>
 				</locked>
 			</div>

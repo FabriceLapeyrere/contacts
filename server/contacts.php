@@ -170,6 +170,7 @@
 				t2.id_etab as id_etab,
 				t2.donnees as donnees,
 				t2.emails as emails,
+				t2.fonction as fonction,
 				t2.email_erreur as email_erreur,
 				t2.cp as cp,
 				t2.gps_x as gps_x,
@@ -259,6 +260,14 @@
 						break;
 					case 'cp':
 						$valeur="(t2.cp='".strtoupper($param)."' OR t2.cp='' AND t2.id_etab in (SELECT id FROM casquettes WHERE cp='".strtoupper($param)."'))";
+						break;
+					case 'cps':
+						$t=explode(',',strtoupper($param));
+						$cps=array();
+						foreach($t as $cp) {
+							$cps[]="'$cp'";
+						}
+						$valeur="(t2.cp in (".implode(',',$cps).") OR t2.cp='' AND t2.id_etab in (SELECT id FROM casquettes WHERE cp in (".implode(',',$cps).")))";
 						break;
 					case 'text':
 						$valeur="t2.id IN (SELECT id from casquettes_fts WHERE idx MATCH '".str_replace("'","''",normalizeChars($param))."')";
@@ -633,7 +642,7 @@
 			$insert = $db->database->prepare('INSERT OR REPLACE INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');
 			$insert->execute(array($params->tag->id,$params->cas->id,millisecondes()));
 			ldap_update($params->cas->id);
-		   		CR::maj(array('contact/'.$params->cas->id_contact));
+		   	CR::maj(array('contact/'.$params->cas->id_contact));
 			return 1;
 		}
 		public static function del_cas_tag($params,$id) {
@@ -691,7 +700,36 @@
 			$update = $db->database->prepare('UPDATE casquettes SET id_etab=0, modificationdate=?, modifiedby=? WHERE id_etab=?');
 			$update->execute(array(millisecondes(),$id,$params->cas->id));
 			Contacts::touch_contact($params->cas->id_contact,$id);
-			CR::maj(array("casquettes","contact/*","suivis"));
+			$p= (object) array('nouveaux'=>array($params->cas->id));
+			User::del_panier($p,$id);
+			CR::maj(array("casquettes","contact/*","suivis","panier"));
+			return 1;
+		}
+		public static function del_casquettes_panier($params,$id) {
+			$db= new DB();
+			$cass=Contacts::get_casquettes(array('query'=>'::panier::','page'=>1,'nb'=>10,'all'=>1),0,$id);
+			$db->database->beginTransaction();
+			$panier=array();
+			foreach($cass['collection'] as $cas){
+				$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
+				$insert->execute(array( $cas['id'],'casquette',json_encode($cas),millisecondes(),$id));
+				$delete = $db->database->prepare('DELETE FROM casquettes WHERE id=? ');
+				$delete->execute(array( $cas['id']));
+				$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
+				$delete->execute(array( $cas['id']));
+				$delete = $db->database->prepare('DELETE FROM suivis WHERE id_casquette=? ');
+				$delete->execute(array( $cas['id']));
+				$update = $db->database->prepare('UPDATE casquettes SET id_etab=0, modificationdate=?, modifiedby=? WHERE id_etab=?');
+				$update->execute(array(millisecondes(),$id, $cas['id']));
+				$update = $db->database->prepare('UPDATE contacts SET modificationdate=?, modifiedby=? WHERE id=?');
+				$update->execute(array(millisecondes(),$cas['id_contact']));
+				$panier[]=$cas['id'];
+			}
+			$delete = $db->database->exec('DELETE FROM contacts WHERE 0=(select count(*) from casquettes where id_contact=contacts.id)');
+			$db->database->commit();
+			$p= (object) array('nouveaux'=>$panier);
+			User::del_panier($p,$id);
+			CR::maj(array("casquettes","contact/*","suivis","panier"));
 			return 1;
 		}
 		public static function cas_has_tag($id_cas,$id_tag)
@@ -713,6 +751,10 @@
 			}
 			return $res;
 		}
+		public static function index_gps(){
+			$command = "nohup /usr/bin/php exec.php get_gps > /dev/null 2>&1 &";
+			exec($command);
+		}	
 		public static function add_nb_contacts($params,$id){
 			$db= new DB();
 			$contacts=array();
@@ -786,6 +828,7 @@
 			}
 			$contacts=array();
 			foreach($rows as $row) {
+				$note="";
 				$contact=array();
 				$donnees=array();
 				$adresse=array();
@@ -794,23 +837,32 @@
 					foreach($keys as $k=>$label) {
 						if ($row[$k]!='') {
 							if ($i==0) {
+								if ($type=='id') $contact['id']=$row[$k]; 
+								if ($type=='idstr') $contact['idstr']=$row[$k]; 
 								if ($type=='nom') $contact['nom']=$row[$k]; 
 								if ($type=='prenom') $contact['prenom']=$row[$k]; 
 								if ($type=='type') $contact['type']=$row[$k]; 
-								if ($type=='note') $donnees[]=array('type'=>'note','label'=>$label,'value'=>$row[$k]);
+								if ($type=='note') $note.="\n".$row[$k];
 								if ($type=='fonction') $donnees[]=array('type'=>'fonction','label'=>$label,'value'=>$row[$k]);
 								if ($type=='adresse') $adresse['adresse']=$row[$k]; 
 								if ($type=='cp') $adresse['cp']=$row[$k]; 
 								if ($type=='ville') $adresse['ville']=$row[$k]; 
 								if ($type=='pays') $adresse['pays']=$row[$k];
 							}
-							if ($type=='email') $donnees[]=array('type'=>'email','label'=>$label,'value'=>$row[$k]);		
+							if ($type=='email') {
+								foreach(extractEmailsFromString($row[$k]) as $m) {
+									$donnees[]=array('type'=>'email','label'=>$label,'value'=>$m);
+								}
+							}
 							if ($type=='tel') $donnees[]=array('type'=>'tel','label'=>$label,'value'=>$row[$k]);
 						}
 						$i++;
 					}
 				}
-				if (array_key_exists('cp',$map)) {
+				if ($note!='') {
+					$donnees[]=array('type'=>'note','label'=>'Note','value'=>trim($note));
+				}
+				if (array_key_exists('cp',$map) && $adresse['cp']!='') {
 					$donnees[]=array('type'=>'adresse','label'=>'Adresse','value'=>$adresse);
 				}
 				if (!array_key_exists('type',$map)) {
@@ -821,7 +873,7 @@
 			}
 			$cass=array();
 			$db->database->beginTransaction();
-			foreach($contacts as $contact) {
+			foreach($contacts as $index=>$contact) {
 				$nom=$contact['nom'];
 				$prenom = isset($contact['prenom']) ? $contact['prenom'] : '';
 				$sort=filter2("$nom $prenom");
@@ -837,6 +889,7 @@
 				$insert = $db->database->prepare('INSERT INTO casquettes (nom,donnees,emails,email_erreur,fonction,cp,gps_x,gps_y,id_etab,id_contact,creationdate,createdby,modificationdate,modifiedby) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
 				$insert->execute(array($nom_cas,json_encode($donnees),emails($donnees),0,fonction($donnees),cp($donnees),1000,1000,0,$id_contact,millisecondes(),$id,millisecondes(),$id));
 				$id_cas = $db->database->lastInsertId();
+				$contacts[$index]['id_cas']=$id_cas;
 				$insert = $db->database->prepare('INSERT INTO casquettes_fts (id,idx) VALUES (?,?)');
 				$insert->execute(array($id_cas,strtolower(normalizeChars($nom." ".$prenom)).idx($donnees)));
 				//on associe les tags
@@ -846,9 +899,20 @@
 				}
 				$cass[]=$id_cas;
 			}
+			foreach($contacts as $c) {
+				if (array_key_exists('idstr',$c)) {
+					foreach($contacts as $s) {
+						if (array_key_exists('id',$s) && $s['id']==$c['idstr'] && $s['type']==2) {
+							$update = $db->database->prepare('UPDATE casquettes SET id_etab=? WHERE id=?');
+							$update->execute(array($s['id_cas'],$c['id_cas']));
+						}
+					}
+				}
+			}
 			$db->database->commit();
 			if (count($cass)>0) ldap_update_array($cass);
 			CR::maj(array('*'));
+			Contacts::index_gps();
 		}
 	}
 ?>

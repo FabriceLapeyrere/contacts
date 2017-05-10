@@ -5,12 +5,13 @@
 		<ul class="list-group">
 			<li class="list-group-item" ng-repeat="envoi in (envois=(Data.modele.envois | toArray | orderBy:'date':true)) | startFrom:(pageCourante.envois-1)*itemsParPage | limitTo:itemsParPage">
 				<a href="modenvoi/{{envoi.id}}">{{envoi.sujet}}</a> - {{calendar(envoi.date)}} par {{Data.modele.users[envoi.by].name}}
+				<div class='bas-droite'><span class='mini bleu' ng-if="envoi.nbleft>0"><span ng-if="envoi.statut==0">en cours</span><span ng-if="envoi.statut==1">en pause</span>, reste {{envoi.nbleft}}</span><span class='mini vert' ng-if="envoi.nbleft==0">terminé</span></div>
 			</li>
 		</ul>
 	</div>
 	<div class="col-sm-6">
 		<h1>Mails en erreur</h1>
-		<p><span class="btn btn-primary" ng-if="Data.user.id==1 && Data.modele['imap'] && Data.modele['imap'].running!=1" ng-click="checkImap()">Vérifier les erreurs</span></p>		
+		<p><span class="btn btn-primary" ng-if="Data.modele['imap'] && Data.modele['imap'].running!=1" ng-click="checkImap()">Vérifier les erreurs</span></p>		
 		<p ng-if="Data.modele['imap'] && Data.modele['imap'].running==1">Vérification de la boite mail {{Data.modele['imap'].index_boite+1}}/{{Data.modele['imap'].nb_boites}} <b>{{Data.modeleSrv.config.config.mailing.expediteurs.value[Data.modele['imap'].index_boite].email.value}}</b> : {{Data.modele['imap'].pourcentage}}% -> {{Data.modele['imap'].nb}} mail(s) en erreur</p>
 		<uib-pagination boundary-links="true" total-items="Data.modele.casquettes_mail_erreur.total" ng-model="pageCourante.erreur" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 		<span ng-if="Data.modele.casquettes_mail_erreur.total>0" class="pagination-span">{{itemsParPage*(Data.modele.casquettes_mail_erreur.page-1)+1}} - {{min(itemsParPage*Data.modele.casquettes_mail_erreur.page,Data.modele.casquettes_mail_erreur.total)}} de {{Data.modele.casquettes_mail_erreur.total}}</span>

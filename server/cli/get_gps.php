@@ -19,7 +19,7 @@ foreach($casquettes['collection'] as $cas) {
 			CR::maj(array('contact/'.$cas['id_contact']));
 		}
 	}
-	echo "                                             \r$i/$total, ".$gps['x'].", ".$gps['y']."                              ";
+	echo "                                 \r$i/$total, ".$gps['x'].", ".$gps['y']."                              ";
 	$i++;
 }
 echo "\n";	

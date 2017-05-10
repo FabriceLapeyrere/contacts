@@ -18,7 +18,7 @@ $res=array();
 error_log("---------------------------------------------\n:::: ".$uid." :::: AJAX CALL 1 $t\n",3,"./data/log/link.log");
 WS::clear_old_subs();
 while(WS::link_locked()){
-    usleep(1000);
+    usleep(20000);
 }
 WS::link_lock();
 if (is_array($datas)) {

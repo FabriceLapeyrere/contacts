@@ -1,4 +1,12 @@
 <?php
+function extractEmailsFromString($sChaine) {
+	if(false !== preg_match_all('`\w(?:[-_.]?\w)*@\w(?:[-_.]?\w)*\.(?:[a-z]{2,4})`', $sChaine, $aEmails)) {
+		if(is_array($aEmails[0]) && sizeof($aEmails[0])>0) {
+			return array_unique($aEmails[0]);
+		}
+	}
+	return null;
+}
 function Hex2RGB($color){
     $color = str_replace('#', '', $color);
     if (strlen($color) != 6){ return array(0,0,0); }
@@ -172,25 +180,58 @@ function replaceHref($html, $redirect, $params)
 
 	//Evaluate Anchor tag in HTML
 	$xpath = new DOMXPath($dom);
-	$hrefs = $xpath->evaluate("/html/body//a");
+	$sets=array();
+	
+	$sets[] = $xpath->evaluate("/html/body//a");
+	$sets[] = $xpath->evaluate("/html/body//area");
+	foreach ($sets as $hrefs) {
+		for ($i = 0; $i < $hrefs->length; $i++) {
+			$href = $hrefs->item($i);
+			$url = $href->getAttribute('href');
+			if ($url!="##UNSUBSCRIBEURL##") {
+				$p=$params;
+				$p['url']=$url;
+				$hash=json_encode($p);
+				$hash=base64_encode($hash);
+				//remove and set target attribute       
+				$newURL=$redirect."?h=".$hash;
 
-	for ($i = 0; $i < $hrefs->length; $i++) {
-		$href = $hrefs->item($i);
-		$url = $href->getAttribute('href');
-		if ($url!="##UNSUBSCRIBEURL##") {
-			$p=$params;
-			$p['url']=$url;
-			$hash=json_encode($p);
-			$hash=base64_encode($hash);
-			//remove and set target attribute       
-			$newURL=$redirect."?h=".$hash;
-
-			//remove and set href attribute       
-			$href->removeAttribute('href');
-			$href->setAttribute("href", $newURL);
+				//remove and set href attribute       
+				$href->removeAttribute('href');
+				$href->setAttribute("href", $newURL);
+			}
 		}
 	}
+	// save html
+	$html=$dom->saveHTML();
+	return $html;
+}
+function replaceImgs($html, $base, $params, $use_redirect, $redirect)
+{
+	$dom = new DOMDocument();
+	$dom->loadHTML($html);
 
+	//Evaluate Anchor tag in HTML
+	$xpath = new DOMXPath($dom);
+	$imgs = $xpath->evaluate("/html/body//img");
+	for ($i = 0; $i < $imgs->length; $i++) {
+		$img = $imgs->item($i);
+		$src = $img->getAttribute('src');
+		if (strpos($src, '://') === FALSE && strpos($src, 'data:image') === FALSE) {
+			$url="$base/$src";
+			if ($use_redirect) {
+				$p=$params;
+				$p['url']=$src;
+				$p['isImg']=1;
+				$hash=json_encode($p);
+				$hash=base64_encode($hash);
+				$url=$redirect."?h=".$hash;
+			}
+			//remove and set src attribute       
+			$img->removeAttribute('src');
+			$img->setAttribute("src", $url);
+		}
+	}
 	// save html
 	$html=$dom->saveHTML();
 	return $html;
@@ -278,9 +319,11 @@ function replaceHref($html, $redirect, $params)
 	/**
 	* Escapes an LDAP AttributeValue
 	*/
-	function ldap_escape($string)
-	{
-	    return stripslashes($string);
+	if (!function_exists('ldap_escape')) {
+		function ldap_escape($string)
+		{
+		    return stripslashes($string);
+		}
 	}
 	function ldap_update_array($cass) {
 		$command = "nohup /usr/bin/php exec.php ldap_update ".implode(' ',$cass)." > /dev/null 2>&1 &";
@@ -289,7 +332,9 @@ function replaceHref($html, $redirect, $params)
 	function ldap_update($id) {
         global $C;
 		// connect to ldap server
+		error_log("connection ldap ...\n",3,"./data/log/debug.log");
 		if ($C->ldap->active->value==1){
+			error_log("reussie\n",3,"./data/log/debug.log");
 			$ldapconn = ldap_connect($C->ldap->srv->value)
 				or die("Could not connect to LDAP server.");
 			ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -362,6 +407,16 @@ function replaceHref($html, $redirect, $params)
 				$contact="uid=$id,".$C->ldap->base->value;
 				@ldap_delete($ldapconn,$contact);
 				$r=ldap_add($ldapconn, $contact, $entry_new);
+				foreach($C->ldap->tags->value as $t){
+					error_log($t->idtag->value." ".$t->base->value."\n",3,"./data/log/debug.log");
+					$contact="uid=$id,".$t->base->value;
+					error_log("suppression casquette n°$id de ".$t->base->value."\n",3,"./data/log/debug.log");
+					@ldap_delete($ldapconn,$contact);
+					if (Contacts::cas_has_tag($id,$t->idtag->value)) {
+						error_log("ajout casquette n°$id à ".$t->base->value."\n",3,"./data/log/debug.log");
+						$r=ldap_add($ldapconn, $contact, $entry_new);
+					}
+				}			
 				ldap_close($ldapconn);
 				return $entry_new;
 			}

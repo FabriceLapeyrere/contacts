@@ -11,7 +11,7 @@ $c->contact->nom=$params->nom;
 $c->contact->prenom=$params->prenom;
 $c->contact->type=1;
 $id=Contacts::add_contact($c,$S['user']['id']);
-$contact=Contacts::get_contact($id,true);
+$contact=Contacts::get_contact($id,true,1);
 $p=(object) null;
 foreach($contact['casquettes'] as $cas){
 	$p->cas= (object) $cas;

@@ -219,6 +219,7 @@
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
 						array('nom'=>'sujet','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'blocs','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'publie','type'=>'INTEGER','defaut'=>'0','options'=>''),
 						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),

@@ -41,7 +41,7 @@
 				</div>
 			</div>
 			<p>&nbsp;</p>
-			<p>Si des colonnes de votre fichier ne sont pas prises en comptes, renommez les. Les noms possibles sont : nom, prenom, email, tel, note, fonction, adresse, cp, ville, pays.</p>
+			<p>Si des colonnes de votre fichier ne sont pas prises en compte, renommez les. Les noms possibles sont : nom, prenom, email, tel, note, fonction, adresse, cp, ville, pays.</p>
 			<p>La colonne 'type' doit indiquer si c'est un individu (valeur 1) ou une structure (valeur 2).</p>
 			<p>&nbsp;</p>
 			<h3>Résultat après import :</h3>
@@ -61,12 +61,43 @@
 						{{d.value.pays}}
 					</div>
 					<div ng-if="d.type=='note'">
-						<span class="label-contact">{{map[d.type][d.k]}} : </span><br />
+						<span class="label-contact">{{d.label}} : </span><br />
 						<div ng-bind-html="d.value | nl2br"></div>
 					</div>
 				</div>
 				<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
 				<div class="col-xs-12 clearfix inter"></div>
+				<div ng-if="exemples[i].str" class="col-xs-12 list-group-item list-group">
+					<h3 class="structure">{{exemples[i].str.nom}}</h3>
+					<div ng-repeat-start="d in exemples[i].str.donnees" class="col-sm-6" style="overflow:hidden;" ng-if="d.value!=''">
+						<div ng-if="d.type!='adresse' && d.type!='note'">
+							<span class="label-contact">{{map[d.type][d.k]}} : </span><br />
+							{{d.value}}
+						</div>
+						<div ng-if="d.type=='adresse'">
+							<span class="label-contact">{{d.label}} : </span><br />
+							<span ng-bind-html="d.value.adresse | nl2br"></span><br />
+							{{d.value.cp}} {{d.value.ville}}<br />
+							{{d.value.pays}}
+						</div>
+						<div ng-if="d.type=='note'">
+							<span class="label-contact">{{map[d.type][d.k]}} : </span><br />
+							<div ng-bind-html="d.value | nl2br"></div>
+						</div>
+					</div>
+					<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
+					<div class="col-xs-12 clearfix inter"></div>
+				</div>
+				<div class="clearfix col-xs-12" ng-if="exemples[i].type==2 && exemples[i].cols.length>0">
+					<span class="cursor pull-right mini">
+						contacts de la structure
+					</span>
+				</div>
+				<div ng-show="exemples[i].type==2 && exemples[i].cols.length>0" class="list-group-item col-xs-12">
+					<div class="col-sm-12" ng-repeat="c in exemples[i].cols">
+						<span class="individu"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom!='' ? c.nom : '(sans nom)'}}</span> <small>{{c.fonction}}</small>
+					</div>
+				</div>
 			</div>
 			<div class="clearfix"></div>
 			<p>&nbsp;</p>
