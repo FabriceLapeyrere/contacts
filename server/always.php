@@ -206,6 +206,36 @@ function replaceHref($html, $redirect, $params)
 	$html=$dom->saveHTML();
 	return $html;
 }
+function replaceImgs($html, $base, $params, $use_redirect, $redirect)
+{
+	$dom = new DOMDocument();
+	$dom->loadHTML($html);
+
+	//Evaluate Anchor tag in HTML
+	$xpath = new DOMXPath($dom);
+	$imgs = $xpath->evaluate("/html/body//img");
+	for ($i = 0; $i < $imgs->length; $i++) {
+		$img = $imgs->item($i);
+		$src = $img->getAttribute('src');
+		if (strpos($src, '://') === FALSE && strpos($src, 'data:image') === FALSE) {
+			$url="$base/$src";
+			if ($use_redirect) {
+				$p=$params;
+				$p['url']=$src;
+				$p['isImg']=1;
+				$hash=json_encode($p);
+				$hash=base64_encode($hash);
+				$url=$redirect."?h=".$hash;
+			}
+			//remove and set src attribute       
+			$img->removeAttribute('src');
+			$img->setAttribute("src", $url);
+		}
+	}
+	// save html
+	$html=$dom->saveHTML();
+	return $html;
+}
 /**
      * Copy file or folder from source to destination, it can do
      * recursive copy as well and is very smart

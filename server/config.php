@@ -28,6 +28,7 @@ class Config {
 					'nbmail'=>array('value'=>100,'label'=>'Nombre de mail par tranche','type'=>'integer'),
 					't_pause'=>array('value'=>30,'label'=>'Durée de la pause en secondes','type'=>'integer'),
 					'use_redirect'=>array('value'=>0,'label'=>'Activer / Désactiver la redirection des liens','type'=>'bool'),
+					'remote_imgs'=>array('value'=>0,'label'=>'Activer / Désactiver les images distantes dans les news','type'=>'bool'),
 					'redirect_notification'=>array('value'=>0,'label'=>'Envoyer les notifications de clic à l\'expéditeur ?','type'=>'bool','show'=>'use_redirect'),
 					'expediteurs'=>array('value'=>array(
 						array(
@@ -60,7 +61,45 @@ class Config {
 					),'label'=>'OU de base par tag','type'=>'array')
 			   ),
 				'news'=>array(
-					'wrapper'=>array('value'=>"<div style='margin: 0 auto;width:700px;font-family: verdana, sans-serif;font-size:12px;text-align:left;background:#fff;'>::code::</div>",'label'=>'Code du conteneur de newsletter','type'=>'texte_long'),
+					'main_wrapper'=>array('value'=>"<head>
+	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>
+	<title>::sujet::</title>
+	<style>::css::</style>
+</head>
+<body>
+	<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">
+		<tr>
+			<td height=\"1\" class=\"hide\" style=\"min-width:600px; font-size:0px;line-height:0px;\">
+				<img height=\"1\" src=\"img/spacer.gif\" style=\"min-width: 700px; text-decoration: none; border: none; -ms-interpolation-mode: bicubic;\"/>
+			</td>
+		</tr>
+		<!-- Close spacer Gmail Android -->
+		<!-- iphone gmail fix -->
+		<tr>
+			<td>
+				<div style=\"display:none; white-space:nowrap; font:15px courier; line-height:0;\">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				::html::
+			</td>
+		</tr>
+	</table>
+</body>",'label'=>'Code du conteneur global de newsletter','type'=>'texte_long'),
+					'wrapper'=>array('value'=>"<table id=\"::nBloc::\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">
+	<tr>
+		<td align=\"center\">
+			<table width=\"700\" cellspacing=\"0\" cellpadding=\"0\">
+				<tr>
+					<td>
+						::code::
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>",'label'=>'Code du conteneur de newsletter','type'=>'texte_long'),
 					'css'=>array('value'=>"",'label'=>'CSS','type'=>'texte_long')
 				)
 			);

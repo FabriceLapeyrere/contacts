@@ -25,6 +25,7 @@
 					<p><span ng-show="!mini.bool" ng-click="mini.bool=!mini.bool" class='glyphicon glyphicon-resize-small cursor'></span></p>
 					<p><span ng-show="mini.bool" ng-click="mini.bool=!mini.bool" class='glyphicon glyphicon-resize-full cursor'></span></p>
 				</div>
+				<div class='nBloc'>#{{$index}}</div>
 				<div class="yui3-cssreset yui3-cssbase bloc-item" ng-class="{'minis':mini.bool}" ng-bind-html="trust(bloc.html)"></div>
 				</locked>
 			</div>

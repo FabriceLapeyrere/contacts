@@ -227,7 +227,7 @@
 			}
 			return $donnees_ok;
 		}
-		public static function html_bloc($id_news,$id_modele,$donnees,$id,$k) {
+		public static function html_bloc($id_news,$id_modele,$donnees,$id,$n) {
 			global $C;
 			$modele=Mailing::get_modele($id_modele);
 			$nom=$modele['nom'];
@@ -253,7 +253,8 @@
 				elseif(file_exists("server/news_elements/elt_$type.php")) include "server/news_elements/elt_$type.php";
 				$html=str_replace($code,$valeur,$html);
 			}
-			$html=str_replace('::code::',$html,$C->news->wrapper->value);
+			$wrap=str_replace('::nBloc::',$n,$C->news->wrapper->value);
+			$html=str_replace('::code::',$html,$wrap);
 			return array($html,$donneeshtml);
 		}
 		public static function del_news_pj($params,$id)

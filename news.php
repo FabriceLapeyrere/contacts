@@ -5,12 +5,17 @@ foreach (glob("server/*.php") as $filename)
 }
 include 'fake_ws/conf.php';
 include 'conf/main.php';
-include 'conf/auth.php';
+$S=array();
+$S['user']=array(
+	'login'=>'nobody',
+	'name'=>'nobody',
+	'id'=>1
+);
 $news=Mailing::get_news($_REQUEST['id'],1);
 if ($news['publie']==1) {
 	$sujet=$news['sujet'];
 	$html='';
-	foreach($news['blocs'] as $b){
+	foreach($news['blocs'] as $n=>$b){
 		$html.=$b->html."\n";
 	};
 	$pjs=array();

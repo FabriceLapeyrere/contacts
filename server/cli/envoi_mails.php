@@ -10,8 +10,11 @@ $envoi=Mailing::get_envoi($id_envoi,'',1);
 if($envoi['statut']==1) {
 	Mailing::play_envoi($id_envoi);
 	error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi commencé.\n", 3, "data/log/envoi.log");
-	$html='<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><style>'.$C->news->css->value.'</style></head><body>'.$envoi['html'].'</body>';
 	$sujet=$envoi['sujet'];
+	$html=$C->news->main_wrapper->value;
+	$html=str_replace('::sujet::',$sujet,$html);
+	$html=str_replace('::css::',$C->news->css->value,$html);
+	$html=str_replace('::html::',$envoi['html'],$html);
 	$nb=$envoi['nb'];
 	$expediteur=$envoi['expediteur'];
 	$pjs=$envoi['pjs'];
@@ -20,6 +23,8 @@ if($envoi['statut']==1) {
 	$mailing_nbmail=$C->mailing->nbmail->value;
 	$mailing_t_pause=$C->mailing->t_pause->value;
 	$use_redirect=$C->mailing->use_redirect->value;
+	$remote_imgs=$C->mailing->remote_imgs->value;
+	$base=$C->app->url->value;
 	$redirect_url=$C->app->url->value."/r.php";
 	$unsubscribe_url=$C->app->url->value."/desinscription.php";
 	$mail = new PHPMailer();
@@ -36,7 +41,6 @@ if($envoi['statut']==1) {
 		if(!$pj->used) $mail->AddAttachment($pj->path);
 	}
 		
-	$mail->MsgHTML($html);
 	$mail->From = $exp->email->value;
 	$mail->FromName = $exp->nom->value;
 	error_log(date('d/m/Y H:i:s')." - nb = ".Mailing::nb_messages_boite_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
@@ -69,14 +73,20 @@ if($envoi['statut']==1) {
 		$m=Mailing::envoi_premier_message($id_envoi);
 		$i=$m['i'];
 		if($use_redirect){
-			error_log(date('d/m/Y H:i:s')." - redirect ON.\n", 3, "data/log/envoi.log");
 			$params=array(
 				'contact'=>$m['id_cas'],
 				'envoi'=>$id_envoi
 			);
 			$htmlr=replaceHref($htmlr, $redirect_url, $params);
 		}
-		$c=Contacts::get_casquette($m['id_cas'],1);
+		if($remote_imgs){
+			$params=array(
+				'contact'=>$m['id_cas'],
+				'envoi'=>$id_envoi
+			);
+			$htmlr=replaceImgs($htmlr, $base, $params, $use_redirect, $redirect_url);
+		}
+		$c=Contacts::get_casquette($m['id_cas'],false,1);
 		$usbcr_hash=base64_encode(json_encode(array("emails"=>$c['emails'])));
 		$unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
 		$htmlr=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);
