@@ -20,6 +20,12 @@ integer "integer"
   / '!:tag' id:[0-9]+ { return 'NOT (::tag/'+id.join("")+'::)'; }
   / ':etab' id:[0-9]+ { return '::etab/'+id.join("")+'::'; }
   / '!:etab' id:[0-9]+ { return 'NOT (::etab/'+id.join("")+'::)'; }
+  / ':envoi' id:[0-9]+ { return '::envoi/'+id.join("")+'::'; }
+  / '!:envoi' id:[0-9]+ { return 'NOT (::envoi/'+id.join("")+'::)'; }
+  / ':news' id:[0-9]+ { return '::news/'+id.join("")+'::'; }
+  / '!:news' id:[0-9]+ { return 'NOT (::news/'+id.join("")+'::)'; }
+  / ':mail' id:[0-9]+ { return '::mail/'+id.join("")+'::'; }
+  / '!:mail' id:[0-9]+ { return 'NOT (::mail/'+id.join("")+'::)'; }
   / ':type' id:[12]+ { return id==1 ? '::type/1::' : '::type/2::'; }
   / ':cp' id:[0-9AB]+ { return '::cp/'+id.join("")+'::'; }
   / '!:cp' id:[0-9AB]+ { return 'NOT (::cp/'+id.join("")+'::)'; }

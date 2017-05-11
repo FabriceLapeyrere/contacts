@@ -1036,9 +1036,8 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 	$scope.key='contact/'+$routeParams.id;
 	Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
 	$scope.sv={};
+	$scope.ev={};
 	$scope.svDesc={};
-	$scope.voir=function(cas){$scope.sv[cas.id]=true;};
-	$scope.cacher=function(cas){$scope.sv[cas.id]=false;};
 	$scope.idx=-1;
 	$scope.modContact=function(contact){
 		Link.ajax([{action:'modContact', params:{id:$routeParams.id, nom:contact.nom, prenom:contact.prenom}},

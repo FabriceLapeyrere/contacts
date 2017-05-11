@@ -1,6 +1,11 @@
 <div loading="key" data="Data">
 	<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
-		<h1>{{Data.modele[key].sujet}} <small ng-if="Data.modele[key].boite_envoi.total==0">Envoi terminé</small></h1>
+		<h1>{{Data.modele[key].sujet}}</h1>
+		<p><small ng-if="Data.modele[key].boite_envoi.total==0">Envoi terminé</small></p>
+		<p ng-if="Data.modele[key].id_type>0">
+			<a href="modnews/{{Data.modele[key].id_type}}" ng-if="Data.modele[key].type=='news'">Newsletter n°{{Data.modele[key].id_type}}</a>
+			<a href="modmail/{{Data.modele[key].id_type}}" ng-if="Data.modele[key].type=='mail'">E-mail n°{{Data.modele[key].id_type}}</a>
+		</p>
 		<p> De : {{Data.modele[key].expediteur.nom}} <{{Data.modele[key].expediteur.email}}></p>
 		<p> <span class="mini">{{calendar(Data.modele[key].date)}} par {{Data.modele.users[Data.modele[key].by].name}}.</span>
 		</p>
@@ -13,7 +18,7 @@
 		<div class="progress" style="" ng-if="Data.modele[key].boite_envoi.total>0 || Data.modele[key].statut==0">
 			<div class="progress-bar" role="progressbar" ng-style="{ 'width': (Data.modele[key].nb-Data.modele[key].boite_envoi.total)*100/Data.modele[key].nb + '%' }"><span style="color:black; white-space:nowrap;"></span><div class="progress-center">{{Data.modele[key].nb-Data.modele[key].boite_envoi.total}} / {{Data.modele[key].nb}}</div></div>
 		</div>
-        <uib-tabset>
+	<uib-tabset>
 		<uib-tab heading='Message'>
 			<div ng-show="c.length>0">
 				<h3>Pièces jointes</h3>
@@ -59,8 +64,8 @@
 				</li>
 			</ul>
 		</uib-tab>
-        </uib-tabset>
-        <p>&nbsp;</p><p>&nbsp;</p>
+	</uib-tabset>
+	<p>&nbsp;</p><p>&nbsp;</p>
 	</div>
 
 </div>

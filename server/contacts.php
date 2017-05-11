@@ -70,6 +70,9 @@
 			if ($full && $cas['id_etab']>0) {
 				$cas['etab']=Contacts::get_casquette($cas['id_etab'],false,$id);
 			}
+			if ($full) {
+				$cas['envois']=Mailing::get_envois_casquette($id_cas,$id);
+			}
 			return $cas;
 		}
 		public static function get_idcasquette_email($email) {
@@ -274,6 +277,15 @@
 					case 'tag':
 						$children=Contacts::get_whole_tag($param,$tags);
 						$valeur= "t2.id IN (SELECT id_cas FROM tag_cas WHERE id_tag IN (".implode(', ',$children)."))";
+						break;
+					case 'envoi':
+						$valeur= "t2.id IN (SELECT id_cas FROM envoi_cas WHERE id_envoi=$param)";
+						break;
+					case 'news':
+						$valeur= "t2.id IN (SELECT id_cas FROM envoi_cas as t10 INNER JOIN envois as t11 ON t10.id_envoi=t11.id WHERE t11.type='news' AND t11.id_type=$param)";
+						break;
+					case 'mail':
+						$valeur= "t2.id IN (SELECT id_cas FROM envoi_cas as t10 INNER JOIN envois as t11 ON t10.id_envoi=t11.id WHERE t11.type='mail' AND t11.id_type=$param)";
 						break;
 					case 'seulement_tags':	
 						$ts=explode(',',$param);

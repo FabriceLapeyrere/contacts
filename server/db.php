@@ -258,6 +258,28 @@
 					)
 				),
 				array(
+					'type'=>'index',
+					'nom'=>'envois_idx',
+					'on'=>'envois',
+					'champs'=>array('type', 'id_type')
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'envoi_cas',
+					'champs'=>array(
+						array('nom'=>'id_envoi','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_cas','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'emails','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'unique index',
+					'nom'=>'envoi_cas_idx',
+					'on'=>'envoi_cas',
+					'champs'=>array('id_envoi', 'id_cas', 'emails')
+				),
+				array(
 					'type'=>'table',
 					'nom'=>'r',
 					'champs'=>array(
