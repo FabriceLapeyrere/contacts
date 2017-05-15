@@ -1650,6 +1650,7 @@ app.controller('suivisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link'
 app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
 	$scope.key='suivi/'+$routeParams.id;
 	Link.context([{type:'suivi/'+$routeParams.id}]);
+	$scope.ev={};
 	$scope.test=true;
 	$scope.casKey=0;
 	$scope.contactKey=0;

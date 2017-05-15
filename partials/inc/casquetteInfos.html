@@ -52,6 +52,21 @@
 						<a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom!='' ? c.nom : '(sans nom)'}}</a> <small>{{valeur(c,'fonction')[0].valeur}}</small>
 					</div>
 				</div>
+				<div class="col-xs-12 inter clearfix"></div>
+				<div ng-if="cas.envois.length>0" class="col-xs-12 clearfix list-group-item">
+					<span class="label-contact">Envois ({{cas.envois.length}})</span>
+					<span class="cursor mini" ng-if="!ev[cas.id]" ng-click="ev[cas.id]=true">voir</span>
+					<span class="cursor mini" ng-if="ev[cas.id]" ng-click="ev[cas.id]=false">cacher</span>
+					<div ng-if="ev[cas.id]" ng-repeat="e in cas.envois">
+						<small>
+							<a href='modenvoi/{{e.id_envoi}}'>{{e.sujet}}</a> - 
+							<a href="modnews/{{e.id_type}}" ng-if="e.type=='news'">Newsletter n°{{e.id_type}}</a>
+							<a href="modmail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
+							>&nbsp;<span ng-repeat="m in e.emails">{{m}} </span>
+						</small>
+						<small class="mini">{{calendar(e.date)}}</small>
+					</div>
+				</div>
 
 			</div>
 	</div>
