@@ -106,7 +106,7 @@
 							<small>
 								<a href='modenvoi/{{e.id_envoi}}'>{{e.sujet}}</a> - 
 								<a href="modnews/{{e.id_type}}" ng-if="e.type=='news'">Newsletter n°{{e.id_type}}</a>
-								<a href="modmail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
+								<a href="mail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
 								>&nbsp;<span ng-repeat="m in e.emails">{{m}} </span>
 							</small>
 							<small class="mini">{{calendar(e.date)}}</small>
