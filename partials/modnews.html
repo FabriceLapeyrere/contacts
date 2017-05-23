@@ -5,7 +5,7 @@
 		<locked verrou="Data.modele[key].verrou" data="Data">
 			<p>
 				<h3 ng-click="modSujetMod()" class="cursor individu">{{Data.modele[key].sujet}}</h3>
-				<a ng-if="p" href="news.php?id={{Data.modele[key].id}}" target="_blank">voir en ligne</a>
+				<a ng-if="p" href="{{Data.modele.config.config.app.url.value}}/news.php?id={{Data.modele[key].id}}" target="_blank">voir en ligne</a>
 			</p>
 			<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
 			</p>
