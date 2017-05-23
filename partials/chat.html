@@ -4,8 +4,8 @@
         <ul ng-if="Data.modele.chat.collection[u.id]" ng-click="setlus(u.id)">
             <li ng-repeat="m in Data.modele.chat.collection[u.id]" ng-class="{'right':m.id_from==Data.user.id,'nonlu':m.id_from!=Data.user.id && (!Data.modele.chat.lus[u.id] || m.creationdate>Data.modele.chat.lus[u.id])}">
                 <div class="message">{{m.message}}</div>
-                <div class="from mini moi" ng-if="m.id_from==Data.user.id">moi <span ng-click="modMessageMod(m)" class='glyphicon glyphicon-pencil cursor'></span></div>
-                <div class="from mini" ng-if="m.id_from!=Data.user.id">{{Data.modele.users[m.id_from].name}}</div>
+                <div class="from mini moi" ng-if="m.id_from==Data.user.id">{{calendar(m.creationdate)}} - moi <span ng-click="modMessageMod(m)" class='glyphicon glyphicon-pencil cursor'></span></div>
+                <div class="from mini" ng-if="m.id_from!=Data.user.id">{{Data.modele.users[m.id_from].name}} - {{calendar(m.creationdate)}}</div>
             </li>
         </ul>
     </div>
