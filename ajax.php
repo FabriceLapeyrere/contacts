@@ -1,4 +1,5 @@
 <?php
+set_time_limit(0);
 if (!file_exists('./data/log')) mkdir('./data/log', 0777, true);
 $t0=microtime(true);
 $t=$t0*10000%10000;
