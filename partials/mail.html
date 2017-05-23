@@ -1,0 +1,15 @@
+<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3"><locked verrou="Data.modele[key].verrou" data="Data">
+	<p><a class="btn btn-primary" href="modmail/{{Data.modele[key].id}}">Modifier</a> <button class="btn btn-default" ng-click="envoyer(Data.modele[key])">Envoyer à</button></p>
+	</locked>
+	<h3>{{Data.modele[key].sujet}}</h3>
+	<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+	</p>
+	<p ng-if="Data.modele[key].pjs.length>0">Pièces jointes :</p>
+	<ul ng-if="Data.modele[key].pjs.length>0" class="list-group">
+		<li class="list-group-item" ng-repeat="pj in Data.modele[key].pjs"><a href="{{pj.path}}" target="_blank">{{pj.filename}}</a>
+			<div class="clearfix"></div>
+		</li>
+	</ul>
+	<div style="background-color:#fff;padding:15px;margin-top:15px;border-radius:4px;" class="yui3-cssreset yui3-cssbase" ng-bind-html="trust(Data.modele[key].html)"></div>
+</div>
+

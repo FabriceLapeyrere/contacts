@@ -13,6 +13,7 @@ app.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/modcontact/:id', {templateUrl: 'partials/modcontact.html', controller: 'modcontactCtl'});
 	//mailing
 	$routeProvider.when('/modmail/:id', {templateUrl: 'partials/modmail.html', controller: 'modmailCtl'});
+	$routeProvider.when('/mail/:id', {templateUrl: 'partials/mail.html', controller: 'mailCtl'});
 	$routeProvider.when('/mails', {templateUrl: 'partials/mails.html', controller: 'mailsCtl'});
 	$routeProvider.when('/modnews/:id', {templateUrl: 'partials/modnews.html', controller: 'modnewsCtl'});
 	$routeProvider.when('/news', {templateUrl: 'partials/news.html', controller: 'newsCtl'});
@@ -1219,6 +1220,31 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 		if(!$scope.pristine($scope.key) && confirm("L'e-mail n'a pas été sauvé, sauver ?")) $scope.save();
 		Link.del_verrou($scope.key);
 	});
+}]);
+//mailing
+app.controller('mailCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
+	$scope.key='mail/'+$routeParams.id;
+	Link.context([{type:$scope.key}]);
+	$scope.envoyer=function(mail){
+		var contexts=Data.contexts;
+		var modal = $uibModal.open({
+			templateUrl: 'partials/envoyer.html',
+			controller: 'envoyerModCtl',
+			resolve:{
+				parsed: function () {
+					return $scope.parsed;
+				},
+				type: function () {
+					return 'mail';
+				}
+			}
+		});
+		modal.result.then(function (res) {
+			var expediteur={id:res.expediteur.nom.id,nom:res.expediteur.nom.value,email:res.expediteur.email.value};
+			res.expediteur=expediteur;
+			Link.ajax([{action:'envoyer', params:{type:'mail', e:Data.modele[$scope.key], res:res}}], function(r){$location.path('/modenvoi/'+r.res);});
+		},function(){Link.context(contexts);});
+	}
 }]);
 app.controller('mailsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
 	Link.context([{type:'mails'}]);

@@ -4,7 +4,7 @@
 		<p><small ng-if="Data.modele[key].boite_envoi.total==0">Envoi terminé</small></p>
 		<p ng-if="Data.modele[key].id_type>0">
 			<a href="modnews/{{Data.modele[key].id_type}}" ng-if="Data.modele[key].type=='news'">Newsletter n°{{Data.modele[key].id_type}}</a>
-			<a href="modmail/{{Data.modele[key].id_type}}" ng-if="Data.modele[key].type=='mail'">E-mail n°{{Data.modele[key].id_type}}</a>
+			<a href="mail/{{Data.modele[key].id_type}}" ng-if="Data.modele[key].type=='mail'">E-mail n°{{Data.modele[key].id_type}}</a>
 		</p>
 		<p> De : {{Data.modele[key].expediteur.nom}} <{{Data.modele[key].expediteur.email}}></p>
 		<p> <span class="mini">{{calendar(Data.modele[key].date)}} par {{Data.modele.users[Data.modele[key].by].name}}.</span>
@@ -13,7 +13,7 @@
 			<button class="btn btn-primary glyphicon glyphicon-refresh" ng-click="restart()" ng-disabled="Data.modele[key].statut==0 || (Data.modele[key].boite_envoi.collection|avecErreur).length==0"></button> 
 			<button class="btn btn-primary glyphicon glyphicon-play" ng-click="play()" ng-disabled="Data.modele[key].statut==0 || Data.modele[key].statut==2 || (Data.modele[key].boite_envoi.collection|sansErreur).length==0"></button>
 			<button class="btn btn-primary glyphicon glyphicon-pause" ng-click="pause()" ng-disabled="Data.modele[key].statut==1 || Data.modele[key].statut==2"></button>
-			<button class="btn btn-danger glyphicon glyphicon-remove" ng-confirm-click="vide()" ng-confirm-message="Les messages en atente seront supprimés. Sûr?" ng-disabled="Data.modele[key].boite_envoi.total==0"></button>
+			<button class="btn btn-danger glyphicon glyphicon-remove" ng-confirm-click="vide()" ng-confirm-message="Les messages en attente seront supprimés. Sûr?" ng-disabled="Data.modele[key].boite_envoi.total==0"></button>
 		</p>
 		<div class="progress" style="" ng-if="Data.modele[key].boite_envoi.total>0 || Data.modele[key].statut==0">
 			<div class="progress-bar" role="progressbar" ng-style="{ 'width': (Data.modele[key].nb-Data.modele[key].boite_envoi.total)*100/Data.modele[key].nb + '%' }"><span style="color:black; white-space:nowrap;"></span><div class="progress-center">{{Data.modele[key].nb-Data.modele[key].boite_envoi.total}} / {{Data.modele[key].nb}}</div></div>
@@ -29,7 +29,8 @@
 					</li>
 				</ul>
 			</div>
-			<style scoped ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
+			<style ng-if="Data.modele[key].type=='news'" scoped ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
+			<style ng-if="Data.modele[key].type=='mail'" scoped ng-bind-html="trust(Data.modele.config.config.mail.css.value)"></style>
 			<div style="background-color:#fff;padding:15px;margin-top:15px;border-radius:4px;" class="yui3-cssreset yui3-cssbase" ng-bind-html="trust(Data.modele[key].html)"></div>
 		</uib-tab>
 		<uib-tab heading="Boite d'envoi" ng-if="Data.modele[key].boite_envoi.total>0">
