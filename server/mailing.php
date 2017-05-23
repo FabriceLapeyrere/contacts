@@ -332,7 +332,7 @@
 		//envois
 		public static function get_envois_casquette($id_cas,$id) {
 			$db= new DB();
-			$query = "SELECT t1.*, t2.sujet, t2.type, t2.id_type, t2.date FROM envoi_cas as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_cas=$id_cas ORDER BY t2.date DESC";
+			$query = "SELECT t1.*, t2.sujet, t2.type, t2.id_type, t1.date FROM envoi_cas as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_cas=$id_cas ORDER BY t2.date DESC";
 			$envois=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$row['emails']=json_decode($row['emails']);
