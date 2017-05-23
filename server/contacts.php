@@ -183,6 +183,7 @@
 				t2.modifiedby as cas_modifiedby,
 				Group_Concat(DISTINCT t3.id_tag) as tags,
 				t4.id as id_etab,
+				t4.nom as nom_cas_etab,
 				t4.donnees as donnees_etab,
 				t5.id as id_contact_etab,
 				t5.nom as nom_etab,
@@ -453,7 +454,7 @@
 				$cass[]=$id_cas;
 				$cas=Contacts::get_casquette($id_cas,true,$id);
 				$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
-				$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx( (object) $cas['donnees']),$cas['id']));
+				$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']." ".$cas['nom_cas']))." ".idx( (object) $cas['donnees']),$cas['id']));
 			}
 			if (count($cass)>0) ldap_update_array($cass);
 			CR::maj(array("contact/$id_contact"));
@@ -495,7 +496,7 @@
 			$update = $db->database->prepare('UPDATE casquettes SET donnees=?, emails=?, email_erreur=? WHERE id=?');
 			$update->execute(array(json_encode($donnees),emails($donnees),1,$cas_id));
 			$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
-			$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($donnees),$cas_id));
+			$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']." ".$cas['nom_cas']))." ".idx($donnees),$cas_id));
 			Contacts::touch_contact($cas['id_contact'],$id);
 			ldap_update($cas_id);
 			CR::maj(array('contact/'.$cas['id_contact']));
@@ -536,7 +537,7 @@
 				$update = $db->database->prepare('UPDATE casquettes SET donnees=?, emails=?, email_erreur=? WHERE id=?');
 				$update->execute(array(json_encode($donnees),emails($donnees),0,$cas_id));	
 				$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
-				$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($donnees),$cas_id));
+				$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']." ".$cas['nom_cas']))." ".idx($donnees),$cas_id));
 				Contacts::touch_contact($cas['id_contact'],$id);
 				ldap_update($cas_id);
 				CR::maj(array('contact/'.$cas['id_contact']));
@@ -571,7 +572,7 @@
 			$update = $db->database->prepare('UPDATE casquettes SET nom=?, donnees=?, id_etab=?, modificationdate=?, modifiedby=?, emails=?, email_erreur=?, fonction=?, cp=?, gps_x=?, gps_y=? WHERE id=?');
 			$update->execute(array($params->cas->nom_cas,json_encode($apres),$id_etab,$t,$id,emails($apres),email_erreur($apres),fonction($apres),cp($apres),$gps['x'],$gps['y'],$params->cas->id));
 			$update = $db->database->prepare('UPDATE casquettes_fts SET idx=? WHERE id=?');
-			$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']))." ".idx($apres),$params->cas->id));
+			$update->execute(array(strtolower(normalizeChars($cas['nom']." ".$cas['prenom']." ".$cas['nom_cas']))." ".idx($apres),$params->cas->id));
 			Contacts::touch_contact($params->cas->id_contact,$id);
 			ldap_update($params->cas->id_contact,$id);
 			$res=array('contact/'.$params->cas->id_contact);

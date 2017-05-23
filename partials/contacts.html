@@ -2,100 +2,100 @@
 	<p><span class="btn btn-primary" ng-click="addContactMod(1)">Nouveau Contact</span> <span class="btn btn-success" ng-click="addContactMod(2)">Nouvelle Structure</span></p>
 	<form>
 	<div class="rel">
-            <input class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier" ui-on-Drop="insert($channel,$data,$ctrl)" data-drop-type="query" ng-keydown="history($event)"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
-        </div>
-        <div class="col-xs-12 gris parsed">
-            <p dyn-tpl tpl="parsed.front(Data.mainQuery)" data="Data"></p>
-        </div>
+			<input class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier" ui-on-Drop="insert($channel,$data,$ctrl)" data-drop-type="query" ng-keydown="history($event)"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
+		</div>
+		<div class="col-xs-12 gris parsed">
+			<p dyn-tpl tpl="parsed.front(Data.mainQuery)" data="Data"></p>
+		</div>
 	</form>
    <span class="label label-primary" ui-draggable="true" drag="panier" drag-channel="panier">Panier {{Data.modele[panierKey].length}} contact(s)</span>
-    (<span class="cursor" ng-confirm-click="panierVide()" ng-confirm-message="Sûr ?">vider le panier</span>,
-    <span class="cursor" ng-confirm-click="panierAll()" ng-confirm-message="Sûr ?">tout cocher</span> <span class="cursor mini" ng-show="p==0" ng-click="p=1">>></span><span class="cursor mini" ng-show="p==1" ng-click="p=0"><<</span> <span ng-click="p=0" class="cursor mini" ng-show="p==1" ng-confirm-click="delCasquettesPanier()" ng-confirm-message="Êtes-vous sûr de vouloir supprimer tous les contacts qui sont dans le panier ?">supprimer de la base tous les contacts qui sont dans le panier</span>)
-    <div class="clearfix"></div>
+	(<span class="cursor" ng-confirm-click="panierVide()" ng-confirm-message="Sûr ?">vider le panier</span>,
+	<span class="cursor" ng-confirm-click="panierAll()" ng-confirm-message="Sûr ?">tout cocher</span> <span class="cursor mini" ng-show="p==0" ng-click="p=1">>></span><span class="cursor mini" ng-show="p==1" ng-click="p=0"><<</span> <span ng-click="p=0" class="cursor mini" ng-show="p==1" ng-confirm-click="delCasquettesPanier()" ng-confirm-message="Êtes-vous sûr de vouloir supprimer tous les contacts qui sont dans le panier ?">supprimer de la base tous les contacts qui sont dans le panier</span>)
+	<div class="clearfix"></div>
 	<uib-pagination boundary-links="true" total-items="Data.modele.casquettes.total" ng-model="Data.pageContacts" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 	<input id="input-page" type="text" ng-model="Data.pageContacts" class="hidden-xs form-control pagination-input" ng-model-options="{debounce:200}"/>
-    <span ng-if="Data.modele.casquettes.total>0" class="pagination-span">{{itemsParPage*(Data.modele.casquettes.page-1)+1}} - {{min(itemsParPage*Data.modele.casquettes.page,Data.modele.casquettes.total)}} de {{Data.modele.casquettes.total}}</span>
-    <div ng-if="Data.modele.casquettes.total==0">Aucun résultat</div>
-    <ul ng-if="Data.modele.casquettes.total>0" class="list-group" id="contacts-list" ng-class="{'loading':Data.pageContacts!=Data.modele.casquettes.page || !isAnswer()}">
-	    <li class="list-group-item cas" ng-class="{'individu':cas.type==1, 'structure':cas.type==2, 'cas-suivante':!(Data.modele.casquettes.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact), 'courant':Data.pageContacts==Data.modele.casquettes.page && cas.id==courant.id}" ng-repeat="cas in (c=(Data.modele.casquettes.collection | toArray))" ng-dblclick="selected.index = $index" ui-on-Drop="addCasTag($event,$data,cas)" drop-channel="tag" data-drop-type="contact">
-	        <div ng-class="{'panier-btn-ko':!dansPanier(cas), 'panier-btn-ok':dansPanier(cas)}" ng-click="dansPanier(cas) ? panierDel(cas,$index) : panierAdd(cas,$index)"></div>
-	        <div class="col-sm-12 cas">
+	<span ng-if="Data.modele.casquettes.total>0" class="pagination-span">{{itemsParPage*(Data.modele.casquettes.page-1)+1}} - {{min(itemsParPage*Data.modele.casquettes.page,Data.modele.casquettes.total)}} de {{Data.modele.casquettes.total}}</span>
+	<div ng-if="Data.modele.casquettes.total==0">Aucun résultat</div>
+	<ul ng-if="Data.modele.casquettes.total>0" class="list-group" id="contacts-list" ng-class="{'loading':Data.pageContacts!=Data.modele.casquettes.page || !isAnswer()}">
+		<li class="list-group-item cas" ng-class="{'individu':cas.type==1, 'structure':cas.type==2, 'cas-suivante':!(Data.modele.casquettes.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact), 'courant':Data.pageContacts==Data.modele.casquettes.page && cas.id==courant.id}" ng-repeat="cas in (c=(Data.modele.casquettes.collection | toArray))" ng-dblclick="selected.index = $index" ui-on-Drop="addCasTag($event,$data,cas)" drop-channel="tag" data-drop-type="contact">
+			<div ng-class="{'panier-btn-ko':!dansPanier(cas), 'panier-btn-ok':dansPanier(cas)}" ng-click="dansPanier(cas) ? panierDel(cas,$index) : panierAdd(cas,$index)"></div>
+			<div class="col-sm-12 cas">
 
-		        <div class="contact-btn cursor" ng-if="c[$index+1].id_contact!=cas.id_contact">
-			        <span class="glyphicon glyphicon-trash" ng-confirm-click="delContact(cas)" ng-confirm-message="Sûr? Cela supprimera également les fiches de suivi de ce contact."></span>
-		        </div>
-		        <div class="col-xs-6 col-md-4">
-                    <div>
-			            <a href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="cas.prenom+cas.nom==''">(sans nom)</span></a> <span class="mini" ng-if="cas.fonction"> {{cas.fonction}}</span> &nbsp;
-                    </div>
-		            <div ng-if="d.type=='adresse'" ng-repeat="d in cas.donnees">
-                        <span>
-                        {{d.value.cp}} {{d.value.ville}}
-			            </span>&nbsp;
-		            </div>
-		        </div>
-		        <div class="col-xs-6 col-md-4" style="overflow:hidden;">
-                    <div ng-class="{'erreur':d.type=='email_erreur'}" ng-if="d.type=='email' || d.type=='email_erreur'" ng-repeat="d in cas.donnees">
-                        {{d.value}}
-			        </div>
-		        </div>
-		        <div class="col-xs-6 col-md-4" style="overflow:hidden;">
-                    <div ng-if="d.type=='tel'" ng-repeat="d in cas.donnees">
-                        {{d.value}}
-			        </div>
-		        </div>
-		        <div class="clearfix"></div>
-		        <div class="col-xs-12 small gris" style="overflow:hidden;">
-                    <div ng-if="d.type=='note'" ng-repeat="d in cas.donnees">
-                        {{d.value}}
-			        </div>
-		        </div>
-		        <div  class="col-sm-12 light">
-			        <span ng-if="cas.id_etab>0"><a href="modcontact/{{cas.id_contact_etab}}" class="structure">> {{cas.nom_etab}}</a></span>
-			        <span class='individu' ng-show="cas.cols.length>0 && cas.type==2" ng-repeat="c in cas.cols">
-				        <span ng-if="$first">> </span><a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}</a><span class="mini" ng-if="c.fonction"> {{c.fonction}}</span><span ng-if="!$last">, </span>
-			        </span>
-		        </div>
-	            <div class="col-sm-12">
-			        <span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in parNomTag(cas.tags)" ng-click="CasTagClick($event,Data.modele.tags[id],cas)"></span>
-		        </div>
-		        
-	        </div>
+				<div class="contact-btn cursor" ng-if="c[$index+1].id_contact!=cas.id_contact">
+					<span class="glyphicon glyphicon-trash" ng-confirm-click="delContact(cas)" ng-confirm-message="Sûr? Cela supprimera également les fiches de suivi de ce contact."></span>
+				</div>
+				<div class="col-xs-6 col-md-4">
+					<div>
+						<a href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="cas.prenom+cas.nom==''">(sans nom)</span></a> <span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" class="mini" ng-if="cas.nom_cas!='Siège social' && cas.nom_cas!='Siège' && cas.nom_cas!='Perso' && cas.nom_cas!=cas.nom_etab">/ {{cas.nom_cas}}</span> <span class="mini" ng-if="cas.fonction"> {{cas.fonction}}</span> &nbsp;
+					</div>
+					<div ng-if="d.type=='adresse'" ng-repeat="d in cas.donnees">
+						<span>
+						{{d.value.cp}} {{d.value.ville}}
+						</span>&nbsp;
+					</div>
+				</div>
+				<div class="col-xs-6 col-md-4" style="overflow:hidden;">
+					<div ng-class="{'erreur':d.type=='email_erreur'}" ng-if="d.type=='email' || d.type=='email_erreur'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div class="col-xs-6 col-md-4" style="overflow:hidden;">
+					<div ng-if="d.type=='tel'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div class="clearfix"></div>
+				<div class="col-xs-12 small gris" style="overflow:hidden;">
+					<div ng-if="d.type=='note'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div  class="col-sm-12 light">
+					<span ng-if="cas.id_etab>0"><a href="modcontact/{{cas.id_contact_etab}}" class="structure">> {{cas.nom_etab}} <span class="mini structure" ng-if="cas.nom_cas_etab!='Siège social' && cas.nom_cas_etab!='Siège'">/ {{cas.nom_cas_etab}}</span></a></span>
+					<span class='individu' ng-show="cas.cols.length>0 && cas.type==2" ng-repeat="c in cas.cols">
+						<span ng-if="$first">> </span><a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}</a><span class="mini" ng-if="c.fonction"> {{c.fonction}}</span><span ng-if="!$last">, </span>
+					</span>
+				</div>
+				<div class="col-sm-12">
+					<span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in parNomTag(cas.tags)" ng-click="CasTagClick($event,Data.modele.tags[id],cas)"></span>
+				</div>
+				
+			</div>
 
 
-	        <div class="clearfix"></div>
-	        <span class="mini id" ng-if="Data.pageContacts==Data.modele.casquettes.page && cas.id==courant.id">#{{cas.id}}</span>
-        </li>
+			<div class="clearfix"></div>
+			<span class="mini id" ng-if="Data.pageContacts==Data.modele.casquettes.page && cas.id==courant.id">#{{cas.id}}</span>
+		</li>
 	</ul>
 </div>
 <div id="tags" class="hidden-xs hidden-sm col-md-4 col-lg-3 tags fixed" loading="'tags'" data="Data">
-    <p>&nbsp;</p>
-    <uib-tabset>
+	<p>&nbsp;</p>
+	<uib-tabset>
 	<uib-tab heading="Catégories">
-        <p>&nbsp;</p>
-        <p><span class="btn btn-primary" ng-click="addTagMod()">Nouveau tag</span></p>
+		<p>&nbsp;</p>
+		<p><span class="btn btn-primary" ng-click="addTagMod()">Nouveau tag</span></p>
 		<p ng-if="bb=hasChild({id:0}) && tt[0].length>itemsParPageTag">&nbsp;</p>
 		<input type="text" ng-model="filtre.tags[0].nom" class="form-control" placeholder="filtre" ng-if="bb"/>
 	   	<uib-pagination ng-init="pageCourante.tags[0]= pageCourante.tags[0] ? pageCourante.tags[0] : 1" ng-if="ts[0].length>itemsParPageTag" boundary-links="true" total-items="ts[0].length" ng-model="pageCourante.tags[0]" items-per-page="itemsParPageTag" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 		<ul class="list-group">
-		    <li ng-if="Data.modele.tags.length==0" class="list-group-item">Aucun tag</li>
-		    <li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in (ts[0]=((tt[0]=(children({id:0}) | toArray)) | filter:filtre.tags[0] | orderBy:normalizedNom)) | startFrom:(pageCourante.tags[0]-1)*itemsParPageTag | limitTo:itemsParPageTag"></li>
+			<li ng-if="Data.modele.tags.length==0" class="list-group-item">Aucun tag</li>
+			<li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in (ts[0]=((tt[0]=(children({id:0}) | toArray)) | filter:filtre.tags[0] | orderBy:normalizedNom)) | startFrom:(pageCourante.tags[0]-1)*itemsParPageTag | limitTo:itemsParPageTag"></li>
 		</ul>
-    </uib-tab>
+	</uib-tab>
 	<uib-tab heading="Sélections">
-        <p>&nbsp;</p>
-        <input type="text" ng-model="filtre.selections" class="form-control" placeholder="filtre"/>
-        <ul class="list-group">
-		    <li ng-repeat="selection in Data.modele.selections | toArray | filter:filtre.selections" class="list-group-item">
-                <locked verrou="selection.verrou" data="Data">
-                    <span ui-draggable="true" drag="selection" drag-channel="sel" class="bleu cursor">{{selection.nom}}</span>
-                	<span class="glyphicon glyphicon-trash pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-confirm-click="delSelection(selection)" ng-confirm-message="Sûr?"></span>
-                    <span class="glyphicon glyphicon-pencil pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-click="modSelectionMod(selection)"></span>
-                </locked>
-            </li>
-	    </ul>
-    </uib-tab>
-    </uib-tabset>
+		<p>&nbsp;</p>
+		<input type="text" ng-model="filtre.selections" class="form-control" placeholder="filtre"/>
+		<ul class="list-group">
+			<li ng-repeat="selection in Data.modele.selections | toArray | filter:filtre.selections" class="list-group-item">
+				<locked verrou="selection.verrou" data="Data">
+					<span ui-draggable="true" drag="selection" drag-channel="sel" class="bleu cursor">{{selection.nom}}</span>
+					<span class="glyphicon glyphicon-trash pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-confirm-click="delSelection(selection)" ng-confirm-message="Sûr?"></span>
+					<span class="glyphicon glyphicon-pencil pull-right cursor" style="margin-right:5px;font-size:0.7em;" ng-click="modSelectionMod(selection)"></span>
+				</locked>
+			</li>
+		</ul>
+	</uib-tab>
+	</uib-tabset>
 	<div class="scroll-helper-top" ui-on-Drop drop-channel="tag"></div>
 	<div class="scroll-helper-bottom" ui-on-Drop drop-channel="tag"></div>
 </div>
