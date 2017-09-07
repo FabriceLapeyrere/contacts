@@ -26,5 +26,5 @@ $handle = curl_init('http://www.surlefil.org/services/html2pdf.php');
 curl_setopt($handle, CURLOPT_POST, true);
 curl_setopt($handle, CURLOPT_POSTFIELDS, $data);
 header("Content-type:application/pdf");
-header('Content-Disposition: attachment; filename="'.$filename.'"');
+header('Content-Disposition: attachment; filename="'.$filename.'.pdf"');
 print(curl_exec ($handle));

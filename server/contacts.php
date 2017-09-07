@@ -288,6 +288,15 @@
 					case 'mail':
 						$valeur= "t2.id IN (SELECT id_cas FROM envoi_cas as t10 INNER JOIN envois as t11 ON t10.id_envoi=t11.id WHERE t11.type='mail' AND t11.id_type=$param)";
 						break;
+					case 'clic-envoi':
+						$valeur= "t2.id IN (SELECT id_cas FROM r WHERE id_envoi=$param)";
+						break;
+					case 'clic-news':
+						$valeur= "t2.id IN (SELECT id_cas FROM r as t10 INNER JOIN envois as t11 ON t10.id_envoi=t11.id WHERE t11.type='news' AND t11.id_type=$param)";
+						break;
+					case 'clic-mail':
+						$valeur= "t2.id IN (SELECT id_cas FROM r as t10 INNER JOIN envois as t11 ON t10.id_envoi=t11.id WHERE t11.type='mail' AND t11.id_type=$param)";
+						break;
 					case 'seulement_tags':	
 						$ts=explode(',',$param);
 						sort($ts);

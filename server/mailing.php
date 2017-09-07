@@ -93,6 +93,11 @@
 			$insert->execute(array($news['sujet']." (copie)", json_encode($news['blocs']), $t, $id, $t, $id));
 			$id_news = $db->database->lastInsertId();
 			smartCopy("./data/files/news/".$params->news->id, "./data/files/news/$id_news");
+			foreach($news['blocs'] as $index=>$b) {
+				$news['blocs'][$index]=clean_pjs_bloc($id_news,$b);
+			}
+			$update = $db->database->prepare('UPDATE news SET blocs=? WHERE id=?');
+			$update->execute(array(json_encode($news['blocs']), $id_news));
 			CR::maj(array("newss","news/$id_news"));
 			return $id_news;
 		}
@@ -100,11 +105,12 @@
 			$db= new DB();
 			$id_news=$params->news->id;
 			$sujet=$params->news->sujet;
+			$id_newsletter=$params->news->id_newsletter;
 			$publie=$params->news->publie;
 			$blocs=$params->news->blocs;
 			$t=millisecondes();
-			$update = $db->database->prepare('UPDATE news SET sujet=?, publie=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
-			$update->execute(array($sujet, $publie, json_encode($blocs), $t, $id, $id_news));
+			$update = $db->database->prepare('UPDATE news SET sujet=?, id_newsletter=?, publie=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
+			$update->execute(array($sujet, $id_newsletter, $publie, json_encode($blocs), $t, $id, $id_news));
 			CR::maj(array("newss","news/$id_news"));
 			return $id;
 		}
@@ -136,6 +142,22 @@
 				$row['verrou']=WS::get_verrou('news/'.$row['id']);
 				if ($id_news>0) {
 					$row['blocs']=json_decode($row['blocs']);
+					$row['pjs']=array();
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					foreach(glob("data/files/news/".$row['id']."/*") as $f){
+						if (is_file($f)) {
+							$used=false;
+							foreach($row['blocs'] as $b){
+								$used= $used || ispjused($f,$b);
+							}
+							$row['pjs'][]=array(
+								"path"=>$f,
+								"filename"=>basename($f),
+								"mime"=>finfo_file($finfo, $f),
+								"used"=>$used
+							);
+						}
+					}
 					if (is_array($row['blocs'])){
 						foreach($row['blocs'] as $k=>$b){
 							$row['blocs'][$k]->verrou=WS::get_verrou('newsbloc/'.$row['id'].'/'.$k);
@@ -146,33 +168,6 @@
 						}
 					} else {
 						$row['blocs']=array();
-					}
-					$row['pjs']=array();
-					$finfo = finfo_open(FILEINFO_MIME_TYPE);
-					foreach(glob("data/files/news/".$row['id']."/*") as $f){
-						if (is_file($f)) {
-							$used=false;
-							foreach($row['blocs'] as $b){
-								foreach($b->donnees as $d){
-									if (is_object($d) && $d->valeur==$f){
-										$used=true;
-									}
-									if (is_object($d) && is_object($d->valeur)){
-										foreach($d->valeur as $do){
-								 			if (is_object($do) && $do->valeur==$f){
-												$used=true;
-											}
-										}
-									}
-								}
-							}
-							$row['pjs'][]=array(
-								"path"=>$f,
-								"filename"=>basename($f),
-								"mime"=>finfo_file($finfo, $f),
-								"used"=>$used
-							);
-						}
 					}
 				} else {
 					unset($row['blocs']);

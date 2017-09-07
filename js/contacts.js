@@ -1181,6 +1181,7 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 //mailing
 app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
 	$scope.key='mail/'+$routeParams.id;
+	$scope.Data=Data;
 	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.editorOptions = {
 		language: 'fr'
@@ -1216,6 +1217,9 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 			Link.ajax([{action:'envoyer', params:{type:'mail', e:Data.modele[$scope.key], res:res}}], function(r){$location.path('/modenvoi/'+r.res);});
 		},function(){Link.context(contexts);});
 	}
+	$scope.$watch('Data.modele["'+$scope.key+'"].verrou',function(n,o){
+		if (n=='none') Link.set_verrou([$scope.key])
+	});
 	$scope.$on("$destroy", function(){
 		if(!$scope.pristine($scope.key) && confirm("L'e-mail n'a pas été sauvé, sauver ?")) $scope.save();
 		Link.del_verrou($scope.key);
@@ -1396,6 +1400,22 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			Link.ajax([{action:'modNews', params:{news:$scope.prepNews(Data.modele[$scope.key])}}],function(){Link.del_verrou($scope.key);});
 		}, function(){Link.del_verrou($scope.key);});
 	}
+	$scope.modNewsletterMod=function(){
+		Link.set_verrou(['newsletter'+$scope.key]);
+		var modal = $uibModal.open({
+			templateUrl: 'partials/modnewslettermod.html',
+			controller: 'modNewsletterModCtl',
+			resolve:{
+				idx: function () {
+					return Data.modele[$scope.key].id_newsletter;
+				}
+			}
+		});
+		modal.result.then(function (idx) {
+			Data.modele[$scope.key].id_newsletter=idx;
+			Link.ajax([{action:'modNews', params:{news:$scope.prepNews(Data.modele[$scope.key])}}],function(){Link.del_verrou('newsletter'+$scope.key);});
+		}, function(){Link.del_verrou('newsletter'+$scope.key);});
+	}
 	$scope.modNomCat=function(nomCat){
 		var modal = $uibModal.open({
 			templateUrl: 'partials/modnomcatmod.html',
@@ -1451,7 +1471,6 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		}
 	};
 	$scope.addBloc = function(e,d,i){
-		console.log(e,d,i);
 		var bloc={id_modele:d.id};
 		Data.modele[$scope.key].blocs.splice(i,0,bloc);
 		$scope.save();
@@ -1573,12 +1592,14 @@ app.controller('modenvoiCtl', ['$scope', '$http', '$location', '$routeParams', '
 		}
 	});
 	$scope.play=function(){
+		$scope.Data.modele[$scope.key].statut=0;
 		Link.ajax([{action:'playEnvoi',params:{id:$routeParams.id}}]);
 	}
 	$scope.pause=function(){
 		Link.ajax([{action:'pauseEnvoi',params:{id:$routeParams.id}}]);
 	}
 	$scope.restart=function(){
+		$scope.Data.modele[$scope.key].statut=0;
 		Link.ajax([{action:'restartEnvoi',params:{id:$routeParams.id}}]);
 	}
 	$scope.vide=function(){
@@ -1661,6 +1682,9 @@ app.controller('modsupportCtl', ['$scope', '$http', '$location', '$routeParams',
 	$scope.save=function(){
 		Link.ajax([{action:'modSupport',params:{support:Data.modele[$scope.key]}}]);
 	};
+	$scope.$watch('Data.modele["'+$scope.key+'"].verrou',function(n,o){
+		if (n=='none') Link.set_verrou([$scope.key])
+	});
 	$scope.$on("$destroy", function(){
 		if(!$scope.pristine($scope.key) && confirm("Le support n'a pas été sauvé, sauver ?")) $scope.save();
 		Link.del_verrou($scope.key);
@@ -1936,6 +1960,19 @@ app.controller('modSujetModCtl', ['$scope', '$uibModalInstance', '$uibModal', 's
 		if ($scope.form.modSujet.$valid){
 			$uibModalInstance.close($scope.sujet);
 		}
+	};
+}]);
+app.controller('modNewsletterModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data', 'idx', function ($scope, $uibModalInstance, $uibModal, Data, idx) {
+
+	$scope.Data=Data;
+	$scope.form={};
+	$scope.newsletter=Data.modele.config.config.news.newsletters.value[idx];
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+	$scope.ok = function () {
+		var idx= $scope.newsletter ? $scope.newsletter.nom.id : -1 ;
+		$uibModalInstance.close(idx);
 	};
 }]);
 app.controller('modCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'cas', 'index', 'bouton', function ($scope, $uibModalInstance, $uibModal, cas, index, bouton) {
@@ -2461,7 +2498,6 @@ app.controller('addNbContactsModCtl', ['$scope', '$uibModalInstance', '$uibModal
 			}
 			if (test) $scope.liste.contacts.push(c);
 		}
-		console.log($scope.liste.contacts);
 	}
 	$scope.assTag=function(cas){
 		var modal = $uibModal.open({

@@ -560,4 +560,33 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		unlink($filename);
 		rename($tmpname, $filename);
 	}
+	function clean_pjs_bloc($id_news, $bloc){
+		if (is_object($bloc)) {
+			foreach($bloc as $k=>$v) {
+				$bloc->$k=clean_pjs_bloc($id_news,$v);
+			}
+		} elseif (is_array($bloc)){
+			foreach($bloc as $k=>$v) {
+				$bloc[$k]=clean_pjs_bloc($id_news,$v);
+			}
+		} else {
+			$bloc=preg_replace('/data\/files\/news\/(\d+)\//i',"data/files/news/$id_news/",$bloc);
+		}
+		return $bloc;
+	}
+	function ispjused($pj, $bloc){
+		$res=false;
+		if (is_object($bloc)) {
+			foreach($bloc as $k=>$v) {
+				$res= $res || ispjused($pj,$v);
+			}
+		} elseif (is_array($bloc)){
+			foreach($bloc as $k=>$v) {
+				$res= $res || ispjused($pj,$v);
+			}
+		} else {
+			$res= $pj==$bloc;
+		}
+		return $res;
+	}
 ?>

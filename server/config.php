@@ -61,6 +61,13 @@ class Config {
 					),'label'=>'OU de base par tag','type'=>'array')
 			   ),
 				'news'=>array(
+					'newsletters'=>array('value'=>array(
+						array(
+							'nom'=>array('value'=>'','label'=>'Nom','type'=>'texte_court'),
+							'id_tag'=>array('value'=>'','label'=>'N° du tag','type'=>'integer'),
+							'html'=>array('value'=>'','label'=>'Entête pour la newsletter en ligne','type'=>'texte_long')
+						)
+					),'label'=>'Newsletters','type'=>'array'),
 					'main_wrapper'=>array('value'=>"<head>
 	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>
 	<title>::sujet::</title>

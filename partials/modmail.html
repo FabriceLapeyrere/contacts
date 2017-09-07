@@ -1,4 +1,5 @@
-<form name="frm" class="col-xs-12 col-md-8">
+<locked verrou="Data.modele[key].verrou" data="Data">
+	<form name="frm" class="col-xs-12 col-md-8">
 	<div loading="key" data="Data">
 	<p><a class="btn btn-primary" href="mail/{{Data.modele[key].id}}" ng-if="p=pristine(key)">Fermer</a> <button class="btn btn-primary" ng-click="save()" ng-if="!p">Enregistrer</button> <button class="btn btn-default" ng-click="envoyer(mail)"  ng-disabled="!p">Envoyer à</button></p>
 	<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
@@ -34,4 +35,5 @@
 	</div>
 	<input type="file" nv-file-select uploader="uploaders[key]" multiple/>
 </div>
+</locked>
 

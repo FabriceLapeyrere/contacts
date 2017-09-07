@@ -1,7 +1,7 @@
 <div loading="key" data="Data">
 	<div class="col-xs-12 col-md-8 col-lg-9" id="news-Parent">
 		<form>
-		<p><button class="btn btn-default" ng-click="envoyer('news',Data.modele[key])">Envoyer à</button> <button class="btn btn-default" ng-click="pdf()">PDF</button> <button class="btn btn-primary" ng-click="unpublie()" ng-if="p=(Data.modele[key].publie==1)">Publié</button><button class="btn btn-default" ng-click="publie()" ng-if="!p">Non publié</button></p>
+		<p><button class="btn btn-default" ng-click="envoyer('news',Data.modele[key])">Envoyer à</button> <button class="btn btn-default" ng-click="pdf()">PDF</button> <button class="btn btn-primary" ng-click="unpublie()" ng-if="p=(Data.modele[key].publie==1)">Publié</button><button class="btn btn-default" ng-click="publie()" ng-if="!p">Non publié</button> <button class="btn btn-default" ng-click="modNewsletterMod()"><span ng-if="n= Data.modele[key].id_newsletter==-1 || !Data.modele[key].id_newsletter">Aucune newletter associée</span><span ng-if="!n">{{Data.modele.config.config.news.newsletters.value[Data.modele[key].id_newsletter].nom.value}}</span></button></p>
 		<locked verrou="Data.modele[key].verrou" data="Data">
 			<p>
 				<h3 ng-click="modSujetMod()" class="cursor individu">{{Data.modele[key].sujet}}</h3>

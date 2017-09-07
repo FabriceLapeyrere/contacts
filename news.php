@@ -17,12 +17,19 @@ if ($news['publie']==1) {
 	$html='';
 	foreach($news['blocs'] as $n=>$b){
 		$html.=$b->html."\n";
+		$html=str_replace("##UNSUBSCRIBEURL##","",$html);
 	};
 	$pjs=array();
 	foreach($news['pjs'] as $p){
 		if (!$p['used']) $pjs[]=$p;
 	}	
-	echo '<head><title>'.$sujet.'</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><style>'.$C->news->css->value.'</style></head><body>'.$html;
+	echo "<head>\n<title>".$sujet."</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\n<style>".$C->news->css->value."</style>\n</head>\n<body style=\"margin:0;padding:0;\">\n";
+	$header="";
+	if ($news['id_newsletter']!="" && $news['id_newsletter']!=-1) {
+		$header=$C->news->newsletters->value[$news['id_newsletter']]->html->value."\n";
+	}
+	echo "$header";
+	echo "$html\n";
 	if (count($pjs)>0){
 		echo "<h3>Pièces jointes</h3>";
 		echo "<ul>";

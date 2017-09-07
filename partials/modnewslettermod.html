@@ -1,0 +1,13 @@
+<form role="form" name="form.newsletter">
+<div class="modal-body">
+	<label for="sujet"><span class="individu">Newsletter</span></label>
+	<select class="form-control autoFocus" ng-options="n.nom.value for n in Data.modele.config.config.news.newsletters.value" ng-model="newsletter">
+		<option value="">Aucune</option>
+	</select>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">Enregistrer</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>
+

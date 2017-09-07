@@ -26,6 +26,12 @@ integer "integer"
   / '!:news' id:[0-9]+ { return 'NOT (::news/'+id.join("")+'::)'; }
   / ':mail' id:[0-9]+ { return '::mail/'+id.join("")+'::'; }
   / '!:mail' id:[0-9]+ { return 'NOT (::mail/'+id.join("")+'::)'; }
+  / ':clic-envoi' id:[0-9]+ { return '::clic-envoi/'+id.join("")+'::'; }
+  / '!:clic-envoi' id:[0-9]+ { return 'NOT (::clic-envoi/'+id.join("")+'::)'; }
+  / ':clic-news' id:[0-9]+ { return '::clic-news/'+id.join("")+'::'; }
+  / '!:clic-news' id:[0-9]+ { return 'NOT (::clic-news/'+id.join("")+'::)'; }
+  / ':clic-mail' id:[0-9]+ { return '::clic-mail/'+id.join("")+'::'; }
+  / '!:clic-mail' id:[0-9]+ { return 'NOT (::clic-mail/'+id.join("")+'::)'; }
   / ':type' id:[12]+ { return id==1 ? '::type/1::' : '::type/2::'; }
   / ':cp' id:[0-9AB]+ { return '::cp/'+id.join("")+'::'; }
   / '!:cp' id:[0-9AB]+ { return 'NOT (::cp/'+id.join("")+'::)'; }

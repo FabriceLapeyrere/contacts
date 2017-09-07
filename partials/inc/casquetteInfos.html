@@ -2,7 +2,7 @@
 	<p>{{cas.nom_cas}}  <span class="mini">#{{cas.id}}</span></p>
 	<div ng-repeat-start="d in cas.donnees" class="col-sm-6" style="overflow:hidden;">
 		<div ng-if="d.type!='adresse' && d.type!='note'">
-			<span class="label-contact">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+			<span class="label-contact" ng-class="{'erreur':d.type=='email_erreur'}">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
 			{{d.value}}
 		</div>
 		<div ng-if="d.type=='adresse'">

@@ -42,12 +42,12 @@ class Imap {
 								$email=Imap::extractEmailsFromString($first);
 							}
 						}
-						imap_mail_move ($mbox,$i,$name);
 					}
 					if ($email!="") {
 						$cas=Contacts::get_idcasquette_email($email);
 						$cass=array_unique(array_merge($cass,$cas));
 						foreach($cas as $cas_id){
+							imap_mail_move ($mbox,$i,$name);
 							Contacts::set_mail_erreur($cas_id,$email,$id);
 							CR::maj(array('*'));
 						}

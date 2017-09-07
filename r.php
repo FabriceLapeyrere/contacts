@@ -11,7 +11,9 @@ $contact=$params['contact'];
 $envoi=$params['envoi'];
 $url=$params['url'];
 $isimg=isset($params['isImg']) ? $params['isImg'] : 0;
-
+if ($url=="") {
+	exit();
+}
 if ($isimg==1){
 	// on redirige
 	if (file_exists($url)) {

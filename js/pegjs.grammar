@@ -26,6 +26,12 @@ integer "integer"
   / '!:news' id:[0-9]+ { return 'pas destinataire de la newsletter n° '+id.join(""); }
   / ':mail' id:[0-9]+ { return 'destinataire du mail n° '+id.join(""); }
   / '!:mail' id:[0-9]+ { return 'pas destinataire du mail n° '+id.join(""); }
+  / ':clic-envoi' id:[0-9]+ { return 'a cliqué sur l\'envoi n° '+id.join(""); }
+  / '!:clic-envoi' id:[0-9]+ { return 'n\'a pas cliqué sur de l\'envoi n° '+id.join(""); }
+  / ':clic-news' id:[0-9]+ { return 'a cliqué sur la newsletter n° '+id.join(""); }
+  / '!:clic-news' id:[0-9]+ { return 'n\'a pas cliqué sur la newsletter n° '+id.join(""); }
+  / ':clic-mail' id:[0-9]+ { return 'a cliqué sur le mail n° '+id.join(""); }
+  / '!:clic-mail' id:[0-9]+ { return 'n\'a pas cliqué sur le mail n° '+id.join(""); }
   / ':type' id:[12]+ { return id==1 ? 'est un individu' : 'est une structure'; }
   / ':cp' id:[0-9AB]+ { return '::dpt'+id.join("")+'::'; }
   / '!:cp' id:[0-9AB]+ { return 'pas ::dpt'+id.join("")+'::'; }
