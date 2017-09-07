@@ -585,7 +585,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 				$res= $res || ispjused($pj,$v);
 			}
 		} else {
-			$res= $pj==$bloc;
+			$res= $pj===$bloc;
 		}
 		return $res;
 	}
