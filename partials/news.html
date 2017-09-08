@@ -1,7 +1,14 @@
 <div loading="'newss'" data="Data">
 	<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3">
 		<h1>News</h1>
-		<p><span class="btn btn-primary"ng-click="addNewsMod()">Nouvelle Newsletter</span></p>
+		<p>
+			<span class="btn btn-primary"ng-click="addNewsMod()">Nouvelle Newsletter</span>
+			<span> |</span>
+			<button type="button" class="btn btn-xs" ng-class="{'btn-primary':filtre.news.id_newsletter==null,'btn-default':filtre.news.id_newsletter!=null}" ng-click="filtre.news.id_newsletter=null">tout</button>
+			<span>&nbsp;</span>
+			<button type="button" ng-repeat-start="n in Data.modele.config.config.news.newsletters.value" class="btn btn-xs" ng-class="{'btn-primary':filtre.news.id_newsletter==$index,'btn-default':filtre.news.id_newsletter!=$index}" ng-click="filtre.news.id_newsletter=$index">{{n.nom.value}}</button>
+			<span ng-repeat-end>&nbsp;</span>
+		</p>
 		<input type="text" ng-model="filtre.news.sujet" class="form-control" placeholder="filtre"/>
 		<uib-pagination boundary-links="true" total-items="newss.length" ng-model="pageCourante.news" items-per-page="itemsParPage" max-size="maxSize"class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 		<ul class="list-group">

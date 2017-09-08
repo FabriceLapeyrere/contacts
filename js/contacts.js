@@ -70,7 +70,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.tagsOpen=[];
 	$scope.panier=[];
 	$scope.scroll=0;
-	$scope.filtre={suivis:0,tags:{}};
+	$scope.filtre={suivis:0,newsletters:{id_newsletter:null},tags:{}};
 	$scope.total={};
 	$scope.total.casquettes=0;
 	$scope.selected={index:0};
@@ -1276,6 +1276,7 @@ app.controller('mailsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link',
 }]);
 app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
 	Link.context([{type:'newss'}]);
+	$scope.Data=Data;
 	$scope.addNewsMod=function(type){
 		$scope.addNews={};
 		var modal = $uibModal.open({

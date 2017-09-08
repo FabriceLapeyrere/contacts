@@ -1,8 +1,8 @@
 <div class="col-sm-6 col-sm-offset-3" loading="'suivis'" data="Data">	
 	<div>
-		<button type="button" class="btn" ng-class="{'btn-primary':filtre.suivis==0,'btn-default':filtre.suivis!=0}" ng-click="filtre.suivis=0">tout</button>
+		<button type="button" class="btn btn-xs" ng-class="{'btn-primary':filtre.suivis==0,'btn-default':filtre.suivis!=0}" ng-click="filtre.suivis=0">tout</button>
 		<span>&nbsp;</span>
-		<button type="button" ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1" ng-repeat-start="g in Data.modele.groups" class="btn" ng-class="{'btn-primary':filtre.suivis==g.id,'btn-default':filtre.suivis!=g.id}" ng-click="filtre.suivis=g.id">{{g.nom}}</button>
+		<button type="button" ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1" ng-repeat-start="g in Data.modele.groups" class="btn btn-xs" ng-class="{'btn-primary':filtre.suivis==g.id,'btn-default':filtre.suivis!=g.id}" ng-click="filtre.suivis=g.id">{{g.nom}}</button>
 		<span ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1" ng-repeat-end>&nbsp;</span>
 	</div>
 	<div ng-show="suivisProchains.length>0">
