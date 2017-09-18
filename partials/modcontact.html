@@ -116,7 +116,7 @@
 					<div ng-show="suivisCas.length>0" class="list-group-item col-xs-12">
 						<span class="label-contact">Suivi (<b>{{(suivisCas.length-suivisTermines.length)}}</b>, {{(suivisTermines=(suivisCas|termines)).length}})</span>
 						<span class="cursor mini" ng-if="!sv[cas.id]" ng-click="sv[cas.id]=true">voir</span>
-						<span class="cursor mini" ng-if="sv[cas.id]" ng-click="sv[cas.id]=true">cacher</span>
+						<span class="cursor mini" ng-if="sv[cas.id]" ng-click="sv[cas.id]=false">cacher</span>
 						<div ng-if="sv[cas.id]" ng-repeat="suivi in (suivisCas=(Data.modele.suivis | toArray | suivisCas:cas.id | orderBy:'date':true))">
 							<locked verrou="suivi.verrou" data="Data">
 			    <i>{{calendarSansHeure(suivi.date)}} - <a ng-class="{termine:suivi.statut==1}" href="modsuivi/{{suivi.id}}">{{suivi.titre}} <span ng-if="!suivi.titre">(sans-titre)</span></a> <span class="mini">({{Data.modele.usersall[suivi.createdby].name}}/{{Data.modele.usersall[suivi.modifiedby].name}})</span> <span class="cursor" ng-if="suivi.desc && !svDesc[suivi.id]" ng-click="svDesc[suivi.id]=true">voir</span><span class="cursor" ng-if="suivi.desc && svDesc[suivi.id]" ng-click="svDesc[suivi.id]=false">cacher</span></i>

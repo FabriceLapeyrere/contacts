@@ -22,5 +22,17 @@
 			</li>
 		</ul>
 
-	</div>
+	</div>	
+	<div class="col-sm-12">
+		<h1>Impact</h1>
+		
+		<uib-pagination boundary-links="true" total-items="Data.modele.impacts.total" ng-model="pageCourante.impacts" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<ul class="list-group" ng-if="Data.modele.impacts.total>0">
+			<li class="list-group-item" ng-repeat="clic in Data.modele.impacts.collection | toArray" ng-init="mcas=Data.modele.impacts.cas[clic.id_cas]">
+				{{calendar(clic.date)}} - <span class="vert" ng-if="clic.url=='Lu'">E-mail ouvert</span><a ng-if="clic.url!='Lu'" href="{{clic.url}}" target="_blank">{{clic.url}}</a> - <a href="modcontact/{{mcas.id_contact}}" ng-class="{'structure':mcas.type==2,'contact':mcas.type==1}"><span ng-if="mcas.prenom">{{mcas.prenom}} </span>{{mcas.nom}}<span ng-if="!(mcas.prenom || mcas.nom)">(sans nom)</span></a> <small>(<a href='modenvoi/{{clic.id_envoi}}'>{{clic.sujet}}</a> - 
+				<a href="modnews/{{clic.id_type}}" ng-if="clic.type=='news'">Newsletter n°{{clic.id_type}}</a><a href="mail/{{clic.id_type}}" ng-if="clic.type=='mail'">E-mail n°{{clic.id_type}}</a>)</small>
+			</li>
+		</ul>
+	</div>	
+
 </div>

@@ -71,6 +71,9 @@
 					case "envois":
 						$res=Mailing::get_envois($S['user']['id']);
 						break;
+					case "impacts":
+						$res=Mailing::get_impacts($params,$S['user']['id']);
+						break;
 					case "envoi":
 						$res=Mailing::get_envoi($tab[1],$params,$S['user']['id']);
 						break;

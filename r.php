@@ -83,7 +83,7 @@ if ($isimg==1){
 		$notify=true;
 	}
 	if ($notify) {
-		CR::maj(array("envoi/$envoi"));
+		CR::maj(array("envoi/$envoi","impacts"));
 		//on previent l'expéditeur!!
 		if ($C->mailing->redirect_notification->value) {
 			$e=Mailing::get_envoi($envoi,'',1);

@@ -70,7 +70,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.tagsOpen=[];
 	$scope.panier=[];
 	$scope.scroll=0;
-	$scope.filtre={suivis:0,newsletters:{id_newsletter:null},tags:{}};
+	$scope.filtre={suivis:0,newsletters:{id_newsletter:'!!'},tags:{}};
 	$scope.total={};
 	$scope.total.casquettes=0;
 	$scope.selected={index:0};
@@ -79,8 +79,10 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.tabs={};
 	$scope.tabs.admin={};
 	$scope.pageCourante={};
-	$scope.pageCourante.tags={};
 	$scope.pageCourante.envois=1;
+	$scope.pageCourante.erreur=1;
+	$scope.pageCourante.impacts=1;
+	$scope.pageCourante.tags={};
 	$scope.pageCourante.news=1;
 	$scope.pageCourante.mails=1;
 	$scope.afterLogin='';
@@ -1549,12 +1551,12 @@ app.controller('modmodeleCtl', ['$scope', '$http', '$location', '$routeParams', 
 
 //envois
 app.controller('envoisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
-	$scope.pageCourante={};
-	$scope.pageCourante.envois=1;
-	$scope.pageCourante.erreur=1;
-	Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}}]);	
+	Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);	
 	$scope.$watch('pageCourante.erreur',function(n,o){
-		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}}]);
+		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
+	});
+	$scope.$watch('pageCourante.impacts',function(n,o){
+		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
 	});
 	$scope.checkImap=function(){
 		Link.ajax([{action:'checkImap', params:{}}]);	

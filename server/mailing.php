@@ -460,6 +460,57 @@
 			}
 			return $envoi;
 		}
+		public static function get_impacts($params=array('nb'=>10,'page'=>1,'id_envoi'=>-1,'id_news'=>-1,'id_mail'=>-1),$id) {
+			$db= new DB();
+			$params=(object) $params;
+			$page=$params->page;
+			$nb=$params->nb;
+			$first=($page-1)*$nb;
+			$impact=array();
+			$impact['page']=$page;
+			$impact['nb']=$nb;
+			$impact['collection']=array();
+			if ( $params->id_envoi==-1 && $params->id_news==-1 && $params->id_mail==-1) {
+				$query = "SELECT count(*) as total FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id ORDER BY t1.date DESC;";
+				foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+					$impact['total']=$row['total'];
+				}
+				$query = "SELECT t1.*, t2.type, t2.id_type, t2.sujet FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id ORDER BY t1.date DESC LIMIT $first,$nb;";	
+			} elseif ($params->id_envoi>=0) {
+				$query = "SELECT count(*) as total FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_envoi={$params->id_envoi} ORDER BY t1.date DESC;";
+				foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+					$impact['total']=$row['total'];
+				}
+				$query = "SELECT t1.*, t2.type, t2.id_type, t2.sujet FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_envoi={$params->id_envoi} ORDER BY t1.date DESC LIMIT $first,$nb;";		
+			} elseif ($params->id_news>=0) {
+				$query = "SELECT count(*) as total FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_envoi IN (SELECT id_envoi FROM envois WHERE type='news' AND id_type={$params->id_news}) ORDER BY t1.date DESC;";
+				foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+					$impact['total']=$row['total'];
+				}
+				$query = "SELECT t1.*, t2.type, t2.id_type, t2.sujet FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_envoi IN (SELECT id_envoi FROM envois WHERE type='news' AND id_type={$params->id_news}) ORDER BY t1.date DESC LIMIT $first,$nb;";		
+			} elseif ($params->id_mail>=0) {
+				$query = "SELECT count(*) as total FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_envoi IN (SELECT id_envoi FROM envois WHERE type='mail' AND id_type={$params->id_mail}) ORDER BY t1.date DESC;";
+				foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+					$impact['total']=$row['total'];
+				}
+				$query = "SELECT t1.*, t2.type, t2.id_type, t2.sujet FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE t1.id_envoi IN (SELECT id_envoi FROM envois WHERE type='mail' AND id_type={$params->id_mail}) ORDER BY t1.date DESC LIMIT $first,$nb;";		
+			}
+			$cas=[];
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$impact['collection'][]=$row;
+				$cas[]=$row['id_cas'];
+			}
+			$query = "SELECT t2.id as id, t2.emails as emails, t3.id as id_contact, t3.nom as nom, t3.prenom as prenom, t3.type as type FROM
+				casquettes as t2
+				inner join contacts as t3 ON t2.id_contact=t3.id
+				WHERE t2.id in (".implode(',',$cas).")";
+			$impact['cas']=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$row['emails']=array_unique(json_decode($row['emails']));
+				$impact['cas'][$row['id']]=$row;
+			}
+			return $impact;
+		}
 		public static function get_envois($id) {
 			$db= new DB();
 			$query = "SELECT t1.by as by, t1.date as date, t1.id as id, t1.sujet as sujet, t1.statut as statut, (SELECT count(*) FROM boite_envoi WHERE id_envoi=t1.id) as nbleft FROM envois as t1 ORDER BY date DESC;";

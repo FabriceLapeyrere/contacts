@@ -3,8 +3,8 @@
 		<h1>News</h1>
 		<p>
 			<span class="btn btn-primary"ng-click="addNewsMod()">Nouvelle Newsletter</span>
-			<span> |</span>
-			<button type="button" class="btn btn-xs" ng-class="{'btn-primary':filtre.news.id_newsletter==null,'btn-default':filtre.news.id_newsletter!=null}" ng-click="filtre.news.id_newsletter=null">tout</button>
+			<span> | </span>
+			<button type="button" class="btn btn-xs" ng-class="{'btn-primary':filtre.news.id_newsletter==undefined,'btn-default':filtre.news.id_newsletter!=undefined}" ng-click="filtre.news.id_newsletter=undefined">tout</button>
 			<span>&nbsp;</span>
 			<button type="button" ng-repeat-start="n in Data.modele.config.config.news.newsletters.value" class="btn btn-xs" ng-class="{'btn-primary':filtre.news.id_newsletter==$index,'btn-default':filtre.news.id_newsletter!=$index}" ng-click="filtre.news.id_newsletter=$index">{{n.nom.value}}</button>
 			<span ng-repeat-end>&nbsp;</span>
@@ -17,7 +17,8 @@
 				<div class="mini-menu">
 					<span class="glyphicon glyphicon-duplicate cursor" ng-confirm-click="dupNews(news)" ng-confirm-message="Sûr?"></span>
 					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delNews(news)" ng-confirm-message="Sûr?"></span>
-				<div>
+				</div>
+				<div class='bas-droite' ng-if="news.id_newsletter>=0"><span class='mini bleu'>{{Data.modele.config.config.news.newsletters.value[news.id_newsletter].nom.value}}</span></div>
 			</li>
 		</ul>
 	</div>
