@@ -4,16 +4,24 @@
 		<label ng-if="contact.type==1">
 			<span ng-class="{'individu':contact.type==1,'structure':contact.type==2}">Prenom</span>
 		</label>
-		<input ng-if="contact.type==1" class="form-control autoFocus" type="text" ng-model="contact.prenom" required/>
+		<input ng-if="contact.type==1" class="form-control" type="text" ng-model="contact.prenom" required/>
 		<label>
 			<span ng-class="{'individu':contact.type==1,'structure':contact.type==2}">Nom</span>
 		</label>
 		<input class="form-control autoFocus" type="text" ng-model="contact.nom" required/>
 	</p>
+		<uib-pagination ng-if="Data.modele.check_nom.total>0" boundary-links="true" total-items="Data.modele.check_nom.total" ng-model="page.courante" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<span ng-if="Data.modele.check_nom.total>0" class="pagination-span">{{itemsParPage*(Data.modele.check_nom.page-1)+1}} - {{min(itemsParPage*Data.modele.check_nom.page,Data.modele.check_nom.total)}} de {{Data.modele.check_nom.total}}</span>
+		<div ng-if="Data.modele.check_nom.total>0">Déjà enregistrés :</div>
+		<ul ng-if="Data.modele.check_nom.total>0" class="list-group" id="contacts-list" ng-class="{'loading':page.courante!=Data.modele.check_nom.page || query!=Data.modele.check_nom.params.query}">
+			<li class="list-group-item structure etab" ng-repeat="cas in (c=(Data.modele.check_nom.collection | toArray))" ng-class="{'cas-suivante':!(Data.modele.check_nom.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact)}">
+				<ng-include src="'partials/inc/casquette_ligne.html'"></ng-include>					
+			</li>
+		</ul>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">Ajouter</button>
-    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+	<button class="btn btn-primary" ng-click="ok()">Ajouter</button>
+	<button class="btn btn-warning" ng-click="cancel()">Annuler</button>
 </div>
 </form>
 

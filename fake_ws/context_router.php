@@ -45,6 +45,9 @@
 					case "casquettes":
 						$res=Contacts::get_casquettes($params,0,$S['user']['id']);
 						break;
+					case "check_nom":
+						$res=Contacts::get_casquettes($params,0,$S['user']['id']);
+						break;
 					case "casquettes_sel":
 						$res=Contacts::get_casquettes($params,0,$S['user']['id']);
 						break;

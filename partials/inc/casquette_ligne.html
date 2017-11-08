@@ -23,7 +23,7 @@
     <div  class="col-xs-12 light">
         <span ng-if="cas.id_etab>0" class="structure"><a href="modcontact/{{cas.id_contact_etab}}" class="structure">> {{cas.nom_etab}}</a></span>
         <span class='individu' ng-show="cas.cols.length>0 && cas.type==2" ng-repeat="c in cas.cols">
-	        <span ng-if="$first">> </span><a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}</a><span class="mini" ng-if="c.fonction"> {{c.fonction}}</span><span ng-if="!$last">, </span>
+	        <span ng-if="$first">> </span><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}<span class="mini" ng-if="c.fonction"> {{c.fonction}}</span><span ng-if="!$last">, </span>
         </span>
     </div>
     <div class="col-sm-12">

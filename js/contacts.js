@@ -2239,17 +2239,36 @@ app.controller('modMessageModCtl', ['$scope', '$uibModalInstance', '$uibModal', 
 		$uibModalInstance.dismiss();
 	};
 }]);
-app.controller('addContactModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'contact', function ($scope, $uibModalInstance, $uibModal, contact) {
+app.controller('addContactModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'contact', 'Data', 'Link', function ($scope, $uibModalInstance, $uibModal, contact, Data, Link) {
+	Link.context([{type:'check_nom', params:{page:1, nb:$scope.itemsParPage, query:''}}]);
+	$scope.page={courante:1};
+	$scope.query='';
+	$scope.itemsParPage=10;
+	$scope.maxSize=5;
 	$scope.contact=contact;
+	$scope.Data=Data;
 	$scope.form={};
 	$scope.ok = function () {
 		if ($scope.form.addContact.$valid){
 			$uibModalInstance.close($scope.contact);
 		}
 	};
+	$scope.getPage=function(page){
+		Link.context([{type:'check_nom', params:{page:page, nb:$scope.itemsParPage, query:$scope.query}}]);
+	}
 	$scope.cancel = function () {
 		$uibModalInstance.dismiss();
 	};
+	$scope.$watch('contact.nom',debounce(function(n,o){
+		if (o!=n) {
+			$scope.query=$scope.contact.nom ? '::text/'+$scope.contact.nom+'*:: AND ::type/'+contact.type+'::' : '';
+			$scope.getPage($scope.page.courante);
+		}
+	},300));
+	$scope.$watch('page.courante',function(o,n){
+		if (o!=n) $scope.getPage($scope.page.courante);
+	});
+	
 }]);
 app.controller('addNewsModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'news', function ($scope, $uibModalInstance, $uibModal, news) {
 	$scope.news=news;
