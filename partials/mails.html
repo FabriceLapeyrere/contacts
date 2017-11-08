@@ -9,8 +9,8 @@
 				<a href="mail/{{mail.id}}">{{mail.sujet ? mail.sujet : '(sans titre)'}}</a> <span class="mini">{{calendar(mail.modificationdate)}} par {{Data.modele.users[mail.modifiedby].name}}</span>
 				<div class="mini-menu">
 					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delMail(mail)" ng-confirm-message="Sûr?"></span>
-				<div>
-				
+				</div>
+				<div class='bas-droite'><span class="mini">#{{mail.id}}</span></div>
 			</li>
 		</ul>
 	</div>
