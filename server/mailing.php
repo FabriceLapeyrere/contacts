@@ -181,7 +181,7 @@
 		public static function donnees_modele($id_news,$id_modele,$donnees) {
 			$donnees_ok=array();
 			$modele=Mailing::get_modele($id_modele);
-			$pattern = "/::((?:(?!::).)*)::/";
+			$pattern = "/::((?:(?!:).){1}(?:(?!::).)*)::/";
 			preg_match_all($pattern, $modele['modele'], $matches, PREG_OFFSET_CAPTURE, 3);
 			$donnees_modele=array();
 			foreach($matches[0] as $key=>$value){
@@ -231,7 +231,7 @@
 			if (count($tab)>0) $modCat=$tab[0];
 			$donneeshtml=json_encode('{}');
 			$html=$modele['modele'];
-			$pattern = "/::((?:(?!::).)*)::/";
+			$pattern = "/::((?:(?!:).){1}(?:(?!::).)*)::/";
 			preg_match_all($pattern, $modele['modele'], $matches, PREG_OFFSET_CAPTURE, 3);
 			foreach($matches[0] as $key=>$value){
 				$code=$matches[0][$key][0];
