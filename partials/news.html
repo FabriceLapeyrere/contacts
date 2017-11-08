@@ -18,7 +18,7 @@
 					<span class="glyphicon glyphicon-duplicate cursor" ng-confirm-click="dupNews(news)" ng-confirm-message="Sûr?"></span>
 					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delNews(news)" ng-confirm-message="Sûr?"></span>
 				</div>
-				<div class='bas-droite' ng-if="news.id_newsletter>=0"><span class='mini bleu'>{{Data.modele.config.config.news.newsletters.value[news.id_newsletter].nom.value}}</span></div>
+				<div class='bas-droite'><span class='mini bleu'>{{Data.modele.config.config.news.newsletters.value[news.id_newsletter].nom.value}}</span> <span class="mini">#{{news.id}}</span></div>
 			</li>
 		</ul>
 	</div>
