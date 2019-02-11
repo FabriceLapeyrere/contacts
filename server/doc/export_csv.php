@@ -11,7 +11,7 @@ set_time_limit(0);
 	$fp = fopen($filename, 'w');
 	$selection=array();
 	$query=$params->res->query;
-	$casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>true),0,$S['user']['id']);
+	$casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>true),0,$my_session->user->id);
 	$keys=array();
 	foreach ($casquettes['collection'] as $cas) {
 		$tab=array();

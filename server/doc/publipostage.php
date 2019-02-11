@@ -153,13 +153,15 @@ set_time_limit(0);
 	function rectangle($pdf,$x,$y,$l,$h,$casquette,$mc_gauche,$mc_droite,$mc_haut,$mc_bas,$police) {
 		$tab=array();
 		$adresse='';
-		if ($casquette['id_etab']>0)
-			$adresse=$casquette['nom_etab']."\n".adresse($casquette['donnees_etab']);
-		if ($adresse=='')
-			$adresse=adresse($casquette['donnees']);
-		$civilite = civilite($casquette['donnees']);
-		$nom=trim($casquette['prenom']." ".$casquette['nom']);
-		$adresse=trim($civilite." ".$nom."\n".$adresse);
+		if (is_array($casquette)) {
+			if ($casquette['id_etab']>0)
+				$adresse=$casquette['nom_etab']."\n".adresse($casquette['donnees_etab']);
+			if ($adresse=='')
+				$adresse=adresse($casquette['donnees']);
+			$civilite = civilite($casquette['donnees']);
+			$nom=trim($casquette['prenom']." ".$casquette['nom']);
+			$adresse=trim($civilite." ".$nom."\n".$adresse);
+		}
 		if($adresse!="") {
 			$htexte=10000;
 			$hcase=$h-$mc_haut-$mc_bas;
@@ -186,7 +188,7 @@ set_time_limit(0);
 	}
 	$j=0;
 	$pdf->AddFont('Arial', '', 'DejaVuSans.ttf',true);
-	$casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>true),0,$S['user']['id']);
+	$casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>true),0,$my_session->user->id);
 	$modele=array_values($casquettes['collection']);
 	for($i=0;$i<$offset;$i++) array_unshift($modele, '');
 	$nb_enr=count($modele);

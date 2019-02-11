@@ -1,314 +1,421 @@
 <?php
 	class Actions
 	{
+		protected $WS;
+		protected $from;
+		protected $User;
+		protected $Contacts;
+		protected $Suivis;
+		protected $Mailing;
+		protected $Publipostage;
+		protected $Chat;
+		protected $Config;
+		public function __construct($WS,$from) {
+	 	 	$this->WS= $WS;
+	 	 	$this->from= $from;
+			$this->User= new User($this->WS,$this->from);
+	 		$this->Contacts= new Contacts($this->WS,$this->from);
+	 		$this->Suivis= new Suivis($this->WS,$this->from);
+	 		$this->Mailing= new Mailing($this->WS,$this->from);
+	 		$this->Publipostage= new Publipostage($this->WS,$this->from);
+	 		$this->Chat= new Chat($this->WS,$this->from);
+	 		$this->Config= new Config($this->WS,$this->from);
+	 	}
+		//Login/Logout
+		public function login($params){
+			$login=$params->login;
+			$password=$params->password;
+			$u=User::check($login,$password);
+			if (count($u)>0){
+				$this->WS->setSession($this->from,'user',array(
+					'login'=>$u['login'],
+					'name'=>$u['name'],
+					'id'=>$u['id']
+				));
+			}
+			$this->WS->maj(array('logged'));
+		}
+		public function logout($params){
+			$this->WS->removeSession($this->from,'user');
+			$this->WS->maj(array('logged'));
+		}
 		//ADMIN
-		public static function addUser($params){
-			global $S;
-			if ($S['user']['id']==1) {
-					return User::create($params->login,$params->name,$params->pwd);
+		public function addUser($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($u['id']==1) {
+					return $this->User->create($params->login,$params->name,$params->pwd);
 			} else {
 				return 0;
 			}
 		}
-		public static function addUserGroup($params){
-			global $S;
-			if ($S['user']['id']==1) {
-					return User::add_user_group($params->id_user,$params->id_group,$S['user']['id']);
+		public function addUserGroup($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($u['id']==1) {
+					return $this->User->add_user_group($params->id_user,$params->id_group,$u['id']);
 			} else {
 				return 0;
 			}
 		}
-		public static function delUserGroup($params){
-			global $S;
-			if ($S['user']['id']==1) {
-					return User::del_user_group($params->id_user,$params->id_group,$S['user']['id']);
+		public function delUserGroup($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($u['id']==1) {
+					return $this->User->del_user_group($params->id_user,$params->id_group,$u['id']);
 			} else {
 				return 0;
 			}
 		}
-		public static function addGroup($params){
-			global $S;
-			if ($S['user']['id']==1) {
-					return User::add_group($params->nom,$S['user']['id']);
+		public function addGroup($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($u['id']==1) {
+					return $this->User->add_group($params->nom,$u['id']);
 			} else {
 				return 0;
 			}
 		}
-		public static function delGroup($params){
-			global $S;
-			if ($S['user']['id']==1) {
-					return User::del_group($params->id,$S['user']['id']);
+		public function delGroup($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($u['id']==1) {
+					return $this->User->del_group($params->id,$u['id']);
 			} else {
 				return 0;
 			}
 		}
-		public static function modGroup($params){
-			global $S;
-			if ($S['user']['id']==1) {
-					return User::mod_group($params->id,$params->nom,$S['user']['id']);
+		public function modGroup($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($u['id']==1) {
+					return $this->User->mod_group($params->id,$params->nom,$u['id']);
 			} else {
 				return 0;
 			}
 		}
-		public static function modUser($params){
-			global $S;
-			if (isset($S['user']) && ($S['user']['id']==1 || $S['user']['id']==$params->id)) {
+		public function modUser($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if (isset($u) && ($u['id']==1 || $u['id']==$params->id)) {
 				$pwd=isset($params->pwd) ? $params->pwd : '';
-				$u=User::update($params->id,$params->login,$params->name,$pwd);
-				if ($S['user']['id']==$params->id) {
-					$S['user']=$u;
-				}
-				return $u;
+				$user=$this->User->update($u['id'],$params->login,$params->name,$pwd);
+				return $user;
 			} else {
 				return 0;
 			}
 		}
-		public static function delUser($params){
-			global $S;
-			if (isset($S['user']) && $S['user']['id']==1) {
-				User::del($params->id, $S['user']['id']);
+		public function delUser($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if (isset($u) && $u['id']==1) {
+				$this->User->del($params->id, $u['id']);
 			} else {
 				return 0;
 			}
 		}
-		public static function modPanier($params){
-			global $S;
-			return User::mod_prefs($params,$S['user']['id']);
+		public function modPanier($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->User->mod_prefs($params,$u['id']);
 		}
-		public static function addPanier($params){
-			global $S;
-			return User::add_panier($params,$S['user']['id']);
+		public function addPanier($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->User->add_panier($params,$u['id']);
 		}
-		public static function panierAll($params){
-			global $S;
-			return User::panier_all($params,$S['user']['id']);
+		public function panierAll($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->User->panier_all($params,$u['id']);
 		}
-		public static function delPanier($params){
-			global $S;
-			return User::del_panier($params,$S['user']['id']);
+		public function delPanier($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->User->del_panier($params,$u['id']);
 		}
-		public static function setConfig($params){
-			global $S,$config;
-		 	if (isset($S['user']) && $S['user']['id']==1) {
-				$config->set_config($params->config);
+		public function setConfig($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if (isset($u) && $u['id']==1) {
+				$this->Config->set_config($params->config,$u['id']);
 			} else {
 				return 0;
 			}
 		}
-		public static function addAcl($params){
-			global $S;
-		 	User::add_acl($params->type_ressource,$params->id_ressource,$params->type_acces,$params->id_acces,$params->level,$S['user']['id']);
+		public function addAcl($params){
+			$u=$this->WS->getSession($this->from,'user');
+		 	$this->User->add_acl($params->type_ressource,$params->id_ressource,$params->type_acces,$params->id_acces,$params->level,$u['id']);
 		}
-		public static function delAcl($params){
-			global $S;
-		 	User::del_acl($params->type_ressource,$params->id_ressource,$params->type_acces,$params->id_acces,$S['user']['id']);
+		public function delAcl($params){
+			$u=$this->WS->getSession($this->from,'user');
+		 	$this->User->del_acl($params->type_ressource,$params->id_ressource,$params->type_acces,$params->id_acces,$u['id']);
 		}
 		//CHAT
-		public static function sendMessage($params){
-			global $S;
-			if ($params->id_from == $S['user']['id']) {
-				return Chat::send_message($params);
+		public function sendMessage($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($params->id_from == $u['id']) {
+				return $this->Chat->send_message($params,$u['id']);
 			}
 		}
-		public static function modMessage($params){
-			global $S;
-			if ($params->message->id_from == $S['user']['id']) {
-				return Chat::mod_message($params);
+		public function modMessage($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($params->message->id_from == $u['id']) {
+				return $this->Chat->mod_message($params,$u['id']);
 			}
 		}
-		public static function setLus($params){
-			global $S;
-			if ($params->id_user == $S['user']['id']) {
-				return Chat::set_lus($params);
+		public function setLus($params){
+			$u=$this->WS->getSession($this->from,'user');
+			if ($params->id_user == $u['id']) {
+				return $this->Chat->set_lus($params,$u['id']);
 			}
 		}
 		//CONTACTS
-		public static function addContact($params){
-			global $S;
-			return Contacts::add_contact($params,$S['user']['id']);
+		public function addContact($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_contact($params,$u['id']);
 		}
-		public static function modContact($params){
-			global $S;
-			return Contacts::mod_contact($params,$S['user']['id']);
+		public function modContact($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->mod_contact($params,$u['id']);
 		}
-		public static function delContact($params){
-			global $S;
-			return Contacts::del_contact($params,$S['user']['id']);
+		public function delContact($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_contact($params,$u['id']);
 		}
-		public static function delCasquettesPanier($params){
-			global $S;
-			return Contacts::del_casquettes_panier($params,$S['user']['id']);
+		public function delCasquettesPanier($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_casquettes_panier($params,$u['id']);
 		}
-		public static function modCasquette($params){
-			global $S;
-			return Contacts::mod_casquette($params,$S['user']['id']);
+		public function unErrorEmailPanier($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->un_error_email_panier($params,$u['id']);
 		}
-		public static function addCasquette($params){
-			global $S;
-			return Contacts::add_casquette($params,$S['user']['id']);
+		public function modCasquette($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->mod_casquette($params,$u['id']);
 		}
-		public static function delCasquette($params){
-			global $S;
-			return Contacts::del_casquette($params,$S['user']['id']);
+		public function assCasquette($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->ass_casquette($params,$u['id']);
 		}
-		public static function addCasTag($params){
-			global $S;
-			return Contacts::add_cas_tag($params,$S['user']['id']);	
+		public function desAssEtablissement($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->des_ass_etablissement($params,$u['id']);
 		}
-		public static function addPanierTag($params){
-			global $S;
-			return Contacts::add_panier_tag($params,$S['user']['id']);	
+		public function moveCasquette($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->move_casquette($params,$u['id']);
 		}
-		public static function delPanierTag($params){
-			global $S;
-			return Contacts::del_panier_tag($params,$S['user']['id']);	
+		public function mergeCasquette($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->merge_casquette($params,$u['id']);
 		}
-		public static function delCasTag($params){
-			global $S;
-			return Contacts::del_cas_tag($params,$S['user']['id']);	
+		public function addCasquette($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_casquette($params,$u['id']);
 		}
-		public static function movTag($params){
-			global $S;
-			return Contacts::move_tag($params,$S['user']['id']);	
+		public function delCasquette($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_casquette($params,$u['id']);
 		}
-		public static function modTag($params){
-			global $S;
-			return Contacts::mod_tag($params,$S['user']['id']);	
+		public function delEmailCasquette($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_email_casquette($params,$u['id']);
 		}
-		public static function addTag($params){
-			global $S;
-			return Contacts::add_tag($params,$S['user']['id']);	
+		public function addCasTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_cas_tag($params,$u['id']);
 		}
-		public static function delTag($params){
-			global $S;
-			return Contacts::del_tag($params,$S['user']['id']);	
+		public function addPanierTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_panier_tag($params,$u['id']);
 		}
-		public static function modSelection($params){
-			global $S;
-			return Contacts::mod_selection($params,$S['user']['id']);	
+		public function delPanierTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_panier_tag($params,$u['id']);
 		}
-		public static function addSelection($params){
-			global $S;
-			return Contacts::add_selection($params,$S['user']['id']);	
+		public function delCasTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_cas_tag($params,$u['id']);
 		}
-		public static function delSelection($params){
-			global $S;
-			return Contacts::del_selection($params,$S['user']['id']);	
+		public function movTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->move_tag($params,$u['id']);
 		}
-		public static function nbSelection($params){
-			global $S;
-			return Contacts::nb_selection($params,$S['user']['id']);	
+		public function modTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->mod_tag($params,$u['id']);
 		}
-		public static function addNbContacts($params){
-			global $S;
-			return Contacts::add_nb_contacts($params,$S['user']['id']);	
+		public function addTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_tag($params,$u['id']);
 		}
-		public static function addNbCsv($params){
-			global $S;
-			return Contacts::add_nb_csv($params,$S['user']['id']);	
+		public function delTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_tag($params,$u['id']);
+		}
+		public function modSelection($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->mod_selection($params,$u['id']);
+		}
+		public function addSelection($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_selection($params,$u['id']);
+		}
+		public function delSelection($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->del_selection($params,$u['id']);
+		}
+		public function nbSelection($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->nb_selection($params,$u['id']);
+		}
+		public function addNbContacts($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_nb_contacts($params,$u['id']);
+		}
+		public function addNbCsv($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->add_nb_csv($params,$u['id']);
+		}
+		public function nonDoublonTexte($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->non_doublon_texte($params,$u['id']);
 		}
 		//MAILING
-		public static function addMail($params){
-			global $S;
-			return Mailing::add_mail($params,$S['user']['id']);
+		public function addMail($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->add_mail($params,$u['id']);
 		}
-		public static function delMail($params){
-			global $S;
-			return Mailing::del_mail($params,$S['user']['id']);
+		public function delMail($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->del_mail($params,$u['id']);
 		}
-		public static function modMail($params){
-			global $S;
-			return Mailing::mod_mail($params,$S['user']['id']);
+		public function modMail($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->mod_mail($params,$u['id']);
 		}
-		public static function addNews($params){
-			global $S;
-			return Mailing::add_news($params,$S['user']['id']);
+		public function addNews($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->add_news($params,$u['id']);
 		}
-		public static function modNews($params){
-			global $S;
-			return Mailing::mod_news($params,$S['user']['id']);
+		public function modNews($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->mod_news($params,$u['id']);
 		}
-		public static function delNews($params){
-			global $S;
-			return Mailing::del_news($params,$S['user']['id']);
+		public function delNews($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->del_news($params,$u['id']);
 		}
-		public static function dupNews($params){
-			global $S;
-			return Mailing::dup_news($params,$S['user']['id']);
+		public function dupNews($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->dup_news($params,$u['id']);
 		}
-		public static function addModele($params){
-			global $S;
-			return Mailing::add_modele($params,$S['user']['id']);
+		public function addModele($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->add_modele($params,$u['id']);
 		}
-		public static function modModele($params){
-			global $S;
-			return Mailing::mod_modele($params,$S['user']['id']);
+		public function modModele($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->mod_modele($params,$u['id']);
 		}
-		public static function modNomCat($params){
-			global $S;
-			return Mailing::mod_nom_cat_modele($params,$S['user']['id']);
+		public function delModele($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->del_modele($params,$u['id']);
 		}
-		public static function delNewsPj($params){
-			global $S;
-			return Mailing::del_news_pj($params,$S['user']['id']);
+		public function modNomCat($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->mod_nom_cat_modele($params,$u['id']);
 		}
-		public static function delMailPj($params){
-			global $S;
-			return Mailing::del_mail_pj($params,$S['user']['id']);
+		public function delNewsPj($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->del_news_pj($params,$u['id']);
 		}
-		public static function envoyer($params){
-			global $S;
-			return Mailing::envoyer($params,$S['user']['id']);
+		public function delMailPj($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->del_mail_pj($params,$u['id']);
 		}
-		public static function playEnvoi($params){
-			global $S;
+		public function envoyer($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->envoyer($params,$u['id']);
+		}
+		public function playEnvoi($params){
+			$u=$this->WS->getSession($this->from,'user');
 			$id_envoi=$params->id;
-			return Mailing::start_envoi($id_envoi,$S['user']['id']);
+			return Mailing::start_envoi($id_envoi,$u['id']);
 		}
-		public static function pauseEnvoi($params){
-			global $S;
+		public function pauseEnvoi($params){
+			$u=$this->WS->getSession($this->from,'user');
 			$id_envoi=$params->id;
-			return Mailing::stop_envoi($id_envoi,$S['user']['id']);
+			return $this->Mailing->stop_envoi($id_envoi,$u['id']);
 		}
-		public static function restartEnvoi($params){
-			global $S;
+		public function restartEnvoi($params){
+			$u=$this->WS->getSession($this->from,'user');
 			$id_envoi=$params->id;
-			return Mailing::restart_envoi($id_envoi,$S['user']['id']);
+			return $this->Mailing->restart_envoi($id_envoi,$u['id']);
 		}
-		public static function videEnvoi($params){
-			global $S;
+		public function videEnvoi($params){
+			$u=$this->WS->getSession($this->from,'user');
 			$id_envoi=$params->id;
-			return Mailing::vide_envoi($id_envoi,$S['user']['id']);
+			return $this->Mailing->vide_envoi($id_envoi,$u['id']);
+		}
+		public function addScheduleEnvoi($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->add_schedule($params,$u['id']);
+		}
+		public function delScheduleEnvoi($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->del_schedule($params,$u['id']);
+		}
+		public function modScheduleEnvoi($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Mailing->mod_schedule($params,$u['id']);
 		}
 		//PUBLIPOSTAGE
-		public static function addSupport($params){
-			global $S;
-			return Publipostage::add_support($params,$S['user']['id']);
+		public function addSupport($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Publipostage->add_support($params,$u['id']);
 		}
-		public static function modSupport($params){
-			global $S;
-			return Publipostage::mod_support($params,$S['user']['id']);
+		public function modSupport($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Publipostage->mod_support($params,$u['id']);
 		}
-		public static function delSupport($params){
-			global $S;
-			return Publipostage::del_support($params,$S['user']['id']);
+		public function delSupport($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Publipostage->del_support($params,$u['id']);
+		}
+		public function addTemplate($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Publipostage->add_template($params,$u['id']);
+		}
+		public function modTemplate($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Publipostage->mod_template($params,$u['id']);
+		}
+		public function delTemplate($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Publipostage->del_template($params,$u['id']);
+		}
+		public function delTpl($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Publipostage->del_tpl($params,$u['id']);
 		}
 		//SUIVIS
-		public static function addSuivi($params){
-			global $S;
-			return Suivis::add_suivi($params,$S['user']['id']);
+		public function addSuivisThread($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Suivis->add_suivis_thread($params,$u['id']);
 		}
-		public static function modSuivi($params){
-			global $S;
-			return Suivis::mod_suivi($params,$S['user']['id']);
+		public function modSuivisThread($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Suivis->mod_suivis_thread($params,$u['id']);
 		}
-		public static function delSuivi($params){
-			global $S;
-			return Suivis::del_suivi($params,$S['user']['id']);
+		public function delSuivisThread($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Suivis->del_suivis_thread($params,$u['id']);
+		}
+		public function addSuivi($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Suivis->add_suivi($params,$u['id']);
+		}
+		public function modSuivi($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Suivis->mod_suivi($params,$u['id']);
+		}
+		public function delSuivi($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Suivis->del_suivi($params,$u['id']);
 		}
 		//TRAITEMENTS
-		public static function checkImap($params){
-			global $S;
-			return IMAP::start_check($S['user']['id']);
+		public function checkImap($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return Imap::start_check($u['id']);
 		}
 	}

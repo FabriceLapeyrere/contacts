@@ -1,6 +1,6 @@
 <div class="col-sm-12 cas">
 	<div class="col-xs-6">
-		<span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="cas.prenom+cas.nom==''">(sans nom)</span></span>
+		<span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}"><span ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span></span> <small>/ {{cas.nom_cas}}</small></span>
 	</div>
     <div class="col-xs-6 light">
         <div ng-if="d.type=='adresse'" ng-repeat="d in cas.donnees">

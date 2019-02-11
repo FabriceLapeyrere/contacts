@@ -1,0 +1,19 @@
+<form role="form" name="form.modSuivisThread">
+<div class="modal-body">
+	<p>
+		<label>
+			<span class="individu">Nom</span>
+		</label>
+		<input class="form-control autoFocus" type="text" ng-model="thread.nom" required/>
+		<label>
+			<span class="individu">Descriptif</span>
+		</label>
+		<input class="form-control" type="text" ng-model="thread.desc"/>
+	</p>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-primary" ng-click="ok()">Modifier</button>
+	<button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>
+

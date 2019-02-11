@@ -1,0 +1,31 @@
+<form role="form" name="form.SuivisThread">
+<div class="modal-body">
+	<uib-tabset>
+		<uib-tab heading="Continuer une discussion existante :" active="true" ng-if="(suivis | toArray).length>0">
+			<p>&nbsp;</p>
+			<p>
+				<span ng-repeat="thread in suivis | toArray | orderBy:'nom'" ng-click="select(thread)"><span class="btn btn-primary">{{thread.nom}}<span class="groups"><span ng-repeat="g in thread.groups">{{Data.modele.groups[g].nom}}&nbsp;&nbsp;</span></span></span> &nbsp;</span>
+			</p>
+		</uib-tab>
+		<uib-tab heading="Nouvelle discussion :">
+			<p>
+				<label>
+					<span class="individu">Nom</span>
+				</label>
+				<input class="form-control autoFocus" type="text" ng-model="st.nom" required/>
+				<label>
+					<span class="individu">Descriptif</span>
+				</label>
+				<input class="form-control" type="text" ng-model="st.desc"/>
+			</p>
+			<p>
+				<button class="btn btn-primary" ng-click="ok()">Ajouter</button>
+			</p>
+		</uib-tab>
+	</uib-tabset>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>
+

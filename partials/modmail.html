@@ -1,7 +1,7 @@
-<locked verrou="Data.modele[key].verrou" data="Data">
+<locked key="key" data="Data">
 	<form name="frm" class="col-xs-12 col-md-8">
 	<div loading="key" data="Data">
-	<p><a class="btn btn-primary" href="mail/{{Data.modele[key].id}}" ng-if="p=pristine(key)">Fermer</a> <button class="btn btn-primary" ng-click="save()" ng-if="!p">Enregistrer</button> <button class="btn btn-default" ng-click="envoyer(mail)"  ng-disabled="!p">Envoyer à</button></p>
+	<p><a class="btn btn-primary" href="mail/{{Data.modele[key].id}}" ng-if="p=pristine(key)">Fermer</a> <button class="btn btn-primary" ng-click="save()" ng-if="!p">Enregistrer</button> <button class="btn btn-default" ng-click="envoyer()"  ng-disabled="!p">Envoyer à</button></p>
 	<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
 		<span class="pull-right mini" ng-show="p">Enregistré</span>
 		<span class="pull-right mini" ng-show="!p">Non enregistré</span>
@@ -20,13 +20,13 @@
 			<div class="clearfix"></div>
 		</li>
 	</ul>
-	    <div ng-show="uploaders[key].queue.length>0 && uploaders[key].progress<100">
-                <div>
-                    <div class="progress" style="">
-                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploaders[key].progress + '%' }"></div>
-                    </div>
-                </div>
-            </div>
+	<div ng-show="uploaders[key].queue.length>0 && uploaders[key].progress<100">
+	    <div>
+	        <div class="progress" style="">
+	            <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploaders[key].progress + '%' }"></div>
+	        </div>
+	    </div>
+	</div>
 
 	<div ng-show="uploaders[key].isHTML5">
 		<div class="well my-drop-zone" nv-file-over="" uploader="uploaders[key]" nv-file-drop="">
@@ -36,4 +36,3 @@
 	<input type="file" nv-file-select uploader="uploaders[key]" multiple/>
 </div>
 </locked>
-

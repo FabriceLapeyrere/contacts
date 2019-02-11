@@ -1,9 +1,9 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
 foreach (glob("server/*.php") as $filename)
 {
 	include $filename;
 }
-include 'fake_ws/conf.php';
 include 'conf/main.php';
 $S=array();
 $S['user']=array(
@@ -11,6 +11,7 @@ $S['user']=array(
 	'name'=>'nobody',
 	'id'=>1
 );
+$C=Config::get();
 $news=Mailing::get_news($_REQUEST['id'],1);
 if ($news['publie']==1) {
 	$sujet=$news['sujet'];

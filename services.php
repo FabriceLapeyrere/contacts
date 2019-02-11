@@ -3,7 +3,6 @@ foreach (glob("server/*.php") as $filename)
 {
     include $filename;
 }
-include 'fake_ws/conf.php';
 include 'conf/main.php';
 if (isset($_REQUEST['auth_cle'])) $auth_cle=$_REQUEST['auth_cle'];
 if (isset($_REQUEST['action'])) $action=$_REQUEST['action'];

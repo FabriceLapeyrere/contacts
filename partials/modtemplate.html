@@ -1,0 +1,41 @@
+<form name="frm" class="col-sm-6 col-sm-offset-3" loading="key" data="Data">
+	<div class="col-xs-12">
+        <p>
+            <button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+            <button ng-if="Data.modele[key].template.length>0" class="btn btn-default" ng-click="pdf(Data.modele[key])" >Télécharger le document</button></p>
+		<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+		    <span class="pull-right mini" ng-show="p">Enregistré</span>
+		    <span class="pull-right mini" ng-show="!p">Non enregistré</span>
+		</p>
+
+		<p>
+		<label>Nom</label>
+		<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
+		</p>
+	</div>
+    <div class="col-xs-12">
+        <h3 ng-if="Data.modele[key].pjs.length>0">Template</h3>
+    	<ul class="list-group">
+    		<li class="list-group-item" ng-repeat="f in Data.modele[key].template"><a href="{{f.path}}" target="_blank">{{f.filename}}</a>
+                <br /><small>{{calendar(f.modified)}}</small>
+    			<button ng-confirm-click="delTpl(f)" ng-confirm-message="Sûr ?" class='btn btn-default btn-xs pull-right'>x</button>
+    			<div class="clearfix"></div>
+    		</li>
+    	</ul>
+        <div ng-show="uploaders[key].queue.length>0 && uploaders[key].progress<100">
+            <div>
+                <div class="progress" style="">
+                    <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploaders[key].progress + '%' }"></div>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="uploaders[key].isHTML5">
+            <div class="well my-drop-zone" nv-file-over="" uploader="uploaders[key]" nv-file-drop="">
+                Déposer les fichiers ici
+            </div>
+        </div>
+        <input type="file" nv-file-select uploader="uploaders[key]" multiple/>
+    </div>
+
+</form>

@@ -18,6 +18,8 @@ primary
 integer "integer"
   = ':tag' id:[0-9]+ { return '::tag/'+id.join("")+'::'; }
   / '!:tag' id:[0-9]+ { return 'NOT (::tag/'+id.join("")+'::)'; }
+  / ':tag_parent' id:[0-9]+ { return '::tag-parent/'+id.join("")+'::'; }
+  / '!:tag_parent' id:[0-9]+ { return 'NOT (::tag-parent/'+id.join("")+'::)'; }
   / ':etab' id:[0-9]+ { return '::etab/'+id.join("")+'::'; }
   / '!:etab' id:[0-9]+ { return 'NOT (::etab/'+id.join("")+'::)'; }
   / ':envoi' id:[0-9]+ { return '::envoi/'+id.join("")+'::'; }
@@ -81,6 +83,8 @@ integer "integer"
   / '!:panier' { return 'NOT ::panier::'; }
   / ':mailerreur' { return '::mailerreur::'; }
   / '!:mailerreur' { return 'NOT ::mailerreur::'; }
+  / ':gpserreur' { return '::gpserreur::'; }
+  / '!:gpserreur' { return "NOT ::gpserreur::"; }
   / ':email' { return '::email::'; }
   / '!:email' { return 'NOT ::email::'; }
   / ':adresse' { return '::adresse::'; }

@@ -4,7 +4,7 @@
 		<p><span class="btn btn-primary"ng-click="addSupportMod()">Nouveau Support</span></p>
 		<ul class="list-group">
 			<li class="list-group-item" ng-repeat="support in Data.modele.supports">
-            <locked verrou="support.verrou" data="Data">
+            <locked key="'support/'+support.id" data="Data">
 				<a href="modsupport/{{support.id}}">{{support.nom ? support.nom : '(sans titre)'}}</a> <span class="mini">{{calendar(support.modificationdate)}} par {{Data.modele.users[support.modifiedby].name}}</span>
 				<div class="mini-menu">
 					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delSupport(support)" ng-confirm-message="Sûr?"></span>

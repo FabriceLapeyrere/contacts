@@ -9,7 +9,7 @@
 			<span class="glyphicon glyphicon-trash" ng-confirm-click="delContact(cas)" ng-confirm-message="Sûr?"></span>
 		</div>
 		<div class="col-sm-3">
-			<a href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || Data.modele.collection[$index-1].id_contact!=cas.id_contact"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="cas.prenom+cas.nom==''">(sans nom)</span></a>
+			<a href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || Data.modele.collection[$index-1].id_contact!=cas.id_contact"><span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="(!cas.prenom && !cas.prenom) || cas.prenom+cas.nom==''">(sans nom)</span></a>
 		</div>
 		<div class="col-sm-3" style="overflow:hidden;" ng-repeat="d in cas.donnees | limitTo:3">
 

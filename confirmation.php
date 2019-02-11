@@ -1,11 +1,11 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
 foreach (glob("server/*.php") as $filename)
 {
     include $filename;
 }
-include 'fake_ws/conf.php';
 include 'conf/main.php';
-
+$C=Config::get();
 function ass_casquette($id_casquette,$id_contact,$id_categorie)
 {
 	$p=(object) null;
@@ -14,7 +14,7 @@ function ass_casquette($id_casquette,$id_contact,$id_categorie)
 	$p->cas->id_contact=$id_contact;
 	$p->tag=(object) null;
 	$p->tag->id=$id_categorie;
-	Contacts::add_cas_tag($p,1);
+	Contacts::do_add_cas_tag($p,1);
 	return array('ajout'=>'ok');
 }
 function aj_contact($params)
@@ -24,18 +24,18 @@ function aj_contact($params)
 	$c->contact->nom=$params['nom'];
 	$c->contact->prenom=$params['prenom'];
 	$c->contact->type=1;
-	$id=Contacts::add_contact($c,1);
+	$id=Contacts::do_add_contact($c,1);
 	$contact=Contacts::get_contact($id,false,1);
 	$p=(object) null;
 	foreach($contact['casquettes'] as $cas){
 		$p->cas= (object) $cas;
 		$p->cas->donnees=$params['donnees'];
 	}
-	Contacts::mod_casquette($p,1);
+	Contacts::do_mod_casquette($p,1);
 	$p->tag=(object) null;	
 	foreach($params['categories'] as $id_tag){
 		$p->tag->id=$id_tag;
-		Contacts::add_cas_tag($p,1);
+		Contacts::do_add_cas_tag($p,1);
 	}
 }
 function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') {
@@ -94,7 +94,7 @@ email : {$params['donnees'][0]->value}
 
 ciao";
 				foreach(explode(",",$C->app->mails_notification->value) as $dest){
-					mail_utf8(trim($dest),"Inscription automatique à la newsletter $brand - Le Fil",$message,'From: '.$C->app->mails_notification_from->value);		
+					mail_utf8(trim($dest),"Inscription automatique à la newsletter $brand",$message,'From: '.$C->app->mails_notification_from->value);		
 				}
 				aj_contact($params);
 				$fichier[]='done';

@@ -4,6 +4,7 @@
 </div>
 <ul class="nav navbar-nav">
 	<li ng-attr-class="{{path()=='/contacts' && 'active'}}"><a href="contacts">Contacts</a></li>
+	<li ng-if="Data.modele.config.config.carte.mapbox_accessToken.value" ng-attr-class="{{path()=='/carte' && 'active'}}"><a href="carte">Carte</a></li>
 	<li ng-attr-class="{{path()=='/suivis' && 'active'}}"><a href="suivis">À suivre</a></li>
 	<li uib-dropdown is-open="status.isopen">
 		<a uib-dropdown-toggle>
@@ -18,16 +19,28 @@
 	</li>
 	<li uib-dropdown is-open="status.isopen2">
 		<a uib-dropdown-toggle>
-			Import / Export <span class="caret"></span>
+			Outils <span class="caret"></span>
 		</a>
 		<ul uib-dropdown-menu role="menu">
 			<li><a class="cursor" ng-click="csv()">Export csv</a></li>
 			<li class="divider"></li>
 			<li><a class="cursor" ng-click="addNbContactsMod()">Import E-mails en nombre</a></li>
 			<li><a class="cursor" ng-click="addNbCsvMod()">Import csv</a></li>
+			<li class="divider"></li>
+			<li><a class="cursor" href="doublons_texte">Doublons (nom)</a></li>
+			<li><a class="cursor" href="doublons_email">Doublons (e-mail)</a></li>
 		</ul>
 	</li>
-	<li ng-attr-class="{{path()=='/supports' && 'active'}}"><a href="supports">Publipostage</a></li>
+	<li uib-dropdown is-open="status.isopen3">
+		<a uib-dropdown-toggle>
+			Publipostage <span class="caret"></span>
+		</a>
+		<ul uib-dropdown-menu role="menu">
+			<li ng-attr-class="{{path()=='/supports' && 'active'}}"><a href="supports">Supports</a></li>
+			<li ng-attr-class="{{path()=='/templates' && 'active'}}"><a href="templates">Templates</a></li>
+		</ul>
+	</li>
+
 	<li ng-if="Data.user.id==1" ng-attr-class="{{path()=='/admin' && 'active'}}"><a href="admin">Admin</a></li>
 	<li ng-attr-class="{{path()=='/moi' && 'active'}}"><a href="moi">Moi</a></li>
 	<li><a href="#" ng-click="logout()">(Déconnecter {{Data.user.name}})</a></li>

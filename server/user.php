@@ -1,7 +1,13 @@
 <?php
 	class User
 	{
-		// check login/password
+		protected $WS;
+		protected $from;
+		public function __construct($WS,$from) {
+	 	 	$this->WS= $WS;
+	 	 	$this->from= $from;
+		}
+	 	// check login/password
 		public static function check($login,$password)
 		{
 			$db= new DB();
@@ -14,7 +20,7 @@
 			return $res;
 		}
 		// create new user
-		public static function create($login,$name,$password)
+		public function create($login,$name,$password)
 		{
 			$db= new DB();
 			$password=md5($login.$password);
@@ -23,10 +29,10 @@
 			$insert = $db->database->prepare('INSERT INTO users (login, name, password, prefs, active) VALUES (?,?,?,?,?) ');
 			$insert->execute(array($login,$name,$password,json_encode($prefs),1));
 			$id=$db->database->lastInsertId();
-			CR::maj(array('users'));
+			$this->WS->maj(array('users'));
 			return $id;
 		}
-		public static function update($id,$login,$name,$password)
+		public function update($id,$login,$name,$password)
 		{
 			$db= new DB();
 			if ($password=='') {
@@ -37,17 +43,17 @@
 				$update = $db->database->prepare('UPDATE users set name=?, password=? WHERE id=?');
 				$update->execute(array($name,$password,$id));
 			} 
-			CR::maj(array("user/$id"));
+			$this->WS->maj(array("user/$id"));
 			return User::get_user($id);
 		}
-		public static function add_group($nom,$id)
+		public function add_group($nom,$id)
 		{
 			if ($id==1) {
 				$db= new DB();
 				$insert = $db->database->prepare('INSERT INTO groups (nom) VALUES (?)');
 				$insert->execute(array($nom));
 				$id_group=$db->database->lastInsertId();
-				CR::maj(array('groups'));
+				$this->WS->maj(array('groups'));
 				return $id_group;
 			}
 		}
@@ -90,8 +96,14 @@
 			}
 			return $res;
 		}
-		public static function add_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$level,$id)
+		public function add_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$level,$id) {
+			$t=User::do_add_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$level,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_add_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$level,$id)
 		{
+			$res=array('maj'=>array(),'res'=>1);
 			if (User::is_owner($type_ressource,$id_ressource,$id) && ($type_acces!='group' || User::has_group($id_acces,$id) )) {
 		  		$db= new DB();
 				$insert = $db->database->prepare('INSERT OR REPLACE INTO acl (type_ressource, id_ressource, type_acces, id_acces, level) VALUES (?,?,?,?,?)');
@@ -100,11 +112,18 @@
 					$insert = $db->database->prepare('INSERT OR REPLACE INTO acl (type_ressource, id_ressource, type_acces, id_acces, level) VALUES (?,?,?,?,?)');
 					$insert->execute(array($type_ressource,$id_ressource,$type_acces,$id,$level));
 				}
-				CR::maj(array('*'));
+				$res['maj']=array('*');
 			}
+			return $res;
 		}
-		public static function del_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$id)
+		public function del_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$id) {
+			$t=User::do_del_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_del_acl($type_ressource,$id_ressource,$type_acces,$id_acces,$id)
 		{
+			$res=array('maj'=>array(),'res'=>1);
 			if (User::is_owner($type_ressource,$id_ressource,$id) && ($type_acces!='group' || User::has_group($id_acces,$id) )) {
 		  		$db= new DB();
 				$delete = $db->database->prepare('DELETE FROM acl WHERE type_ressource=? AND id_ressource=? AND type_acces=? AND id_acces=?');
@@ -120,40 +139,41 @@
 						$delete->execute(array($type_ressource,$id_ressource,$type_acces,$id));
 					}
 				}
-				CR::maj(array('*'));
+				$res['maj']=array('*');
  			}
-	   }
-		public static function add_user_group($id_user,$id_group,$id)
+			return $res;
+		}
+		public function add_user_group($id_user,$id_group,$id)
 		{
 			$db= new DB();
 			$insert = $db->database->prepare('INSERT OR REPLACE INTO user_group (id_user,id_group) VALUES (?,?) ');
 			$insert->execute(array($id_user,$id_group));
-			CR::maj(array('*'));
+			$this->WS->maj(array('*'));
 		}
-		public static function del_user_group($id_user,$id_group,$id)
+		public function del_user_group($id_user,$id_group,$id)
 		{
 			$db= new DB();
 			$delete = $db->database->prepare('DELETE FROM user_group WHERE id_user=? AND id_group=?');
 			$delete->execute(array($id_user,$id_group));
-			CR::maj(array('*'));
+			$this->WS->maj(array('*'));
 		}
-		public static function mod_group($id_group,$nom,$id)
+		public function mod_group($id_group,$nom,$id)
 		{
 			$db= new DB();
 			$update = $db->database->prepare('UPDATE groups set nom=? WHERE id=?');
 			$update->execute(array($nom,$id_group));
-			CR::maj(array('*'));
+			$this->WS->maj(array('*'));
 		}
-		public static function del_group($id_group,$id)
+		public function del_group($id_group,$id)
 		{
 			$db= new DB();
 			$del = $db->database->prepare('DELETE FROM groups WHERE id=?');
 			$del->execute(array($id_group));
 			$del = $db->database->prepare('DELETE FROM user_group WHERE id_group=?');
 			$del->execute(array($id_group));
-			CR::maj(array('*'));
+			$this->WS->maj(array('*'));
 		}
-		public static function mod_prefs($params,$id)
+		public function mod_prefs($params,$id)
 		{
 			$db= new DB();
 			$query = "SELECT prefs FROM users WHERE id=$id";
@@ -167,10 +187,10 @@
 			}
 			$update = $db->database->prepare('UPDATE users set prefs=? WHERE id=?');
 			$update->execute(array(json_encode($prefs),$id));
-			CR::maj(array("user","casquettes"));
+			$this->WS->maj(array("user","casquettes",'carte'));
 			return 1;
 		}
-		public static function add_panier($params,$id)
+		public function add_panier($params,$id)
 		{
 			$db= new DB();
 			$query = "SELECT prefs FROM users WHERE id=$id";
@@ -184,10 +204,10 @@
 			}
 			$update = $db->database->prepare('UPDATE users set prefs=? WHERE id=?');
 			$update->execute(array(json_encode($prefs),$id));
-			CR::maj(array("user",'casquettes'));
+			$this->WS->maj(array("user",'casquettes','carte'));
 			return 1;
 		}
-		public static function panier_all($params,$id)
+		public function panier_all($params,$id)
 		{
 			$db= new DB();
 			$query = "SELECT prefs FROM users WHERE id=$id";
@@ -202,10 +222,15 @@
 			}
 			$update = $db->database->prepare('UPDATE users set prefs=? WHERE id=?');
 			$update->execute(array(json_encode($prefs),$id));
-			CR::maj(array("user",'casquettes'));
+			$this->WS->maj(array("user",'casquettes','carte'));
 			return 1;
 		}
-		public static function del_panier($params,$id)
+		public function del_panier($params,$id) {
+			$t=User::do_del_panier($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_del_panier($params,$id)
 		{
 			$db= new DB();
 			$query = "SELECT prefs FROM users WHERE id=$id";
@@ -219,16 +244,15 @@
 			}
 			$update = $db->database->prepare('UPDATE users set prefs=? WHERE id=?');
 			$update->execute(array(json_encode($prefs),$id));
-			CR::maj(array('user','casquettes'));
-			return 1;
+			return array('maj'=>array('user','casquettes','carte'), 'res'=>1);
 		}
-		public static function del($id_user,$id)
+		public function del($id_user,$id)
 		{
 			if ($id==1 && $id_user!=1){
 				$db= new DB();
 				$del = $db->database->prepare('UPDATE users set active=0 WHERE id=?');
 				$del->execute(array($id_user));
-				CR::maj(array('users'));
+				$this->WS->maj(array('users'));
 			}
 		}
 		public static function get_users()
@@ -237,7 +261,6 @@
 			$query = "SELECT id, login, name FROM users WHERE active=1";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				$row['verrou']=WS::get_verrou('user/'.$row['id']);
 				$res[$row['id']]=$row;
 			}
 			return $res;
@@ -248,7 +271,6 @@
 			$query = "SELECT id, login, name FROM users";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				$row['verrou']=WS::get_verrou('user/'.$row['id']);
 				$res[$row['id']]=$row;
 			}
 			return $res;
@@ -267,7 +289,6 @@
 			";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				$row['verrou']=WS::get_verrou('group/'.$row['id']);
 				$row['users']= is_array(json_decode($row['users'])) ? json_decode($row['users']) : array();
 				$res[$row['id']]=$row;
 			}

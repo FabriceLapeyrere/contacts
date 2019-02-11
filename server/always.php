@@ -18,9 +18,15 @@ function Hex2RGB($color){
 }
 function get_gps($adresse){
 	$pays=$adresse->pays;
-	$cp=$adresse->cp;
-	$ville=trim(str_replace("cedex",'',$adresse->ville));
+	$cp=10*(floor($adresse->cp/10));
+	//echo "\n".$adresse->cp." // ".$cp."\n";
+	$string = $adresse->ville;
+	$pattern = '/\bcedex.*/i';
+	$replacement = '';
+	$ville=preg_replace($pattern, $replacement, $string);
+	//echo $adresse->ville." // ".$ville."\n";
 	$adresse=str_replace(',','',str_replace("\n",' ',$adresse->adresse));
+	//echo "$pays, $cp, $ville, $adresse\n";
 	$query1 = http_build_query(array(
 	 'q' => "$pays, $cp, $ville, $adresse",
 	 'format' => 'json'
@@ -52,7 +58,7 @@ function get_gps($adresse){
 		$tab=json_decode(curl_exec ($ch));
 	}
 	if (count($tab)>0) return array('x'=>$tab[0]->lon,'y'=>$tab[0]->lat);
-	else return array('x'=>'1000','y'=>'1000');
+	else return array('x'=>'1001','y'=>'1001');
 }
 function filter($txt) {
 	$search = array ('@[\\- ]@i','@[^a-zA-Z0-9_]@');
@@ -77,10 +83,10 @@ function idx($a){
 		if (isset($i->value) && $i->type!='adresse') {
 			$idx.=" ".$i->value;
 		} else {
-			$idx.=" ".$i->value->adresse;
-			$idx.=" ".$i->value->cp;
-			$idx.=" ".$i->value->ville;
-			$idx.=" ".$i->value->pays;
+			if (isset($i->value->adresse)) $idx.=" ".$i->value->adresse;
+			if (isset($i->value->cp)) $idx.=" ".$i->value->cp;
+			if (isset($i->value->ville)) $idx.=" ".$i->value->ville;
+			if (isset($i->value->pays)) $idx.=" ".$i->value->pays;
 		}
 	}
 	return strtolower(normalizeChars($idx));
@@ -107,7 +113,7 @@ function cp($a){
 	foreach($a as $i){
 		if (isset($i->value) && $i->type=='adresse'){
 			if (strtolower($i->value->pays)=="france" || $i->value->pays=="") {
-				$cp=$i->value->cp;
+				if (isset($i->value->cp)) $cp=$i->value->cp;
 			}
 			if ($i->value->pays!="" && strtolower($i->value->pays)!="france") {
 				$cp="E";
@@ -153,7 +159,7 @@ function normalizeChars($s) {
         'þ'=>'b', 'Þ'=>'B',
         'Ç'=>'C', 'ç'=>'c', 'Ć' => 'C', 'ć' => 'c',
         'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ę' => 'E', 'ę' => 'e',
-        'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 
+        'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e',
         'Ğ'=>'G', 'ğ'=>'g',
         'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'İ'=>'I', 'ı'=>'i', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i',
         'Ł' => 'L', 'ł' => 'l',
@@ -163,7 +169,7 @@ function normalizeChars($s) {
         'Š'=>'S', 'š'=>'s', 'Ş'=>'S', 'ș'=>'s', 'Ș'=>'S', 'ş'=>'s', 'ß'=>'ss', 'Ś' => 'S', 'ś' => 's',
         'ț'=>'t', 'Ț'=>'T',
         'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'Ue',
-        'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'ue', 
+        'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'ue',
         'Ý'=>'Y',
         'ý'=>'y', 'ý'=>'y', 'ÿ'=>'y',
         'Ž'=>'Z', 'ž'=>'z', 'Ż' => 'Z', 'ż' => 'z', 'Ź' => 'Z', 'ź' => 'z'
@@ -181,22 +187,22 @@ function replaceHref($html, $redirect, $params)
 	//Evaluate Anchor tag in HTML
 	$xpath = new DOMXPath($dom);
 	$sets=array();
-	
+
 	$sets[] = $xpath->evaluate("/html/body//a");
 	$sets[] = $xpath->evaluate("/html/body//area");
 	foreach ($sets as $hrefs) {
 		for ($i = 0; $i < $hrefs->length; $i++) {
 			$href = $hrefs->item($i);
 			$url = $href->getAttribute('href');
-			if ($url!="##UNSUBSCRIBEURL##") {
+			if ($url!="##UNSUBSCRIBEURL##" && strpos($url,"mailto:")===false) {
 				$p=$params;
 				$p['url']=$url;
 				$hash=json_encode($p);
 				$hash=base64_encode($hash);
-				//remove and set target attribute       
+				//remove and set target attribute
 				$newURL=$redirect."?h=".$hash;
 
-				//remove and set href attribute       
+				//remove and set href attribute
 				$href->removeAttribute('href');
 				$href->setAttribute("href", $newURL);
 			}
@@ -227,7 +233,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 				$hash=base64_encode($hash);
 				$url=$redirect."?h=".$hash;
 			}
-			//remove and set src attribute       
+			//remove and set src attribute
 			$img->removeAttribute('src');
 			$img->setAttribute("src", $url);
 		}
@@ -243,7 +249,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
      * Situtaions :
      * - Src:/home/test/file.txt ,Dst:/home/test/b ,Result:/home/test/b -> If source was file copy file.txt name with b as name to destination
      * - Src:/home/test/file.txt ,Dst:/home/test/b/ ,Result:/home/test/b/file.txt -> If source was file Creates b directory if does not exsits and copy file.txt into it
-     * - Src:/home/test ,Dst:/home/ ,Result:/home/test/** -> If source was directory copy test directory and all of its content into dest     
+     * - Src:/home/test ,Dst:/home/ ,Result:/home/test/** -> If source was directory copy test directory and all of its content into dest
      * - Src:/home/test/ ,Dst:/home/ ,Result:/home/**-> if source was direcotry copy its content to dest
      * - Src:/home/test ,Dst:/home/test2 ,Result:/home/test2/** -> if source was directoy copy it and its content to dest with test2 as name
      * - Src:/home/test/ ,Dst:/home/test2 ,Result:->/home/test2/** if source was directoy copy it and its content to dest with test2 as name
@@ -260,7 +266,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
     function smartCopy($source, $dest, $options=array('folderPermission'=>0755,'filePermission'=>0755))
     {
         $result=false;
-       
+
         if (is_file($source)) {
             if ($dest[strlen($dest)-1]=='/') {
                 if (!file_exists($dest)) {
@@ -272,7 +278,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
             }
             $result=copy($source, $__dest);
             chmod($__dest,$options['filePermission']);
-           
+
         } elseif(is_dir($source)) {
             if ($dest[strlen($dest)-1]=='/') {
                 if ($source[strlen($source)-1]=='/') {
@@ -310,7 +316,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
                 }
             }
             closedir($dirHandle);
-           
+
         } else {
             $result=false;
         }
@@ -330,7 +336,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		exec($command);
 	}
 	function ldap_update($id) {
-        global $C;
+        	$C=Config::get();
 		// connect to ldap server
 		error_log("connection ldap ...\n",3,"./data/log/debug.log");
 		if ($C->ldap->active->value==1){
@@ -344,8 +350,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 				// binding to ldap server
 				$ldapbind = ldap_bind($ldapconn, $C->ldap->rdn->value, $C->ldap->pwd->value);
 				# on ecrit :
-				$contacts=new Contacts();	
-				$c=$contacts->get_casquette($id,false,1);
+				$c=Contacts::get_casquette($id,false,1);
 				$entry=Array();
 				$entry['uid']=$id;
 				$entry['cn']="";
@@ -376,11 +381,11 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 						$adresse=$d->value;
 					}
 				}
-			
+
 				$tags=$c['tags'];
 				$categories="";
 				foreach ($tags as $id_tag) {
-					$tag=$contacts->get_tag($id_tag);
+					$tag=Contacts::get_tag($id_tag);
 					if ($categories=="") $categories.=ldap_escape($tag['nom']);
 					else $categories.=", ".ldap_escape($tag['nom']);
 				}
@@ -395,7 +400,7 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 				$entry["objectclass"][1]="inetOrgPerson";
 				$entry["objectclass"][2]="person";
 				$entry["objectclass"][3]="organizationalPerson";
-			
+
 				#on supprime les champs vide, sinon erreur ldap
 				$entry_new=Array();
 				foreach ($entry as $key => $value){
@@ -418,12 +423,12 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 							$r=ldap_add($ldapconn, $contact, $entry_new);
 						}
 					}
-				}			
+				}
 				ldap_close($ldapconn);
 				return $entry_new;
 			}
 		}
-	}	
+	}
     function debug_string_backtrace() {
         ob_start();
         debug_print_backtrace();
@@ -442,6 +447,12 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 	function cp2dept($cp) {
 		if ($cp=="E") return "E";
 		if ($cp<1000) return "";
+		$n=floor($cp/100);
+		if ($n==971) return "$n";
+		if ($n==972) return "$n";
+		if ($n==973) return "$n";
+		if ($n==974) return "$n";
+		if ($n==976) return "$n";
 		$n=floor($cp/1000);
 		if ($n==20 && $cp<20200) $n="2A";
 		if ($n==20 && $cp>=20200) $n="2B";
@@ -546,6 +557,11 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		$departements['93']=array('nom'=>'Seine-Saint-Denis ', 'prefecture'=>'Bobigny ', 'region'=>'Ile-de-France');
 		$departements['94']=array('nom'=>'Val-de-Marne ', 'prefecture'=>'Créteil ', 'region'=>'Ile-de-France');
 		$departements['95']=array('nom'=>'Val-d\'Oise ', 'prefecture'=>'Pontoise ', 'region'=>'Ile-de-France');
+		$departements['971']=array('nom'=>'Guadeloupe', 'prefecture'=>'Basse-Terre', 'region'=>'Guadeloupe');
+		$departements['972']=array('nom'=>'Martinique', 'prefecture'=>'Fort-de-France', 'region'=>'Martinique');
+		$departements['973']=array('nom'=>'Guyane', 'prefecture'=>'Cayenne', 'region'=>'Guyane');
+		$departements['974']=array('nom'=>'La Réunion', 'prefecture'=>'Saint-Denis', 'region'=>'La Réunion');
+		$departements['976']=array('nom'=>'Mayotte', 'prefecture'=>'Dzaoudzi', 'region'=>'Mayotte');
 		$res=$departements[$n];
 		$res['n']=$n;
 		return $res;
@@ -589,4 +605,115 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		}
 		return $res;
 	}
+	function WS_send($data) {
+		$msg=array();
+		$msg['id']=-1;
+		$msg['key']='1234';
+		$msg['data']=$data;
+		$command = "nohup /usr/bin/php exec.php ws_send ".base64_encode(json_encode($msg))." > /dev/null 2>&1 &";
+		exec($command);
+	}
+	function WS_maj($types) {
+		if (count($types)>0) {
+			$msg=array();
+			$msg['id']=-1;
+			$msg['key']='1234';
+			$msg['data']=array('data'=>array(array('action'=>'maj','types'=>$types)));
+			$command = "nohup /usr/bin/php exec.php ws_send ".base64_encode(json_encode($msg))." > /dev/null 2>&1 &";
+			exec($command);
+		}
+	}
+	function check_doublon_texte($id_contact) {
+		$command = "nohup /usr/bin/php exec.php doublon_texte $id_contact > /dev/null 2>&1 &";
+		exec($command);
+	}
+	function check_doublon_emails($emails) {
+		$arg=base64_encode(json_encode($emails));
+		$command = "nohup /usr/bin/php exec.php doublon_emails $arg > /dev/null 2>&1 &";
+		exec($command);
+	}
+	function doublon_maj($id_contact) {
+		$command = "nohup /usr/bin/php exec.php doublon_maj $id_contact > /dev/null 2>&1 &";
+		exec($command);
+	}
+	function conf(){
+		$conf=(object) null;
+		$conf->ws_port=8082;
+		if (file_exists("data/conf.json")) $conf=json_decode(file_get_contents("data/conf.json"));
+		else file_put_contents("data/conf.json",json_encode($conf));
+		return $conf;
+	}
+	function hasListAncestor($id, $tags){
+		$tag=$tags[$id];
+		if ($tag['id_parent']==0) return false;
+		else {
+			$p=$tags[$tag['id_parent']];
+			if ($p['type']=='liste') return $p;
+			else return hasListAncestor($p['id'], $tags);
+		}
+	}
+	function typeAncestor($id, $tags){
+		$tag=$tags[$id];
+		if ($tag['id_parent']==0) return $tag;
+		else {
+			$p=$tags[$tag['id_parent']];
+			if ($p['type']) return $p;
+			else return typeAncestor($p['id'], $tags);
+		}
+	}
+	function normaux($id_tag,$tags){
+		$tab=array();
+		foreach($tags as $e) {
+			if ($id_tag==$e['id_parent'] && !$e['type']) $tab[]=$e['id'];
+		}
+		if (count($tab)==0) return $tab;
+		else {
+			foreach($tab as $e) {
+				$tab=array_merge($tab,normaux($e,$tags));
+			}
+		}
+		return array_unique($tab);
+	}
+	function descendants($tag,$tags){
+		$tab=array();
+		foreach($tags as $e) {
+			if ($e['id_parent']==$tag['id']) $tab[]=$e;
+		}
+		if (count($tab)==0) return $tab;
+		else {
+			foreach($tab as $e) {
+				$tab= array_merge($tab,descendants($e,$tags));
+			}
+		}
+		return $tab;
+	}
+	define('OFFSET', 268435456);
+	define('RADIUS', 85445659.4471); /* $offset / pi() */
+
+	function lonToX($lon) {
+	    return round(OFFSET + RADIUS * $lon * pi() / 180);
+	}
+
+	function latToY($lat) {
+	    return round(OFFSET - RADIUS *
+		        log((1 + sin($lat * pi() / 180)) /
+		        (1 - sin($lat * pi() / 180))) / 2);
+	}
+
+	function pixelDistance($lat1, $lon1, $lat2, $lon2, $zoom) {
+	    $x1 = lonToX($lon1);
+	    $y1 = latToY($lat1);
+
+	    $x2 = lonToX($lon2);
+	    $y2 = latToY($lat2);
+
+	    return sqrt(pow(($x1-$x2),2) + pow(($y1-$y2),2)) >> (22 - $zoom);
+	}
+
+	function oMerge($o1,$o2){
+		$a1=(array)$o1;
+		$a2=(array)$o2;
+		return (object) array_merge($a1, $a2);
+	}
+
 ?>

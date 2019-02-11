@@ -1,4 +1,8 @@
 <form role="form" name="form.modCas">
+<div class="modal-header">
+    <button class="btn btn-primary" ng-click="ok()">{{bouton}}</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
 <div class="modal-body">
 	<p>
 		<label>
@@ -7,26 +11,51 @@
 		</label>
 		<input class="form-control autoFocus" type="text" ng-model="cas.nom_cas" required/>
 	</p>
-	<p>
+    <p>
 		<span class="btn btn-xs btn-default cursor" ng-click="addDonnee('tel')"><span class="glyphicon glyphicon-plus"> </span> Tel</span>
 		<span class="btn btn-xs btn-default cursor" ng-click="addDonnee('fax')"><span class="glyphicon glyphicon-plus"> </span> Fax</span>
 		<span class="btn btn-xs btn-default cursor" ng-click="addDonnee('email')"><span class="glyphicon glyphicon-plus"> </span> E-mail</span>
 		<span ng-if="cas.type==1 && !hasType('fonction')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('fonction')"><span class="glyphicon glyphicon-plus"> </span> Fonction</span>
 		<span ng-if="cas.type==1 && !hasType('civilite')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('civilite')"><span class="glyphicon glyphicon-plus"> </span> Civilité</span>
 		<span ng-if="!hasType('adresse')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('adresse')"><span class="glyphicon glyphicon-plus"> </span> Adresse</span>
-		<span ng-if="!hasType('note')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('note')"><span class="glyphicon glyphicon-plus"> </span> Note</span>
+		<span ng-if="!hasType('note','Note')" class="btn btn-xs btn-default cursor" ng-click="addDonnee('note')"><span class="glyphicon glyphicon-plus"> </span> Note</span>
 		<span class="btn btn-xs btn-default cursor" ng-click="addChampPerso()"><span class="glyphicon glyphicon-plus"> </span> Champ personnalisé</span>
 	</p>
+    <p>
+		<span class="btn btn-xs btn-default cursor"
+            ng-show="!hasType(champPerso.type.value,champPerso.label.value)"
+            ng-repeat="champPerso in Data.modele.config.config.app.champs_personnalises.value"
+            ng-click="addDonnee(champPerso.type.value,champPerso.label.value)">
+            <span class="glyphicon glyphicon-plus"> </span> {{champPerso.label.value}}
+        </span>
+	</p>
 	<div ng-repeat="donnee in cas.donnees">
-		<label ng-class="{'erreur':donnee.type=='email_erreur'}">{{donnee.label}}</label> <span class="cursor mini" ng-if="donnee.type=='email_erreur'" ng-confirm-click="donnee.type='email'" ng-confirm-message="Sûr ?">corriger le mail en erreur |</span> <span class="cursor mini" ng-confirm-click="delDonnee(cas,donnee.label)" ng-confirm-message="Sûr ?">supprimer</span>
-		<input ng-if="donnee.type == 'text' " class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
-		<input ng-if="donnee.type == 'tel' " class="form-control autoFocus" type="tel" ng-model="donnee.value" required/>
-		<input ng-if="donnee.type == 'email'" class="form-control autoFocus" type="email" ng-model="donnee.value" required/>
-		<input ng-if="donnee.type == 'email_erreur'" class="form-control autoFocus" type="text" ng-model="donnee.value" required disabled/>
-		<input ng-if="donnee.type == 'fonction'" class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
-		<input ng-if="donnee.type == 'civilite'" class="form-control autoFocus" type="text" ng-model="donnee.value" required/>
-		<div ng-if="donnee.type == 'adresse'">
-			<div class="col-xs-12"><textarea placeholder="Adresse" class="form-control autoFocus" type="text" ng-model="donnee.value.adresse"></textarea></div>
+		<label ng-class="{'erreur':donnee.type=='email_erreur'}">{{donnee.label}}</label>
+        <span class="cursor mini"
+            ng-if="donnee.type=='email_erreur'"
+            ng-confirm-click="donnee.type='email'"
+            ng-confirm-message="Sûr ?">
+            corriger le mail en erreur |
+        </span>
+        <span class="cursor mini"
+            ng-if="donnee.type=='email'"
+            ng-confirm-click="donnee.type='email_erreur'"
+            ng-confirm-message="Sûr ?">
+            mail en erreur |
+        </span>
+        <span class="cursor mini"
+            ng-confirm-click="delDonnee(cas,donnee.label)"
+            ng-confirm-message="Sûr ?">
+            supprimer
+        </span>
+		<input ng-if="donnee.type == 'text' " class="form-control" type="text" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'tel' " class="form-control" type="tel" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'email'" class="form-control" type="email" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'email_erreur'" class="form-control" type="text" ng-model="donnee.value" required disabled/>
+		<input ng-if="donnee.type == 'fonction'" class="form-control" type="text" ng-model="donnee.value" required/>
+		<input ng-if="donnee.type == 'civilite'" class="form-control" type="text" ng-model="donnee.value" required/>
+		<div ng-if="donnee.type == 'adresse'" class="row">
+			<div class="col-xs-12"><textarea placeholder="Adresse" class="form-control" type="text" ng-model="donnee.value.adresse"></textarea></div>
 			<div class="clearfix inter col-xs-12"></div>
 			<div class="col-xs-3"><input class="form-control" type="text" ng-model="donnee.value.cp" required placeholder="cp"/></div>
 			<div class="col-xs-9"><input class="form-control" type="text" ng-model="donnee.value.ville" required required placeholder="ville"/></div>
@@ -34,8 +63,25 @@
 			<div class="col-xs-12"><input class="form-control" type="text" ng-model="donnee.value.pays" required placeholder="pays"/></div>
 			<div class="clearfix"></div>
 		</div>
-		<textarea ng-if="donnee.type == 'note'" class="form-control autoFocus" type="text" ng-model="donnee.value" required></textarea>
+		<textarea ng-if="donnee.type == 'note'" class="form-control" type="text" ng-model="donnee.value" required></textarea>
 		<div class="clearfix inter col-xs-12"></div>
+	</div>
+	<div ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'boutons'}:true)" ng-if="(!parent.options.type || parent.options.type==cas.type) && (!parent.options.tags || hasTagList(parent.options.tags,cas.tags))">
+		<label style="color:{{parent.color}};">{{parent.nom}}</label><br />
+		<div>
+			<label class="btn btn-default btn-margin" ng-repeat="tag in descendants(parent)" ng-model="tagB[parent.id][tag.id]" uib-btn-checkbox>
+				{{formatDescTag(descTagParent(tag,parent.id))}}
+			</label>
+		</div>
+	</div>
+	<div ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'liste'}:true)" ng-if="(!parent.options.type || parent.options.type==cas.type) && (!parent.options.tags || hasTagList(parent.options.tags,cas.tags))">
+		<label style="color:{{parent.color}};">{{parent.nom}}</label><br />
+		<select class="form-control" ng-model="tagL[parent.id]">
+			<option value="0">Aucun(e)</option>
+			<option ng-repeat="tag in descendants(parent)" value="{{tag.id}}" ng-selected="cas.tags.indexOf(tag.id)>=0">
+				{{formatDescTag(descTagParent(tag,parent.id))}}
+			</option>
+		</select>
 	</div>
 </div>
 <div class="modal-footer">
@@ -43,4 +89,3 @@
     <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
 </div>
 </form>
-

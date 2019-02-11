@@ -6,6 +6,7 @@ foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 	$res[]=$row;
 }
 foreach($res as $news){
+	echo "                      \r".$news['id'];	
 	$news['blocs']=json_decode($news['blocs']);
 	if (is_string($news['blocs'])) $news['blocs']=json_decode($news['blocs']);
 	foreach($news['blocs'] as $index=>$b) {
@@ -13,5 +14,5 @@ foreach($res as $news){
 	}
 	$update = $db->database->prepare('UPDATE news SET blocs=? WHERE id=?');
 	$update->execute(array(json_encode($news['blocs']), $news['id']));
-	CR::maj(array("newss","news/".$news['id']));		
+	WS_maj(array("newss","news/".$news['id']));		
 }

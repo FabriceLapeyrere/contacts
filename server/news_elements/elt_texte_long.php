@@ -22,4 +22,7 @@
 			$valeur=$innerHTML;
 		}
 	}
+	if ($index>=0) {
+		$donnees[$index]->valeur=$valeur;
+	}
 ?>

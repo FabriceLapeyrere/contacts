@@ -1,11 +1,17 @@
 <?php
 class Imap {
-	public static function start_check($id){
+	protected $WS;
+	protected $from;
+	public function __construct($WS,$from) {
+ 	 	$this->WS= $WS;
+ 	 	$this->from= $from;
+	}
+	public function start_check($id){
 		$command = "nohup /usr/bin/php exec.php imap_check $id > /dev/null 2>&1 &";
 		exec($command);
 	}	
-	public static function check_imap($id){
-		global $C;
+	public function check_imap($id){
+		$C=Config::get();
 		$exps=$C->mailing->expediteurs->value;
 		Imap::set_status($id,count($exps),0,1,0,0);
 		$cass=array();
@@ -48,8 +54,8 @@ class Imap {
 						$cass=array_unique(array_merge($cass,$cas));
 						foreach($cas as $cas_id){
 							imap_mail_move ($mbox,$i,$name);
-							Contacts::set_mail_erreur($cas_id,$email,$id);
-							CR::maj(array('*'));
+							$mail_err=Contacts::do_set_mail_erreur($cas_id,$email,$id);
+							WS_maj($mail_err['maj']);
 						}
 					}
 					$p=floor(100*$i/$total);
@@ -100,7 +106,7 @@ class Imap {
 			$imap=array('by'=>$id,'date'=>$t, 'nb'=>$c);
 			file_put_contents("./data/files/traitements/historique/imap-$t",json_encode($imap));
 		}
-		CR::maj(array("imap"));
+		WS_maj(array("imap"));
 	}
 }
 

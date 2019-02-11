@@ -7,8 +7,11 @@ $id_envoi=$argv[2];
 require 'server/lib/PHPMailer/PHPMailerAutoload.php';
 error_log(date('d/m/Y H:i:s')." - Script lancé.\n", 3, "data/log/envoi.log");
 $envoi=Mailing::get_envoi($id_envoi,'',1);
+$C=Config::get();
 if($envoi['statut']==1) {
-	Mailing::play_envoi($id_envoi);
+    $emails_ok=array();
+	$M=Mailing::do_play_envoi($id_envoi);
+	WS_maj($M['maj']);	
 	error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi commencé.\n", 3, "data/log/envoi.log");
 	$sujet=$envoi['sujet'];
 	$html=$envoi['html'];
@@ -62,7 +65,8 @@ if($envoi['statut']==1) {
 				sleep(1);
 				if(Mailing::statut_envoi($id_envoi)==2) {
 					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)." -> arret demandé\n", 3, "data/log/envoi.log");
-					Mailing::pause_envoi($id_envoi);
+					$M=Mailing::do_pause_envoi($id_envoi);
+					WS_maj($M['maj']);	
 					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
 					error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "data/log/envoi.log");
 					exit(0);
@@ -74,7 +78,8 @@ if($envoi['statut']==1) {
 		}
 		if(Mailing::statut_envoi($id_envoi)==2) {
 			error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)." -> arret demandé\n", 3, "data/log/envoi.log");
-			Mailing::pause_envoi($id_envoi);
+			$M=Mailing::do_pause_envoi($id_envoi);
+			WS_maj($M['maj']);
 			error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
 			error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "data/log/envoi.log");
 			exit(0);
@@ -96,45 +101,68 @@ if($envoi['statut']==1) {
 			$htmlr=replaceImgs($htmlr, $base, $params, $use_redirect, $redirect_url);
 		}
 		$c=Contacts::get_casquette($m['id_cas'],false,1);
-		$usbcr_hash=base64_encode(json_encode(array("emails"=>$c['emails'])));
-		$unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
-		$htmlr=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);
-		$mail->MsgHTML($htmlr);
 		$nom=trim($c['prenom']." ".$c['nom']);
 		$emails=$c['emails'];
 		foreach($emails as $email){
-			$mail->AddAddress($email,$nom);
+		    if (!in_array($email,$emails_ok)) {
+		        //lien de desinscription
+		        $usbcr_hash=base64_encode(json_encode(array("emails"=>array($email))));
+		        $unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
+		        $html_def=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);
+		        
+		        $mail->MsgHTML($html_def);
+			    $mail->AddAddress($email,$nom);
+			    
+			    $emails_ok[]=$email;
+		        $M=array();
+		        if (!$mail->Send())
+		        {
+			        $log=array(
+				        'date'=>millisecondes(),
+				        'erreur'=>$mail->ErrorInfo,
+				        'i'=>$i,
+				        'nb'=>$nb,
+				        'cas'=>$c,
+				        'email'=>$email
+			        );
+			        Mailing::log_erreur($id_envoi,$log);
+			        Mailing::message_erreur($m['id'],$mail->ErrorInfo);
+		        }
+		        else
+		        {
+			        $log=array(
+				        'date'=>millisecondes(),
+				        'erreur'=>'',
+				        'i'=>$i,
+				        'nb'=>$nb,
+				        'cas'=>$c,
+				        'email'=>$email
+			        );
+			        $M=Mailing::do_log_succes($id_envoi, $log);
+			        Mailing::sup_message($m['id']);
+		        }
+		        $mail->ClearAddresses();
+		    }
+		    else {
+	            $log=array(
+			        'date'=>millisecondes(),
+			        'erreur'=>'',
+			        'message'=>"E-mail déjà envoyé à cette adresse",
+			        'i'=>$i,
+			        'nb'=>$nb,
+			        'cas'=>$c,
+			        'email'=>$email
+		        );
+		        $M=Mailing::do_log_succes($id_envoi, $log);
+		        Mailing::sup_message($m['id']);
+		    }
 		}
-		if (!$mail->Send())
-		{
-			$log=array(
-				'date'=>millisecondes(),
-				'erreur'=>$mail->ErrorInfo,
-				'i'=>$i,
-				'nb'=>$nb,
-				'cas'=>$c
-			);
-			Mailing::log_erreur($id_envoi,$log);
-			Mailing::message_erreur($m['id'],$mail->ErrorInfo);
-		}
-		else
-		{
-			$log=array(
-				'date'=>millisecondes(),
-				'erreur'=>'',
-				'i'=>$i,
-				'nb'=>$nb,
-				'cas'=>$c
-			);
-			Mailing::log_succes($id_envoi, $log);
-			Mailing::sup_message($m['id']);
-		}
-		$mail->ClearAddresses();
-		CR::maj(array("envoi/$id_envoi"));
+		WS_maj(array_merge($M['maj'],array("envoi/$id_envoi")));
 	}
 }
 sleep(2);
-Mailing::pause_envoi($id_envoi);
+$M=Mailing::do_pause_envoi($id_envoi);
+WS_maj($M['maj']);
 error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
 error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "data/log/envoi.log");
 exit(0);

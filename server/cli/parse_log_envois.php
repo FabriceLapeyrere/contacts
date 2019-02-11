@@ -22,7 +22,7 @@ foreach($envois as $e) {
 			$db->database->commit();
 		}
 	}
-	CR::maj(array("*"));		
+	WS_maj(array("*"));		
 }
 echo "\n";
 

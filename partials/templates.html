@@ -1,0 +1,17 @@
+<div loading="'templates'" data="Data">
+	<div class="col-sm-6 col-sm-offset-3">
+		<h1>Templates</h1>
+		<p><span class="btn btn-primary"ng-click="addTemplateMod()">Nouveau Template</span></p>
+		<ul class="list-group">
+			<li class="list-group-item" ng-repeat="template in Data.modele.templates">
+            <locked key="'template/'+template.id" data="Data">
+				<a href="modtemplate/{{template.id}}">{{template.nom ? template.nom : '(sans titre)'}}</a> <span class="mini">{{calendar(template.modificationdate)}} par {{Data.modele.users[template.modifiedby].name}}</span>
+				<div class="mini-menu">
+					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delTemplate(template)" ng-confirm-message="Sûr?"></span>
+				<div>
+
+            </locked>
+			</li>
+		</ul>
+	</div>
+</div>

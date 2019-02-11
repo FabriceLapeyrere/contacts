@@ -1,42 +1,42 @@
 <div class="col-sm-6 col-sm-offset-3" loading="'suivis'" data="Data">	
 	<div>
-		<button type="button" class="btn btn-xs" ng-class="{'btn-primary':filtre.suivis==0,'btn-default':filtre.suivis!=0}" ng-click="filtre.suivis=0">tout</button>
-		<span>&nbsp;</span>
-		<button type="button" ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1" ng-repeat-start="g in Data.modele.groups" class="btn btn-xs" ng-class="{'btn-primary':filtre.suivis==g.id,'btn-default':filtre.suivis!=g.id}" ng-click="filtre.suivis=g.id">{{g.nom}}</button>
-		<span ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1" ng-repeat-end>&nbsp;</span>
+		<span><button type="button" class="btn btn-xs margin-bottom-small" ng-class="{'btn-primary':Data.suivisGroup==0,'btn-default':Data.suivisGroup!=0}" ng-click="Data.suivisGroup=0">tout</button>&nbsp;</span><span ng-if="g.users.indexOf(Data.user.id)>=0 || Data.user.id==1" ng-repeat="g in Data.modele.groups"><button type="button"  class="btn btn-xs margin-bottom-small" ng-class="{'btn-primary':Data.suivisGroup==g.id,'btn-default':Data.suivisGroup!=g.id}" ng-click="Data.suivisGroup=g.id">{{g.nom}}</button>&nbsp;</span>
 	</div>
 	<div ng-show="suivisProchains.length>0">
 		<h1>Prochains jours</h1>
-		<uib-pagination ng-if="suivisProchains.length>itemsParPage" boundary-links="true" total-items="suivisProchains.length" ng-model="pageCourante.suivis.prochains" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<uib-pagination ng-if="Data.modele.suivis.collection.prochains.total>itemsParPage" boundary-links="true" total-items="Data.modele.suivis.collection.prochains.total" ng-model="Data.pageSuivisPr" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<span ng-if="Data.modele.suivis.collection.prochains.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.modele.suivis.collection.prochains.page-1)+1}} - {{min(itemsParPage*Data.modele.suivis.collection.prochains.page,Data.modele.suivis.collection.prochains.total)}} de {{Data.modele.suivis.collection.prochains.total}}</span>
 		<ul class="list-group">
-			<li class="list-group-item" ng-repeat="suivi in (suivisProchains=(Data.modele.suivis | toArray | exists | hasgroup:filtre.suivis | prochains | orderBy:'date')) | startFrom:(pageCourante.suivis.prochains-1)*itemsParPage | limitTo:itemsParPage">
-                <locked verrou="suivi.verrou" data="Data">
-                {{calendarSansHeure(suivi.date)}} <a href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a>
-                <div class='bas-droite' ng-if="suivi.groups"><span class='mini bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}} </span></div>
+			<li class="list-group-item" ng-repeat="suivi in (suivisProchains=(Data.modele.suivis.collection.prochains.suivis | toArray | exists | orderBy:'date':false)) | startFrom:(pageCourante.suivis.prochains-1)*itemsParPage | limitTo:itemsParPage">
+                <locked key="'suivi/'+suivi.id" data="Data">
+                {{calendarSansHeure(suivi.date)}} <a href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a> <span class="mini">/ {{suivi.nom_thread}}</span>
+                <div class="groups" ng-if="suivi.groups"><span class='bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}}&nbsp;&nbsp;</span></div>
                 </locked>
 			</li>
 		</ul>
 	</div>
 	<div ng-show="suivisRetard.length>0">
 		<h1>En retard</h1>
-		<uib-pagination ng-if="suivisRetard.length>itemsParPage" boundary-links="true" total-items="suivisRetard.length" ng-model="pageCourante.suivis.retard" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<uib-pagination ng-if="Data.modele.suivis.collection.retards.total>itemsParPage" boundary-links="true" total-items="Data.modele.suivis.collection.retards.total" ng-model="Data.pageSuivisRe" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<span ng-if="Data.modele.suivis.collection.retards.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.modele.suivis.collection.retards.page-1)+1}} - {{min(itemsParPage*Data.modele.suivis.collection.retards.page,Data.modele.suivis.collection.retards.total)}} de {{Data.modele.suivis.collection.retards.total}}</span>
 		<ul class="list-group">
-			<li class="list-group-item" ng-repeat="suivi in (suivisRetard=(Data.modele.suivis | toArray | exists | hasgroup:filtre.suivis | retard | orderBy:'date':true)) | startFrom:(pageCourante.suivis.retard-1)*itemsParPage | limitTo:itemsParPage">
-                <locked verrou="suivi.verrou" data="Data">
-                {{calendarSansHeure(suivi.date)}} <a href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a>
-                <div class='bas-droite' ng-if="suivi.groups"><span class='mini bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}} </span></div>
+			<li class="list-group-item" ng-repeat="suivi in (suivisRetard=(Data.modele.suivis.collection.retards.suivis | toArray | exists | orderBy:'date':false)) | startFrom:(pageCourante.suivis.retard-1)*itemsParPage | limitTo:itemsParPage">
+                <locked key="'suivi/'+suivi.id" data="Data">
+                {{calendarSansHeure(suivi.date)}} <a href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a> <span class="mini">/ {{suivi.nom_thread}}</span>
+                <div class="groups" ng-if="suivi.groups"><span class='bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}}&nbsp;&nbsp;</span></div>
                 </locked>
 			</li>
 		</ul>
 	</div>
 	<div ng-show="suivisTermines.length>0">
 		<h1>Terminés</h1>
-		<uib-pagination ng-if="suivisTermines.length>itemsParPage" boundary-links="true" total-items="suivisTermines.length" ng-model="pageCourante.suivis.termines" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<uib-pagination ng-if="Data.modele.suivis.collection.termines.total>itemsParPage" boundary-links="true" total-items="Data.modele.suivis.collection.termines.total" ng-model="Data.pageSuivisTe" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+		<span ng-if="Data.modele.suivis.collection.retards.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.modele.suivis.collection.termines.page-1)+1}} - {{min(itemsParPage*Data.modele.suivis.collection.termines.page,Data.modele.suivis.collection.termines.total)}} de {{Data.modele.suivis.collection.termines.total}}</span>
 		<ul class="list-group">
-			<li class="list-group-item" ng-repeat="suivi in (suivisTermines=(Data.modele.suivis | toArray | exists | hasgroup:filtre.suivis | termines | orderBy:'date':true)) | startFrom:(pageCourante.suivis.termines-1)*itemsParPage | limitTo:itemsParPage">
-				<locked verrou="suivi.verrou" data="Data">
-                {{calendarSansHeure(suivi.date)}} <a class="termine" href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a>
-                <div class='bas-droite' ng-if="suivi.groups"><span class='mini bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}} </span></div>
+			<li class="list-group-item" ng-repeat="suivi in (suivisTermines=(Data.modele.suivis.collection.termines.suivis | toArray | exists | orderBy:'date':true)) | startFrom:(pageCourante.suivis.termines-1)*itemsParPage | limitTo:itemsParPage">
+				<locked key="'suivi/'+suivi.id" data="Data">
+                {{calendarSansHeure(suivi.date)}} <a class="termine" href="modsuivi/{{suivi.id}}">{{suivi.titre}}<span ng-if="!suivi.titre">(sans-titre)</span></a> > <a href="modcontact/{{suivi.cas.id_contact}}" ng-class="{'structure':suivi.cas.type==2,'contact':suivi.cas.type==1}"><span ng-if="suivi.cas.prenom">{{suivi.cas.prenom}} </span>{{suivi.cas.nom}} <span ng-if="suivi.cas.etab.nom" class="mini">({{suivi.cas.etab.nom}})</span></a> <span class="mini">/ {{suivi.nom_thread}}</span>
+                <div class="groups" ng-if="suivi.groups"><span class='bleu' ng-repeat="g in suivi.groups">{{Data.modele.groups[g].nom}}&nbsp;&nbsp;</span></div>
                 </locked>
 			</li>
 		</ul>

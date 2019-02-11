@@ -5,8 +5,7 @@
  */
 
 $params=json_decode(json_encode($params));
-$contacts= new Contacts();
-$c=$contacts->get_casquette($params->id_base,true);
+$c=Contacts::get_casquette($params->id_base,true);
 
 $p=(object) null;
 $p->cas=$c;
@@ -14,6 +13,7 @@ $p->tag=(object) null;
 	
 foreach($params->categories as $id_tag){
 	$p->tag->id=$id_tag;
-	$contacts->add_cas_tag($p,$S['user']['id']);
+	$t=Contacts::do_add_cas_tag($p,$S['user']['id']);
+	WS_maj($t['maj']);
 }
 

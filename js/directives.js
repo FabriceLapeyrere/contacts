@@ -61,79 +61,83 @@ app.directive('sticky', ['$timeout', function($timeout){
 	};
 }]);
 app.directive('onScroll', function($timeout) {
-    return {
-        scope: {
-            onScroll: '&onScroll',
-        },
-        link: function(scope, element) {
-            var scrollDelay = 250,
-                scrollThrottleTimeout,
-                throttled = false,
-                scrollHandler = function() {
-                    if (!throttled) {
-                        scope.onScroll();
-                        throttled = true;
-                        scrollThrottleTimeout = $timeout(function(){
-                            throttled = false;
-                        }, scrollDelay);
-                    }
-                };
+	return {
+		scope: {
+			onScroll: '&onScroll',
+		},
+		link: function(scope, element) {
+			var scrollDelay = 250,
+				scrollThrottleTimeout,
+				throttled = false,
+				scrollHandler = function() {
+					if (!throttled) {
+						scope.onScroll();
+						throttled = true;
+						scrollThrottleTimeout = $timeout(function(){
+							throttled = false;
+						}, scrollDelay);
+					}
+				};
 
-            element.on("scroll", scrollHandler);
+			element.on("scroll", scrollHandler);
 
-            scope.$on('$destroy', function() {
-                element.off('scroll', scrollHandler);
-            });
-        }
-    };
+			scope.$on('$destroy', function() {
+				element.off('scroll', scrollHandler);
+			});
+		}
+	};
 });
 app.directive('autoFocus', function($timeout) {
-    return {
-        restrict: 'AC',
-        link: function(_scope, _element) {
-            $timeout(function(){
-                _element[0].focus();
-	    }, 500);
-        }
-    };
+	return {
+		restrict: 'AC',
+		link: function(_scope, _element) {
+			$timeout(function(){
+				_element[0].focus();
+		}, 500);
+		}
+	};
 });
 app.directive('loading', function($timeout) {
-    return {
-        restrict: 'A',
-        template: "<div class='loader-container' ng-if='wait'><img class='loader' src='img/loader.gif' /></div><div ng-if='!wait' class='cache'><ng-transclude></ng-transclude></div>",
-        transclude: true,
-        scope:{data:'=', loading:'='},
-        link: function(scope, element, attrs) {
-            element.children('.cache').removeClass("cache");
-            scope.wait=true;
-            scope.$watchCollection('data',function(){
-                if(scope.data.modele[scope.loading]) scope.wait=false;
-            })
-        }
-    };
+	return {
+		restrict: 'A',
+		template: "<div class='loader-container' ng-if='wait'><img class='loader' src='img/loader.gif' /></div><div ng-if='!wait' class='cache'><ng-transclude></ng-transclude></div>",
+		transclude: true,
+		scope:{data:'=', loading:'='},
+		link: function(scope, element, attrs) {
+			var keys=scope.loading ? scope.loading.split(',') : [];
+			element.children('.cache').removeClass("cache");
+			scope.wait=false;
+			scope.$watchCollection('data',function(){
+				scope.wait=false;
+				angular.forEach(keys, function(k){
+					if(scope.data.modele[k]===undefined) scope.wait=true;
+				})
+			})
+		}
+	};
 });
 app.directive("deferredCloak", function () {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attrs) {       
-            attrs.$set("deferredCloak", undefined);
-            element.removeClass("deferred-cloak");
-        }
-    };
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {	   
+			attrs.$set("deferredCloak", undefined);
+			element.removeClass("deferred-cloak");
+		}
+	};
 });
 app.directive('locked', [
 	function(){
 		return {
-            template: "<div ng-class=\"{lockedWrap:verrou!='none' && verrou!=data.uid}\">\n"+
-                "<div ng-class=\"{locked:verrou!='none' && verrou!=data.uid}\" ng-transclude></div>\n"+
-                "<span ng-if=\"verrou!='none' && verrou!=data.uid\" class='locked-by'>{{data.modele.logged.byUid[verrou].name}} modifie ceci ... </span>\n"+
-                "</div>\n",
-            restrict: 'E',
-            scope: {
-                data: '=',
-                verrou: '='
-            },
-            transclude:true
+			template: "<div ng-class=\"{lockedWrap:data.modele.verrous[key] && data.modele.verrous[key]!=data.uid}\">\n"+
+				"<div ng-class=\"{locked:data.modele.verrous[key] && data.modele.verrous[key]!=data.uid}\" ng-transclude></div>\n"+
+				"<span ng-if=\"data.modele.verrous[key] && data.modele.verrous[key]!=data.uid\" class='locked-by'>{{data.modele.logged.byUid[data.modele.verrous[key]].name}} modifie ceci ... </span>\n"+
+				"</div>\n",
+			restrict: 'E',
+			scope: {
+				data: '=',
+				key: '='
+			},
+			transclude:true
 		}
 	}
 ]);
@@ -203,50 +207,50 @@ app.directive('ngAllowTab', [
 app.directive('dynTpl', ['$compile',
 	function($compile){
 		return {
-            restrict: 'A',
-            scope: {
-                tpl:'=',
-                data:'='
-            },
-            link: function(scope,element,attrs) {
-                scope.$watch('tpl',function(){
-                    element.html(scope.tpl);
-                    $compile(element.contents())(scope);
-                });
-            }
-        };
-    }
+			restrict: 'A',
+			scope: {
+				tpl:'=',
+				data:'='
+			},
+			link: function(scope,element,attrs) {
+				scope.$watch('tpl',function(){
+					element.html(scope.tpl);
+					$compile(element.contents())(scope);
+				});
+			}
+		};
+	}
 ]);
 app.directive('mobDblclick',
-    function () {
+	function () {
 
-        const DblClickInterval = 300; //milliseconds
+		const DblClickInterval = 300; //milliseconds
 
-        var firstClickTime;
-        var waitingSecondClick = false;
+		var firstClickTime;
+		var waitingSecondClick = false;
 
-        return {
-            restrict: 'A',
-            link: function (scope, element, attrs) {
-                element.bind('click', function (e) {
+		return {
+			restrict: 'A',
+			link: function (scope, element, attrs) {
+				element.bind('click', function (e) {
 
-                    if (!waitingSecondClick) {
-                        firstClickTime = (new Date()).getTime();
-                        waitingSecondClick = true;
+					if (!waitingSecondClick) {
+						firstClickTime = (new Date()).getTime();
+						waitingSecondClick = true;
 
-                        setTimeout(function () {
-                            waitingSecondClick = false;
-                        }, DblClickInterval);
-                    }
-                    else {
-                        waitingSecondClick = false;
+						setTimeout(function () {
+							waitingSecondClick = false;
+						}, DblClickInterval);
+					}
+					else {
+						waitingSecondClick = false;
 
-                        var time = (new Date()).getTime();
-                        if (time - firstClickTime < DblClickInterval) {
-                            scope.$apply(attrs.mobDblclick);
-                        }
-                    }
-                });
-            }
-        };
-    });
+						var time = (new Date()).getTime();
+						if (time - firstClickTime < DblClickInterval) {
+							scope.$apply(attrs.mobDblclick);
+						}
+					}
+				});
+			}
+		};
+	});

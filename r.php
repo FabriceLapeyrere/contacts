@@ -1,10 +1,11 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
 foreach (glob("server/*.php") as $filename)
 {
     include $filename;
 }
-include 'fake_ws/conf.php';
 include 'conf/main.php';
+$C=Config::get();
 $hash=$_GET['h'];
 $params=json_decode(base64_decode($hash),true);
 $contact=$params['contact'];
@@ -58,7 +59,7 @@ if ($isimg==1){
 	flush();
 }
 	// on remplit la base
-	$db= new DB();
+	$db= new DB(true);
 	$c=Contacts::get_casquette($contact,false,1);
 	$nom=trim($c['prenom']." ".$c['nom']);
 	$date=millisecondes();
@@ -75,15 +76,14 @@ if ($isimg==1){
 			$insert->execute(array($contact, $envoi, 'Lu', $date));
 			$notify=true;
 		}
-		$db->database->commit();
-						
+		$db->database->commit();		
 	} else {
 		$insert = $db->database->prepare('INSERT INTO r (id_cas, id_envoi, url, date) VALUES (?,?,?,?) ');
 		$insert->execute(array($contact, $envoi, $url, $date));
 		$notify=true;
 	}
 	if ($notify) {
-		CR::maj(array("envoi/$envoi","impacts"));
+		WS_maj(array("envoi/$envoi","impacts","casquettes"));
 		//on previent l'expéditeur!!
 		if ($C->mailing->redirect_notification->value) {
 			$e=Mailing::get_envoi($envoi,'',1);

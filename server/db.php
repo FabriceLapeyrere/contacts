@@ -2,7 +2,7 @@
 	class DB
 	{
 		// class object constructor
-		function __construct()
+		function __construct($check=false)
 		{
 			if (!file_exists('./data/db')) mkdir('./data/db', 0777, true);
 			// file location for the user database
@@ -88,6 +88,8 @@
 					'champs'=>array(
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
 						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'type','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'options','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'color','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'id_parent','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
@@ -136,7 +138,7 @@
 					'on'=>'tag_cas',
 					'champs'=>array('id_tag', 'id_cas')
 				),
-				
+
 				array(
 					'type'=>'table',
 					'nom'=>'chat',
@@ -180,6 +182,18 @@
 						array('nom'=>'mc_bas','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'police','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'tpl','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'templates',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
@@ -242,6 +256,20 @@
 				),
 				array(
 					'type'=>'table',
+					'nom'=>'modeles_news',
+					'champs'=>array(
+						array('nom'=>'id_news','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_modele','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'unique index',
+					'nom'=>'modeles_news_idx',
+					'on'=>'modeles_news',
+					'champs'=>array('id_news', 'id_modele')
+				),
+				array(
+					'type'=>'table',
 					'nom'=>'envois',
 					'champs'=>array(
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
@@ -297,11 +325,25 @@
 					'nom'=>'suivis',
 					'champs'=>array(
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
-						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_thread','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'titre','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'desc','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'statut','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'suivis_threads',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'desc','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
@@ -353,8 +395,54 @@
 					'on'=>'user_group',
 					'champs'=>array('id_user', 'id_group')
 				),
+				array(
+					'type'=>'table',
+					'nom'=>'doublons_email',
+					'champs'=>array(
+						array('nom'=>'email','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'index',
+					'nom'=>'doublons_email_idx',
+					'on'=>'doublons_email',
+					'champs'=>array('email','id_casquette')
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'doublons_texte',
+					'champs'=>array(
+						array('nom'=>'id_doublon','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_contact','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'non_doublons_texte',
+					'champs'=>array(
+						array('nom'=>'id_doublon','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_contact','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'schedule',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_item','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'type','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'json','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'by','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+
 			);
-			
+
 			// do we need to build a new database?
 			$fill = false;
 			if(!file_exists($dbfile)) { $fill = true; }
@@ -364,14 +452,14 @@
 
 			// If we need to rebuild, the file will have been automatically made by the PDO call,
 			// but we'll still need to define the user table before we can use the database.
-			$this->check_database();
-			if($fill) { $this->fill(); }
+			if ($check) $this->check_database();
+			if ($fill) { $this->fill(); }
 		}
 
 		// this function rebuilds the database if there is no database to work with yet
 		function check_database()
 		{
-			
+
 			$sql=array();
 			foreach($this->schema as $item){
 				if ($item['type']=='table') {
@@ -443,7 +531,7 @@
 							if (!in_array($c,$cs)){
 								$test=false;
 							}
-						}	
+						}
 						if (!$test) {
 							$sql[]="DROP INDEX {$item['nom']}";
 							$sql[]="CREATE INDEX {$item['nom']} on {$item['on']}($champs)";
@@ -465,7 +553,7 @@
 							if (!in_array($c,$cs)){
 								$test=false;
 							}
-						}	
+						}
 						if (!$test) {
 							$sql[]="DROP INDEX {$item['nom']}";
 							$sql[]="CREATE UNIQUE INDEX {$item['nom']} on {$item['on']}($champs)";
@@ -482,13 +570,38 @@
 				}
 				$this->database->commit();
 			}
+			//on verifie les NULL dans la table tag_cas
+			$sql="SELECT count(*) as nb from tag_cas WHERE id_tag IS NULL or id_cas IS NULL;";
+			$nb=0;
+			foreach($this->database->query($sql) as $row){
+				$nb=$row['nb'];
+			}
+			if ($nb>0) {
+				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'data/log/db.log');
+				$delete=$this->database->prepare("DELETE from tag_cas WHERE id_tag IS NULL or id_cas IS NULL;");
+				$delete->execute(array());
+				error_log("DELETE from tag_cas WHERE id_tag IS NULL or id_cas IS NULL;\n\n",3,'data/log/db.log');
+			}
+			//on supprime les contacts sans casquette
+			$sql="SELECT count(*) as nb from contacts WHERE id not in (SELECT id_contact from casquettes group by id_contact)";
+			$nb=0;
+			foreach($this->database->query($sql) as $row){
+				$nb=$row['nb'];
+			}
+			if ($nb>0) {
+				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'data/log/db.log');
+				$delete=$this->database->prepare("DELETE from contacts WHERE id not in (SELECT id_contact from casquettes group by id_contact)");
+				$delete->execute(array());
+				error_log("DELETE from contacts WHERE id not in (SELECT id_contact from casquettes group by id_contact);\n\n",3,'data/log/db.log');
+			}
+
 		}
 		function fill()
 		{
 			$password=md5('adminadmin');
 			$prefs=array();
 			$prefs['panier']=array();
-			$select = $this->database->prepare("INSERT INTO users (login, name, password, prefs, active) VALUES (?,?,?,?,?)");
-			$select->execute(array('admin', 'Admin', $password, json_encode($prefs),1));
+			$insert = $this->database->prepare("INSERT INTO users (login, name, password, prefs, active) VALUES (?,?,?,?,?)");
+			$insert->execute(array('admin', 'Admin', $password, json_encode($prefs),1));
 		}
 	}

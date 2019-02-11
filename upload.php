@@ -1,46 +1,84 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
 foreach (glob("server/*.php") as $filename)
 {
-    include $filename;
+	include $filename;
 }
-include 'fake_ws/conf.php';
 include 'conf/main.php';
 include 'conf/auth.php';
 
 if ( !empty( $_FILES ) ) {
 
 	$type = $_POST[ 'type' ];
+	if ($type=='template') {
+		$id = $_POST[ 'id' ];
+		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
+		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
+
+		$uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $id;
+		$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . filter($path_parts['filename']).".".$path_parts['extension'];
+		if (!file_exists($uploadDir)){
+			mkdir($uploadDir, 0777, true);
+		}
+		$i=1;
+		$path=$uploadPath;
+		foreach (glob("$uploadDir/*") as $f)
+		{
+			unlink($f);
+		}
+		if (move_uploaded_file( $tempPath, $path )) {
+			Publipostage::touch_template($id,$my_session->user->id);
+			WS_maj(array("template/$id"));
+			$answer = array(
+				'answer' => 'File transfer completed'
+			);
+		} else {
+			$answer = array(
+				'answer' => 'Erreur...'
+			);
+		}
+		$json = json_encode( $answer );
+
+		echo $json;
+	}
 	if ($type=='news' || $type=='mail') {
-	    $id = $_POST[ 'id' ];
-	    $tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
-	    $path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
+		$id = $_POST[ 'id' ];
+		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
+		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
 
-	    $uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $id;
-	    $uploadPath = $uploadDir . DIRECTORY_SEPARATOR . filter($path_parts['filename']).".".$path_parts['extension'];
-	    if (!file_exists($uploadDir)){
-		    mkdir($uploadDir, 0777, true);
-	    }
-	    $i=1;
-	    $path=$uploadPath;
-	    while (file_exists($path)){
-		    $path=$uploadPath."_copie_$i";
-		    $i++;
-	    }
-	    if (move_uploaded_file( $tempPath, $path )) {
-		    if ($type=='news') Mailing::touch_news($id,$S['user']['id']);
-		    if ($type=='mail') Mailing::touch_mail($id,$S['user']['id']);
-		    $answer = array(
-			    'answer' => 'File transfer completed'
-		    );
-	    } else {
-		    $answer = array(
-			    'answer' => 'Erreur...'
-		    );
-	    }
-	    $json = json_encode( $answer );
+		$uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $id;
+		$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . filter($path_parts['filename']).".".$path_parts['extension'];
+		if (!file_exists($uploadDir)){
+			mkdir($uploadDir, 0777, true);
+		}
+		$i=1;
+		$path=$uploadPath;
+		while (file_exists($path)){
+			$path=$uploadPath."_copie_$i";
+			$i++;
+		}
+		if (move_uploaded_file( $tempPath, $path )) {
+			if ($type=='news') {
+				Mailing::touch_news($id,$my_session->user->id);
+				WS_maj(array("news/$id"));
+			}
+			if ($type=='mail'){
+				Mailing::touch_mail($id,$my_session->user->id);
+				WS_maj(array("mail/$id"));
+			}
+			$answer = array(
+				'answer' => 'File transfer completed'
+			);
+		} else {
+			$answer = array(
+				'answer' => 'Erreur...'
+			);
+		}
+		$json = json_encode( $answer );
 
-	    echo $json;
-	} elseif ($type=='nbcsv') {
+		echo $json;
+	}
+	if ($type=='nbcsv') {
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
 		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
 		$hash=millisecondes();
@@ -125,16 +163,16 @@ if ( !empty( $_FILES ) ) {
 					foreach($keys as $k=>$v) {
 						if ($exemple[$k]!='') {
 							if ($i==0) {
-								if ($type=='id') $contact['id']=$exemple[$k]; 
-								if ($type=='idstr') $contact['idstr']=$exemple[$k]; 
-								if ($type=='nom') $contact['nom']=$exemple[$k]; 
-								if ($type=='prenom') $contact['prenom']=$exemple[$k]; 
-								if ($type=='type') $contact['type']=$exemple[$k]; 
+								if ($type=='id') $contact['id']=$exemple[$k];
+								if ($type=='idstr') $contact['idstr']=$exemple[$k];
+								if ($type=='nom') $contact['nom']=$exemple[$k];
+								if ($type=='prenom') $contact['prenom']=$exemple[$k];
+								if ($type=='type') $contact['type']=$exemple[$k];
 								if ($type=='note') $note.="\n".$exemple[$k];
 								if ($type=='fonction') $donnees[]=array('type'=>'fonction','k'=>$k,'value'=>$exemple[$k]);
-								if ($type=='adresse') $adresse['adresse']=trim($exemple[$k]); 
-								if ($type=='cp') $adresse['cp']=$exemple[$k]; 
-								if ($type=='ville') $adresse['ville']=$exemple[$k]; 
+								if ($type=='adresse') $adresse['adresse']=trim($exemple[$k]);
+								if ($type=='cp') $adresse['cp']=$exemple[$k];
+								if ($type=='ville') $adresse['ville']=$exemple[$k];
 								if ($type=='pays') $adresse['pays']=$exemple[$k];
 							}
 							if ($type=='email') {
@@ -196,7 +234,7 @@ if ( !empty( $_FILES ) ) {
 
 } else {
 
-    echo 'No files';
+	echo 'No files';
 
 }
 

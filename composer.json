@@ -1,0 +1,8 @@
+{
+    "require": {
+        "cboden/ratchet": "^0.4",
+    	"ratchet/pawl": "^0.3",
+    	"peppeocchi/php-cron-scheduler": "2.*",
+        "phpoffice/phpword": "v0.14.*"
+    }
+}

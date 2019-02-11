@@ -1,19 +1,20 @@
 <?php
 class Config {
+		protected $WS;
+		protected $from;
 		// class object constructor
-		public function __construct()
+		const FILE = "./data/db/config.json";
+		public function __construct($WS,$from)
 		{
+		 	$this->WS= $WS;
+	 	 	$this->from= $from;
 			if (!file_exists('./data/db')) mkdir('./data/db', 0777, true);
 			if (!file_exists('./data/tmp')) mkdir('./data/tmp', 0777, true);
 			// file location for the user database
-			$file = "./data/db/config.json";
 
 			// do we need to build a new database?
 			$rebuild = false;
-			if(!file_exists($file)) { $rebuild = true; }
-
-			// bind the database handler
-			$this->file = $file;
+			if(!file_exists(Config::FILE)) { $rebuild = true; }
 
 			// If we need to rebuild, the file will have been automatically made by the PDO call,
 			// but we'll still need to define the user table before we can use the database.
@@ -22,7 +23,19 @@ class Config {
 					'brand'=>array('value'=>'','label'=>'Nom de l\'application','type'=>'texte_court'),
 					'url'=>array('value'=>'','label'=>'Url de l\'application','type'=>'texte_court'),
 					'mails_notification'=>array('value'=>'','label'=>'E-mails qui doivent recevoir les notifications (séparés par des virgules)','type'=>'texte_court'),
-					'mails_notification_from'=>array('value'=>'','label'=>'Expéditeur des notifications','type'=>'texte_court')
+					'mails_notification_from'=>array('value'=>'','label'=>'Expéditeur des notifications','type'=>'texte_court'),
+					'champs_personnalises'=>array('value'=>array(
+						array(
+							'label'=>array('value'=>'','label'=>'Label','type'=>'texte_court'),
+							'type'=>array('value'=>'','label'=>'Type','type'=>'liste','choices'=>array(
+									array('label'=>'Texte long','value'=>'note'),
+									array('label'=>'Texte court','value'=>'text'),
+									array('label'=>'Téléphone','value'=>'tel'),
+									array('label'=>'E-mail','value'=>'email'),
+								),
+							)
+						)
+					),'label'=>'Champs personnalisés','type'=>'array')
 				),
 				'mailing'=>array(
 					'nbmail'=>array('value'=>100,'label'=>'Nombre de mail par tranche','type'=>'integer'),
@@ -47,7 +60,7 @@ class Config {
 						)
 					),'label'=>'Expéditeurs','type'=>'array')
 				),
-				'ldap'=>array(  
+				'ldap'=>array(
 					'active'=>array('value'=>0,'label'=>'Active / désactive la synchronisation LDAP','type'=>'bool'),
 					'srv'=>array('value'=>'','label'=>'Serveur LDAP','type'=>'texte_court','show'=>'active'),
 					'rdn'=>array('value'=>'','label'=>'Utilisateur LDAP','type'=>'texte_court','show'=>'active'),
@@ -65,7 +78,8 @@ class Config {
 						array(
 							'nom'=>array('value'=>'','label'=>'Nom','type'=>'texte_court'),
 							'id_tag'=>array('value'=>'','label'=>'N° du tag','type'=>'integer'),
-							'html'=>array('value'=>'','label'=>'Entête pour la newsletter en ligne','type'=>'texte_long')
+							'html'=>array('value'=>'','label'=>'Entête pour la newsletter en ligne','type'=>'texte_long'),
+							'wrapper'=>array('value'=>"",'label'=>'Code du conteneur de newsletter','type'=>'texte_long')
 						)
 					),'label'=>'Newsletters','type'=>'array'),
 					'main_wrapper'=>array('value'=>"<head>
@@ -119,6 +133,9 @@ class Config {
 	::html::
 </body>",'label'=>'Code du conteneur global de mail','type'=>'texte_long'),
 					'css'=>array('value'=>"",'label'=>'CSS','type'=>'texte_long')
+				),
+				'carte'=>array(
+					'mapbox_accessToken'=>array('value'=>"",'label'=>'Mapbox Access Token','type'=>'texte_court')
 				)
 			);
 			if($rebuild) { $this->rebuild_config(); }
@@ -127,23 +144,24 @@ class Config {
 		// this public function rebuilds the database if there is no database to work with yet
 		public function rebuild_config()
 		{
-		   		file_put_contents($this->file,json_encode($this->base_config));
+		   		file_put_contents(Config::FILE,json_encode($this->base_config));
 		}
 		public function get_default(){
 			return $this->base_config;
 		}
 		public function get_config(){
-			$old=json_decode(file_get_contents($this->file));
-			$current=json_decode(file_get_contents($this->file));
+			$old=json_decode(file_get_contents(Config::FILE));
+			$current=json_decode(file_get_contents(Config::FILE));
 			$base=$this->base_config;
 			foreach($base as $key=>$tab){
 				if (!isset($current->$key)) $current->$key=json_decode(json_encode($tab));
-				$j=0;								
+				$j=0;
 				foreach($tab as $k=>$v){
 					if(!isset($current->$key->$k)) $current->$key->$k=json_decode(json_encode($v));
 					if ($v['type']!='array'){
 						$current->$key->$k->label=$v['label'];
 						$current->$key->$k->type=$v['type'];
+						if (isset($v['choices'])) $current->$key->$k->show=$v['choices'];
 						if (isset($v['show'])) $current->$key->$k->show=$v['show'];
 						else unset($current->$key->$k->show);
 						$current->$key->$k->num=$j;
@@ -157,6 +175,7 @@ class Config {
 										$current->$key->$k->value[$ic]->$tk->num=$i;
 										$current->$key->$k->value[$ic]->$tk->label=$tv['label'];
 										$current->$key->$k->value[$ic]->$tk->type=$tv['type'];
+										if (isset($tv['choices'])) $current->$key->$k->value[$ic]->$tk->show=$tv['choices'];
 										if (isset($tv['show'])) $current->$key->$k->value[$ic]->$tk->show=$tv['show'];
 										else unset($current->$key->$k->value[$ic]->$tk->show);
 									} else {
@@ -164,7 +183,7 @@ class Config {
 										$current->$key->$k->value[$ic]->$tk=$tv;
 									}
 								}
-								$i++; 
+								$i++;
 							}
 						}
 						$current->$key->$k->num=$j;
@@ -190,21 +209,24 @@ class Config {
 					}
 				}
 			}
-					
+
 			if($old!=$current) {
-				CR::maj(array('config'));
-				file_put_contents($this->file,json_encode($current));
+				file_put_contents(Config::FILE,json_encode($current));
 			}
 			$config['config']=$current;
 			$config['base_config']=$base;
-			$config['verrou']=WS::get_verrou('config');
 			return $config;
 		}
-		public function get(){
-			return json_decode(file_get_contents($this->file));
+		public static function get(){
+			return json_decode(file_get_contents(Config::FILE));
 		}
-		public function set_config($config){
-			file_put_contents($this->file,json_encode($config));
-			CR::maj(array('*'));
+		public function set_config($params,$id) {
+			$t=Config::do_set_config($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public function do_set_config($config,$id){
+			file_put_contents(Config::FILE,json_encode($config));
+			return array('maj'=>array('*'), 'res'=>1);
 		}
 }

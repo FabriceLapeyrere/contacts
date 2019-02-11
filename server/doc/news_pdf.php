@@ -5,6 +5,7 @@
  * @author	 Fabrice Lapeyrere <fabrice@surlefil.org>
  */
 set_time_limit(0);
+$C=Config::get();
 $news=Mailing::get_news($_POST['id_news'],1);
 $html="<html>
 <head>

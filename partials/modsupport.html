@@ -1,5 +1,5 @@
 <form name="frm" class="col-sm-6 col-sm-offset-3" loading="key" data="Data">
-	<locked verrou="Data.modele[key].verrou" data="Data">
+	<locked key="key" data="Data">
 	<div class="col-xs-12">
         <p><button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button> <button ng-if="Data.modele[key].h_page>0 && Data.modele[key].l_page>0 && Data.modele[key].nb_lignes>0 && Data.modele[key].nb_colonnes>0" class="btn btn-default" ng-click="pdf(Data.modele[key])" >PDF</button></p>
 		<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
@@ -68,7 +68,7 @@
 			<div style="background-color:#ccc;position:absolute;top:0px;left:0px;height:{{Data.modele[key].h_page}}px;width:{{Data.modele[key].mp_gauche}}px;"></div>
 			<div style="background-color:#ccc;position:absolute;top:0px;left:{{Data.modele[key].l_page-Data.modele[key].mp_droite}}px;height:{{Data.modele[key].h_page}}px;width:{{Data.modele[key].mp_droite}}px;"></div>
 			<div style="background-color:#ccc;position:absolute;top:{{Data.modele[key].h_page-Data.modele[key].mp_bas}}px;left:0px;height:{{Data.modele[key].mp_bas}}px;width:{{Data.modele[key].l_page}}px;"></div>
-			<div style="background-color:{{$index>=Data.modele[key].offset ? '#aaa' : '#ccc'}};position:absolute;top:{{c.top}}px;left:{{c.left}}px;height:{{c.height}}px;width:{{c.width}}px;" ng-repeat="c in (cs=plan())"></div>
+			<div style="background-color:{{$index>=Data.modele[key].offset ? '#aaa' : '#ccc'}};position:absolute;top:{{c.top}}px;left:{{c.left}}px;height:{{c.height}}px;width:{{c.width}}px;" ng-repeat="c in (cs=plan())" ng-click="Data.modele[key].offset=$index"></div>
 		</div>
 	</div>
     </locked>

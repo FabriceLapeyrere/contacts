@@ -1,13 +1,14 @@
 <?php
 if (PHP_SAPI === 'cli')
 {
-    foreach (glob("server/*.php") as $filename)
-    {
-        include $filename;
-    }
-    include 'fake_ws/conf.php';
-    include 'conf/main.php';
-    
+	chdir(__DIR__);
+	require __DIR__ . '/vendor/autoload.php';
+	foreach (glob("server/*.php") as $filename)
+	{
+		include $filename;
+	}
+	include 'conf/main.php';
+	
 	$action=$argv[1];
 
 	include "server/cli/$action.php";

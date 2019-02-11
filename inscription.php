@@ -1,11 +1,11 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
 foreach (glob("server/*.php") as $filename)
 {
     include $filename;
 }
-include 'fake_ws/conf.php';
 include 'conf/main.php';
-
+$C=Config::get();
 function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') {
   $header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
   mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
@@ -25,8 +25,7 @@ function test_email($email)
 }	
 function casquette($email)
 {
-	$contacts=new Contacts();
-	$db= new DB();
+	$db= new DB(true);
 	$query="select id from casquettes where emails like '%$email%'";
 	$id=0;
 	foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
@@ -34,7 +33,7 @@ function casquette($email)
 	}
 	$casquette=array();
 	if ($id>0) {
-		$casquette[]=$contacts->get_casquette($id,false,1);
+		$casquette[]=Contacts::get_casquette($id,false,1);
 	}
 	return $casquette;
 }

@@ -4,21 +4,49 @@
 		<label>
 			<span class="individu">Couleur</span>
 		</label>
-		<input class="form-control autoFocus" type="color" ng-model="modTag.color" required/>
+		<input class="form-control" type="color" ng-model="modTag.color" required/>
 		<label>
 			<span class="individu">Nom du tag</span>
 		</label>
 		<input class="form-control autoFocus" type="text" ng-model="modTag.nom" required/>
+		<label>
+			<span class="individu">Descriptif</span>
+		</label>
+		<input class="form-control" type="text" ng-model="modTag.options.descriptif"/>
+		<div ng-if="modTag.nbcas==0 && !ancestorSpecial(modTag) && !descendantSpecial(modTag)">
+			<label>
+				<span class="individu">Type</span>
+			</label>
+			<select class="form-control" ng-model="modTag.type">
+				<option value="">Normal</option>
+				<option value="liste">Liste déroulante</option>
+				<option value="boutons">Boutons</option>
+			</select>
+			<div>
+				<label>
+					<span class="individu">Afficher uniquement pour les types suivants</span>
+				</label>
+				<select class="form-control" ng-model="modTag.options.type">
+					<option value="">Individus et structures</option>
+					<option value="1">Individus</option>
+					<option value="2">Structures</option>
+				</select>
+				<label>
+					<span class="individu">Afficher uniquement pour les tags suivants</span>
+				</label>
+				<input class="form-control" ng-model="modTag.options.tags"/>
+			</div>
+		</div>
 	</p>
 </div>
 <div class="modal-footer">
 	<button class="btn btn-primary" ng-click="ok()">{{bouton}}</button>
 	<button class="btn btn-warning" ng-click="cancel()">Annuler</button>
 	<hr />
-	<div ng-if="Data.modele.tags[modTag.id].id_parent!=0">
+	<div ng-if="Data.modele.tags[modTag.id].id_parent && Data.modele.tags[modTag.id].id_parent>0">
 		Ce tag est classé dans <span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in [Data.modele.tags[modTag.id].id_parent]"></span> <br /><span class="mini"><span class="cursor" ng-click="assTag(tag)">Changer</span> | <span class="cursor" ng-click="movTag(modTag,{id:0,id_parent:0})">Mettre à la racine</span></span>
 	</div>
-	<div ng-if="Data.modele.tags[modTag.id].id_parent==0">
+	<div ng-if="!Data.modele.tags[modTag.id].id_parent || Data.modele.tags[modTag.id].id_parent==0">
 		Ce tag est à la racine. <br /><span class="cursor mini" ng-click="assTag(tag)">Classer</span>
 	</div>
 </div>

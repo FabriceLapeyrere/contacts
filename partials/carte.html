@@ -1,0 +1,76 @@
+<div class="col-xs-12 col-md-6" ng-show="Data.modele.cluster.total">
+	<uib-pagination boundary-links="true" total-items="Data.modele.cluster.total" ng-model="pageCourante.cluster" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+	<input id="input-page" type="text" ng-model="pageCourante.cluster" class="hidden-xs form-control pagination-input" ng-model-options="{debounce:200}"/>
+	<span ng-if="Data.modele.cluster.total>0" class="pagination-span">{{itemsParPage*(Data.modele.cluster.page-1)+1}} - {{min(itemsParPage*Data.modele.cluster.page,Data.modele.cluster.total)}} de {{Data.modele.cluster.total}}</span>
+	<ul ng-if="Data.modele.cluster.total>0" class="list-group" id="contacts-list" ng-class="{'loading':pageCourante.cluster!=Data.modele.cluster.page || !isAnswer()}">
+		<li class="list-group-item cas" ng-class="{'individu':cas.type==1, 'structure':cas.type==2, 'cas-suivante':!(Data.modele.cluster.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact), 'courant':pageCourante.cluster==Data.modele.cluster.page && cas.id==courant.id}" ng-repeat="cas in (c=(Data.modele.cluster.collection | toArray))" ng-dblclick="selected.index = $index" ui-on-Drop="addCasTag($event,$data,cas)" drop-channel="tag" data-drop-type="contact">
+			<div ng-class="{'panier-btn-ko':!dansPanier(cas), 'panier-btn-ok':dansPanier(cas)}" ng-click="dansPanier(cas) ? panierDel(cas,$index) : panierAdd(cas,$index)"></div>
+			<div class="col-sm-12 cas">
+
+				<div class="contact-btn cursor" ng-if="c[$index-1].id_contact!=cas.id_contact">
+					<span class="glyphicon glyphicon-trash" ng-confirm-click="delContact(cas)" ng-confirm-message="Sûr? Cela supprimera également les fiches de suivi de ce contact."></span>
+				</div>
+				<div class="col-xs-12" ng-if="hasSpecial(cas)">
+					<a class="cursor" ng-href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact">
+					<span ng-click="modCas(cas)">
+						<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
+					</span>
+					</a> <span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" class="mini" ng-if="cas.nom_cas!='Siège social' && cas.nom_cas!='Siège' && cas.nom_cas!='Perso' && cas.nom_cas!=cas.nom_etab">/ {{cas.nom_cas}}</span> <span class="mini" ng-if="cas.fonction"> {{cas.fonction}}</span> &nbsp;
+					<span class="cursor" ng-repeat="tag in (Data.modele.tags | toArray | inCas:cas | filter:{typeAncestor:'liste'}:true | orderBy:['idAncestor','nom'])" ng-include="'partials/inc/tag_liste.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+					<span class="cursor" ng-repeat="tag in (Data.modele.tags | toArray | inCas:cas | filter:{typeAncestor:'boutons'}:true | orderBy:['idAncestor','nom'])" ng-include="'partials/inc/tag_boutons.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+				</div>
+				<div class="col-xs-6 col-md-4">
+					<div ng-if="!hasSpecial(cas)">
+						<a class="cursor" ng-href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact">
+						<span  ng-click="modCas(cas)">
+							<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
+						</span>
+						</a> <span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" class="mini" ng-if="cas.nom_cas!='Siège social' && cas.nom_cas!='Siège' && cas.nom_cas!='Perso' && cas.nom_cas!=cas.nom_etab">/ {{cas.nom_cas}}</span> <span class="mini" ng-if="cas.fonction"> {{cas.fonction}}</span> &nbsp;
+					</div>
+					<div ng-if="d.type=='adresse'" ng-repeat="d in cas.donnees">
+						<span>
+						{{d.value.cp}} {{d.value.ville}}
+						</span>&nbsp;
+					</div>
+				</div>
+				<div class="col-xs-6 col-md-4" style="overflow:hidden;">
+					<div ng-class="{'erreur':d.type=='email_erreur'}" ng-if="d.type=='email' || d.type=='email_erreur'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div class="col-xs-6 col-md-4" style="overflow:hidden;">
+					<div ng-if="d.type=='tel'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div class="clearfix"></div>
+				<div class="col-xs-12 small gris" style="overflow:hidden;">
+					<div ng-if="d.type=='note'" ng-repeat="d in cas.donnees">
+						<span ng-bind-html="d.value | linky:'_blank':{rel: 'nofollow'}" class="note"></span>
+					</div>
+				</div>
+				<div  class="col-sm-12 light">
+					<span ng-if="cas.id_etab>0"><a ng-href="modcontact/{{cas.id_contact_etab}}"><span ng-click="modCasEtab(cas)" class="cursor structure">> {{cas.nom_etab}} <span class="mini structure" ng-if="cas.nom_cas_etab!='Siège social' && cas.nom_cas_etab!='Siège'">/ {{cas.nom_cas_etab}}</span></span></a></span>
+					<span class='individu' ng-show="cas.cols.length>0 && cas.type==2" ng-repeat="c in cas.cols">
+						<span ng-if="$first">> </span>
+						<a class="cursor" ng-href="modcontact/{{c.id_contact}}">
+						<span ng-click="modCas(c)">
+							<span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}
+						</span>
+						</a>
+						<span class="mini" ng-if="c.fonction"> {{c.fonction}}</span><span ng-if="!$last">, </span>
+					</span>
+				</div>
+				<div class="col-sm-12">
+					<span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in (parNomTag(cas.tags) | normaux:Data.modele.tags)" ng-click="CasTagClick($event,Data.modele.tags[id],cas)"></span>
+				</div>
+				
+			</div>
+
+
+			<div class="clearfix"></div>
+			<span class="mini id">#{{cas.id}}</span>
+		</li>
+	</ul>
+</div>
+

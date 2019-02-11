@@ -5,12 +5,16 @@ app.config(['$routeProvider', function($routeProvider) {
 	//casquettes
 	$routeProvider.when('/contacts', {templateUrl: 'partials/contacts.html', controller: 'contactsCtl', hotkeys: [
 		['s', 'Ajoute/Enleve le contact au panier', 'sel()'],
+		['c', 'Vide la barre de recherche', 'clearQuery()'],
 		['o', 'Selectionne le contact précédent', 'up()'],
 		['l', 'Selectionne le contact suivant', 'down()'],
 		['k', 'Page précédente', 'prev()'],
 		['m', 'Page suivante', 'next()']
 	]});
 	$routeProvider.when('/modcontact/:id', {templateUrl: 'partials/modcontact.html', controller: 'modcontactCtl'});
+	$routeProvider.when('/doublons_texte/', {templateUrl: 'partials/doublons_texte.html', controller: 'doublonsTexteCtl'});
+	$routeProvider.when('/doublons_email/', {templateUrl: 'partials/doublons_email.html', controller: 'doublonsEmailCtl'});
+	$routeProvider.when('/carte', {templateUrl: 'partials/carte.html', controller: 'carteCtl'});
 	//mailing
 	$routeProvider.when('/modmail/:id', {templateUrl: 'partials/modmail.html', controller: 'modmailCtl'});
 	$routeProvider.when('/mail/:id', {templateUrl: 'partials/mail.html', controller: 'mailCtl'});
@@ -23,9 +27,11 @@ app.config(['$routeProvider', function($routeProvider) {
 	//publipostage
 	$routeProvider.when('/modsupport/:id', {templateUrl: 'partials/modsupport.html', controller: 'modsupportCtl'});
 	$routeProvider.when('/supports', {templateUrl: 'partials/supports.html', controller: 'supportsCtl'});
+	$routeProvider.when('/modtemplate/:id', {templateUrl: 'partials/modtemplate.html', controller: 'modtemplateCtl'});
+	$routeProvider.when('/templates', {templateUrl: 'partials/templates.html', controller: 'templatesCtl'});
 	//suivis
 	$routeProvider.when('/modsuivi/:id', {templateUrl: 'partials/modsuivi.html', controller: 'modsuiviCtl'});
-	$routeProvider.when('/addsuivi/:id/:id_suivi', {templateUrl: 'partials/addsuivi.html', controller: 'addsuiviCtl'});
+	$routeProvider.when('/addsuivi/:id', {templateUrl: 'partials/addsuivi.html', controller: 'addsuiviCtl'});
 	$routeProvider.when('/suivis', {templateUrl: 'partials/suivis.html', controller: 'suivisCtl'});
 	//admin
 	$routeProvider.when('/moduser/:id', {templateUrl: 'partials/moduser.html', controller: 'modUserCtl'});
@@ -41,7 +47,12 @@ app.config(['$locationProvider', function($locationProvider) {
 }]);
 app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$uibModal', '$q', '$window', '$sce', 'Link', 'Data', 'ngAudio', function ($scope, $http, $location, $timeout, $interval, $uibModal, $q, $window, $sce, Link, Data, ngAudio) {
 	Data.mainQuery='';
-	Data.pageContacts=1;
+	Data.suivisGroup=0;
+	$scope.help=function(id){
+		$uibModal.open({
+			templateUrl: 'partials/inc/help_'+id+'.html'
+		});
+	};
 	$scope.isAnswer=function(){
 		var Qparams={};
 		for(var i=0;i<Data.contexts.length;i++){
@@ -61,6 +72,62 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		});
 		return res;
 	};
+	$scope.map={}
+	$scope.map.ok=false;
+	$scope.map.show=false;
+	$scope.map.rendered=false;
+	$scope.map.center={lng:"0",lat:"0"};
+	$scope.map.bounds={x0:'-180',x1:'180',y0:'-90',y1:'90'};
+	$scope.map.zoom="1.2";
+	$scope.map.clusterIds='';
+	$scope.map.sources={'clusters':
+		{
+		type: 'geojson',
+		data:{type:'FeatureCollection',features:[]}
+		}};
+	$scope.map.layers = [
+		{
+			id: 'cluster',
+			type: 'circle',
+			source: 'clusters',
+			filter: ['has', 'nb'],
+           		paint: {
+				"circle-color": [
+					"step",
+					["get", "nb"],
+					"#ffffff",
+					2,
+					"#54c3ff",
+					100,
+					"#00a0f0",
+					750,
+					"#0094d8"
+				],
+				"circle-radius": [
+					"step",
+					["get", "nb"],
+					10,
+					2,
+					15,
+					100,
+					20,
+					200,
+					30,
+					750,
+					40
+				]
+			}
+		},{
+			id: 'cluster-count',
+			type: 'symbol',
+			source: 'clusters',
+			filter: ['has', 'nb'],
+			layout: {
+				'text-field': '{nb}',
+				'text-size': 12
+			}
+		}
+	];
 	$scope.sound = ngAudio.load("img/sonar.mp3");
 	$scope.query_history={c:-1,tab:[]};
 	$scope.Data=Data;
@@ -78,50 +145,24 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.tt={};
 	$scope.tabs={};
 	$scope.tabs.admin={};
+	$scope.tabs.news={};
 	$scope.pageCourante={};
+	$scope.pageCourante.contacts=1;
+	$scope.pageCourante.cluster=1;
 	$scope.pageCourante.envois=1;
 	$scope.pageCourante.erreur=1;
 	$scope.pageCourante.impacts=1;
 	$scope.pageCourante.tags={};
 	$scope.pageCourante.news=1;
 	$scope.pageCourante.mails=1;
-	$scope.afterLogin='';
+	$scope.afterLogin='/contacts';
 	$scope.pageCourante.suivis={};
 	$scope.pageCourante.suivis.prochains=1;
 	$scope.pageCourante.suivis.retard=1;
 	$scope.pageCourante.suivis.termines=1;
-	Data.pageContacts=1;
 	$scope.initScroll=0;
 	$scope.parser={};
 	$scope.path=function(){return $location.path();}
-	$scope.$watch('Data.user.id',function(){
-		if (Data.user.id>=0){
-			Link.init();
-		 }
-	});
-	$scope.requete=function(data,callback){
-		$http.post('ajax.php',data).then(function(msg){
-			if (msg.data.auth) {
-				callback(msg.data);
-			} else {
-				$scope.afterLogin=$location.path();
-				$location.path('/login');		
-				Data.user.id=-1;		
-			}
-		});
-	};
-	$scope.ajax=function(data,callback){
-		if (!data) var data={};
-		$http.post('ajax.php',data).then(function(msg){
-			if (msg.data.auth) {
-				if (callback) callback(msg.data);
-			} else {
-				$scope.afterLogin=$location.path();
-				$location.path('/login');		
-				Data.user.id=-1;		
-			}
-		});
-	}
 	$scope.trust=function(html){
 		return $sce.trustAsHtml(html);
 	}
@@ -130,6 +171,11 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	};
 	$scope.calendar=function(t){
 		moment.lang('fr');
+		var date=moment(parseInt(t));;
+		return date.calendar();
+	}
+	$scope.calendarHeure=function(t){
+		moment.lang('fr_heure');
 		var date=moment(parseInt(t));;
 		return date.calendar();
 	}
@@ -166,10 +212,58 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		});
 		return res;
 	}
+	$scope.descendants=function(tag){
+		var tab=[];
+		angular.forEach(Data.modele.tags,function(e){
+			if (e.id_parent==tag.id) tab.push(e);
+		});
+		if (tab.length==0) return tab;
+		else {
+			angular.forEach(tab,function(e){
+				tab=tab.concat($scope.descendants(e));
+			});
+		}
+		return tab;
+	}
+	$scope.normaux=function(id_tag){
+		var tab=[];
+		angular.forEach(Data.modele.tags,function(e){
+			if (id_tag==e.id_parent && !e.type) tab.push(e);
+		});
+		if (tab.length==0) return tab;
+		else {
+			angular.forEach(tab,function(e){
+				tab=tab.concat($scope.normaux(e));
+			});
+		}
+		return tab;
+	}
 	$scope.isAncestor=function(tag,ancestor){
 		if (tag.id_parent==0 && tag.id!=ancestor.id) return false;
 		else if (tag.id_parent==ancestor.id || tag.id==ancestor.id) return true;
 		else return $scope.isAncestor(Data.modele.tags[tag.id_parent],ancestor);
+	};
+	$scope.hasListAncestor=function(tag){
+		if (tag.id_parent==0) return false;
+		else {
+			var p=Data.modele.tags[tag.id_parent];
+			if (p.type=='liste') return p;
+			else return $scope.hasListAncestor(p);
+		}
+	};
+	$scope.ancestorSpecial=function (tag) {
+		if (tag.id_parent==0) return false;
+		else {
+			var p=Data.modele.tags[tag.id_parent];
+			if (p.type) return true;
+			else return $scope.ancestorSpecial(Data.modele.tags[p.id]);
+		}
+	};
+	$scope.hasSpecial=function (cas) {
+		for(var i=0;i<cas.tags.length;i++) {
+			if (Data.modele.tags[cas.tags[i]].typeAncestor!='normal') return true;
+		}
+		return false;
 	};
 	$scope.moveok=function(tag){
 		var res={};
@@ -188,7 +282,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 			}
 		});
 		return res;
-	
+
 	}
 	$scope.byCasId=function(a,id){
 		var res=false;
@@ -218,10 +312,10 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return JSON.stringify(angular.copy(a), null, 4)==JSON.stringify(angular.copy(b), null, 4);
 	};
 	$scope.pristine=function(key){
-		return $scope.isEqual(Data.modele[key],Data.modeleSrv[key]);	   
+		return $scope.isEqual(Data.modele[key],Data.modeleSrv[key]);
 	}
 	$scope.dirty=function(key){
-		return !$scope.pristine(key);	   
+		return !$scope.pristine(key);
 	}
 	$scope.min=function(a,b){
 		return Math.min(a,b);
@@ -247,14 +341,12 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	};
 	$scope.panierAdd=function(cas,i){
 		var nouveaux=[cas.id];
-		Data.modele.panier.push(cas.id);
 		$scope.addPanier(nouveaux);
 		var i = (typeof i !== 'undefined') ? i : -1;
 		if (i>=0) $scope.selected.index=i;
 	};
 	$scope.panierDel=function(cas,i){
 		var nouveaux=[cas.id];
-		Data.modele.panier.splice(Data.modele.panier.indexOf(cas.id),1);
 		$scope.delPanier(nouveaux);
 		var i = (typeof i !== 'undefined') ? i : -1;
 		if (i>=0) $scope.selected.index=i;
@@ -291,18 +383,27 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 			return removeDiacritics(str);
 		}
 	};
-	$scope.descTagRec=function(tag){
+	$scope.descTagRec=function(tag,id_parent){
 		var h=[tag];
-		if (tag.id_parent!=0){
-			angular.forEach($scope.descTagRec(Data.modele.tags[tag.id_parent]), function(t){
+		if (tag.id_parent!=id_parent && tag.id_parent!=0){
+			angular.forEach($scope.descTagRec(Data.modele.tags[tag.id_parent],id_parent), function(t){
 				h.push(t);
 			});
 		}
 		return h;
 	};
 	$scope.descTag=function(tag){
-		var h=$scope.descTagRec(tag);
+		var h=$scope.descTagRec(tag,0);
 		return h.reverse();
+	};
+	$scope.descTagParent=function(tag,id_parent){
+		var h=$scope.descTagRec(tag,id_parent);
+		return h.reverse();
+	};
+	$scope.formatDescTag=function(t){
+		var tab=[];
+		angular.forEach(t,function(e){tab.push(e.nom);});
+		return tab.join('>');
 	};
 	$scope.itemsParPage=10;
 	$scope.maxSize = 5;
@@ -314,7 +415,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 			t.sort(function(a,b) {
 				var tagA=Data.modele.tags[a];
 				var tagB=Data.modele.tags[b];
-				return tagA.nom.localeCompare(tagB.nom);
+				return $scope.formatDescTag($scope.descTagParent(tagA)).localeCompare($scope.formatDescTag($scope.descTagParent(tagB)));
 			});
 		}
 		return t;
@@ -351,9 +452,6 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 			Link.context(contexts);
 		},function(){Link.context(contexts);});
 	}
-	$scope.requete({uid:Data.uid, data:{}},function(data){
-		Data.user=data.user;
-	});
 	$scope.frontParser={};
 	$http.get('js/pegjs.grammar').then(function(msg){
 		$scope.frontParser=PEG.buildParser(msg.data);
@@ -368,10 +466,10 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 			if (query && $scope.frontParser.parse) {
 				try { p=$scope.frontParser.parse(query); }
 				catch (err) {
-					p='Erreur de syntaxe';			 
+					p='Erreur de syntaxe';
 				}
 				if (p!='Erreur de syntaxe') {
-					
+
 					var tag = /::tag(\d+)::/;
 					while (tab = tag.exec(p)) {
 						if (Data.modele.tags[tab[1]]) {
@@ -399,7 +497,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 						for(var i=0;i<cps.length;i++){
 							html+='<span class="tag" style="background-color:#CCC;color:#FFF;">'+departement(cps[i]).nom+'</span> ';
 						}
-						p=p.replace(tab[0],html);		
+						p=p.replace(tab[0],html);
 					}
 				}
 			}
@@ -410,7 +508,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 			if (query && $scope.backParser.parse) {
 				try { p=$scope.backParser.parse(query); }
 				catch (err) {
-					p=false;			   
+					p=false;
 				}
 			}
 			return p;
@@ -444,7 +542,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.nonlus=0;
 	$scope.majChat=function(o,n){
 		if (!$scope.isEqual(o,n)) {
-			var channels=[];	
+			var channels=[];
 			var groups=[];
 			var uids=[];
 			angular.forEach(Data.modele.groups,function(g){
@@ -474,7 +572,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 					if (!Data.modele.chat.lus[id_corresp] || m.creationdate>Data.modele.chat.lus[id_corresp]) {
 			nonlus++;
 			$scope.sound.play();
-			}	
+			}
 				});
 			});
 			$scope.nonlus=nonlus;
@@ -519,33 +617,94 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		modal.result.then(function (res) {
 			Link.ajax([{action:'addNbCsv',params:{tags:res.tags, hash:res.hash, map:res.map}}]);
 		});
-	}   
+	}
 }]);
 app.controller('accueilCtl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
+}]);
+app.controller('carteCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
+	$scope.Data=Data;
+	$scope.itemsParPage=5;
+	$scope.update=function(map){
+		var center=map.getCenter();
+		var zoom=map.getZoom();
+		var bounds=map.getBounds();
+		$scope.map.center={lng:''+center.lng,lat:''+center.lat};
+		$scope.map.zoom=''+zoom;
+		$scope.map.bounds={x0:''+bounds._sw.lng,x1:''+bounds._ne.lng,y0:''+bounds._sw.lat,y1:''+bounds._ne.lat};
+		//console.log('update',$scope.map.center,$scope.map.zoom);
+		$scope.getPage()
+	}
+	$scope.init=function(map){
+		$scope.map.rendered=true;
+		//console.log('init',$scope.map.center,$scope.map.zoom);
+		map.setZoom($scope.map.zoom*1.0);
+		map.setCenter([$scope.map.center.lng*1.0,$scope.map.center.lat*1.0]);
+	}
+	$scope.getCluster=function(m){
+		$scope.map.clusterIds=m.properties.ids;
+		$scope.pageCourante.cluster=1;
+		$scope.getPage()
+	}
+	$scope.$watchCollection('Data.modele.carte.geojson_clusters',function(o,n){
+		if (Data.modele.carte) $scope.map.sources={'clusters':
+		{
+		type: 'geojson',
+		data: Data.modele.carte.geojson_clusters
+		}};
+	});
+	$scope.$watch('pageCourante.cluster',function(o,n){
+		if (o!=n) $scope.getPage();
+	});
+	$scope.$on('mapboxglMap:featureClick',function(e,f){
+		//console.log(f);
+		$scope.getCluster(f);
+	});
+	$scope.$on('mapboxglMap:moveend',function(e,t){
+		//console.log('moveend',t.target,$scope.map.rendered);
+		if ($scope.map.rendered) {
+			$scope.update(t.target);
+		}
+	});
+	$scope.$on('mapboxglMap:ready',function(e,t){
+		//console.log('load');
+		if (!$scope.map.rendered) {
+			$scope.init(t.target);
+
+		}
+	});
+	$scope.getPage=function(){
+		Link.context([{type:'carte',params:{query:$scope.parsed.back(Data.mainQuery),center:$scope.map.center,zoom:$scope.map.zoom,bounds:$scope.map.bounds}},{type:'cluster',params:{ids:$scope.map.clusterIds,page:$scope.pageCourante.cluster,nb:$scope.itemsParPage}},{type:'tags'},{type:'panier'}]);
+	}
+	$scope.$watch('Data.modele.config.config.carte.mapbox_accessToken.value',function(n,o){
+		if (n && !$scope.map.ok) {
+			mapboxgl.accessToken = n;
+			$scope.map.ok=true;
+		}
+	});
+	$scope.map.show=true;
+	$scope.$on("$destroy", function(){
+		$scope.map.show=false;
+	});
+	if ($scope.map.rendered) $scope.getPage();
+	else Link.context([{type:'tags'},{type:'panier'}]);
 }]);
 app.controller('loginCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
 	if (Data.user.id==-1) {
 		$scope.Data=Data;
 		$scope.msgtxt='';
 		$scope.login=function(){
-			var data={
-				verb:'login',
-				login:$scope.user.login,
-				password:$scope.user.password,
-				uid:Data.uid,
-				data:null
-			};
-			$scope.requete(data,function(data){
-				Data.logged=true;
-				Data.user=data.user;
-				$scope.canLink=false;
-				Link.init();
-				if ($scope.afterLogin!='/login') $location.path($scope.afterLogin);
-				else $location.path('/');
-			});
+			var data=[{
+				action:'login',
+				params: {
+					login:$scope.user.login,
+					password:$scope.user.password,
+					uid:Data.uid,
+				}
+			}];
+			Link.ajax(data);
 		};
 	} else {
-		$location.path('/');
+		$location.path('/contacts');
 	}
 }]);
 
@@ -554,9 +713,84 @@ app.controller('loginCtl', ['$scope', '$http', '$location', 'Link', 'Data', func
 //casquettes
 app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$window', '$uibModal','Link', 'Data', function ($scope, $http, $location, $timeout, $interval, $window, $uibModal, Link, Data) {
 	$scope.Data=Data;
-	$scope.panierKey='panier';	
+	$scope.panierKey='panier';
 	$scope.itemsParPage=10;
 	$scope.itemsParPageTag=20;
+	$scope.typeahead={};
+	$scope.containsCurrentWord = function(tags, viewValue) {
+		var words = viewValue.split(/([&|^!()]+)/);
+		$scope.typeahead.words=words;
+		var cursor=document.getElementById("mainInput").selectionStart;
+		var currentWord = '';
+		var pos=0;
+		for (var i = 0; i < words.length; i++) {
+			pos=pos+words[i].length;
+			if (pos>=cursor) {
+				if (words[i].match(/([&|^!()]+)/)) $scope.typeahead.wordIndex=i+1;
+				else $scope.typeahead.wordIndex=i;
+				currentWord=words[$scope.typeahead.wordIndex];
+				break;
+			}
+		}
+		//console.log(cursor,currentWord,words);
+		res=[];
+		angular.forEach(tags,function(tag){
+			if (removeDiacritics(tag.nom.toLowerCase()).indexOf(removeDiacritics(currentWord.toLowerCase()))>=0) res.push(tag);
+		});
+		return res;
+	}
+	$scope.typeaheadOnSelect = function(tag) {
+		$scope.typeahead.words[$scope.typeahead.wordIndex] = ':tag'+tag.id;
+		$scope.Data.mainQuery = $scope.typeahead.words.join('');
+		$timeout(function(){
+			var pos=0;
+			for (var i = 0; i <=$scope.typeahead.wordIndex; i++) {
+				pos=pos+$scope.typeahead.words[i].length;
+			}
+			document.getElementById("mainInput").setSelectionRange(pos, pos);
+		},200);
+	}
+	$scope.modCas=function(cas){
+		if (!Data.modele['contact/'+cas.id_contact]) {
+			var casquettes={};
+			casquettes[cas.id]={id:cas.id}
+			Data.modele.casquettes.collection.forEach(function(e){
+				if (e.id_contact==cas.id_contact) casquettes[e.id]=e;
+			});
+			var c={
+				id:cas.id_contact,
+				nom:cas.nom,
+				prenom:cas.prenom,
+				casquettes:casquettes,
+				type:cas.type,
+				creationdate:cas.creationdate,
+				createdby:cas.createdby,
+				modificationdate:cas.modificationdate,
+				modifiedby:cas.modifiedby
+			};
+			Data.modele['contact/'+cas.id_contact]=c;
+			Data.modeleSrv['contact/'+cas.id_contact]=c;
+		}
+		$location.path('/modcontact/'+ cas.id_contact);
+	}
+	$scope.modCasEtab=function(cas){
+		if (!Data.modele['contact/'+cas.id_contact_etab]) {
+			var casquettes={};
+			casquettes[cas.id_etab]={id:cas.id_etab}
+			Data.modele.casquettes.collection.forEach(function(e){
+				if (e.id_contact==cas.id_contact_etab) casquettes[e.id]=e;
+			});
+			var c={
+				id:cas.id_contact_etab,
+				nom:cas.nom_etab,
+				casquettes:casquettes,
+				type:2
+			};
+			Data.modele['contact/'+cas.id_contact_etab]=c;
+			Data.modeleSrv['contact/'+cas.id_contact_etab]=c;
+		}
+		$location.path('/modcontact/'+ cas.id_contact_etab);
+	}
 	$scope.historyPrev=function(){
 		var l=$scope.query_history.tab.length;
 		if (l>0) {
@@ -582,17 +816,12 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		}
 	};
 	$scope.history=function(e){
-		if (e.keyCode==38) $scope.historyPrev();
-		if (e.keyCode==40) $scope.historyNext();
+		if (e.ctrlKey && e.keyCode==38) $scope.historyPrev();
+		if (e.ctrlKey && e.keyCode==40) $scope.historyNext();
 		if (e.keyCode==13) $scope.getPage(1);
 	};
 	$scope.normalizedNom = function(tag) {
-		return removeDiacritics(tag.nom);
-	};
-	$scope.help=function(id){
-		$uibModal.open({
-			templateUrl: 'partials/inc/help_'+id+'.html'
-		});
+		return tag.nom ? removeDiacritics(tag.nom) : '';
 	};
 	$scope.panierAll=function(){
 		Link.ajax([{action:'panierAll', params:{query:$scope.parsed.back(Data.mainQuery)}}])
@@ -678,7 +907,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		if (n!=o) {
 			$scope.getPage(1);
 		}
-	},1000));
+	},500));
 	$scope.$watch('Data.modele.casquettes',function(n,o){
 		if (n!=o && Data.modele.casquettes && Data.modele.casquettes.collection[$scope.selected.index]) {
 			if ($scope.selected.index<0) $scope.selected.index=$scope.itemsParPage-1;
@@ -687,14 +916,14 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			$scope.ajustScroll();
 		}
 	});
-	$scope.$watch('Data.pageContacts',debounce(function(n,o){
-		if (n!=o && Data.modele.casquettes && Data.pageContacts>0 && Data.pageContacts<1+(Data.modele.casquettes.total/$scope.itemsParPage)) {
-			$scope.getPage();   
+	$scope.$watch('pageCourante.contacts',function(n,o){
+		if (n!=o && Data.modele.casquettes && $scope.pageCourante.contacts>0 && $scope.pageCourante.contacts<1+(Data.modele.casquettes.total/$scope.itemsParPage)) {
+			$scope.getPage();
 			if (n<o && $scope.selected.index==$scope.itemsParPage-1) $scope.selected.index=$scope.itemsParPage-1;
 			if (n<o && $scope.selected.index!=$scope.itemsParPage-1) $scope.selected.index=0;
 			if (n>o) $scope.selected.index=0;
 		}
-	},1000));
+	});
 	$scope.getPage=function(init){
 		var page;
 		var query=$scope.parsed.back(Data.mainQuery);
@@ -707,19 +936,22 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 				$scope.query_history.c=-1;
 			}
 			if (init) {
-				Data.pageContacts=1;
+				$scope.pageCourante.contacts=1;
 				$scope.selected.index=0;
 				page=1;
 			}
-			else page=Data.pageContacts;
+			else page=$scope.pageCourante.contacts;
 			Link.context([{type:'casquettes', params:{page:page, nb:$scope.itemsParPage, query:query}},{type:'tags'},{type:'selections'},{type:'panier'}]);
 		}
 	};
 	$scope.delContact=function(cas){
-		Link.ajax([{action:'delContact', params:{cas:cas}}]);		
+		Link.ajax([{action:'delContact', params:{cas:cas}}]);
 	};
 	$scope.delCasquettesPanier=function(cas){
-		Link.ajax([{action:'delCasquettesPanier', params:{}}]);		
+		Link.ajax([{action:'delCasquettesPanier', params:{}}]);
+	};
+	$scope.unErrorEmailPanier=function(cas){
+		Link.ajax([{action:'unErrorEmailPanier', params:{}}]);
 	};
 	var tagsScroll=undefined;
 	$scope.dragging={active:false,c:'nc',s:'ns'};
@@ -745,7 +977,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 						s:'déplacer la catégorie',
 						ns:'déplacer la catégorie'
 					}
-				}				
+				}
 			},
 			query:{
 				v:{
@@ -767,7 +999,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 						s:'ajouter aux résultats les contacts qui ne sont pas dans la catégorie',
 						ns:'ajouter aux résultats les contacts de la catégorie'
 					}
-				}				
+				}
 			},
 			contact:{
 				v:{
@@ -789,7 +1021,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 						s:'ajouter à la catégorie',
 						ns:'ajouter à la catégorie'
 					}
-				}				
+				}
 			}
 		},
 		panier:{
@@ -813,7 +1045,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 						s:'enlever de la catégorie',
 						ns:'ajouter à la catégorie'
 					}
-				}				
+				}
 			},
 			query:{
 				v:{
@@ -862,7 +1094,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 				}
 			}
 		}
-		
+
 	};
 	$scope.$on('ANGULAR_HOVER_STOP',function(d,el,e,c){
 		$scope.dragging.active=false;
@@ -881,13 +1113,13 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		helper.style.top=(15+e.pageY)+"px";
 	});
 	$scope.next=function(){
-		if (Data.pageContacts<=Data.modele.casquettes.total/$scope.itemsParPage) {
-			Data.pageContacts++;
+		if ($scope.pageCourante.contacts<=Data.modele.casquettes.total/$scope.itemsParPage) {
+			$scope.pageCourante.contacts++;
 		}
 	};
 	$scope.prev=function(){
-		if (Data.pageContacts>1) {
-			Data.pageContacts--;
+		if ($scope.pageCourante.contacts>1) {
+			$scope.pageCourante.contacts--;
 		}
 	};
 	$scope.sel=function(){
@@ -910,9 +1142,29 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		if (!$scope.isAncestor(parent,tag)) Link.ajax([{action:'movTag', params:{tag:tag, parent:parent}}]);
 	};
 	$scope.addCasTag = function(e,tag,cas) {
-		Link.ajax([{action:'addCasTag', params:{cas:cas, tag:tag}}]);
+		var idx=-1;
+		angular.forEach(Data.modele.casquettes.collection,function(e,i){
+			if (e.id==cas.id) idx=i;
+		});
+		if (idx>=0) {
+			var p=Data.modele.casquettes.collection[idx].tags.indexOf(tag.id);
+			if (p<0) {
+				Data.modele.casquettes.collection[idx].tags.push(tag.id);
+			}
+		}
+		Link.ajax([{action:'addCasTag', params:{cas:{id:cas.id,id_contact:cas.id_contact}, tag:{id:tag.id}}}]);
 	};
 	$scope.delCasTag = function(tag,cas) {
+		var idx=-1;
+		angular.forEach(Data.modele.casquettes.collection,function(e,i){
+			if (e.id==cas.id) idx=i;
+		});
+		if (idx>=0) {
+			var p=Data.modele.casquettes.collection[idx].tags.indexOf(tag.id);
+			if (p>=0) {
+				Data.modele.casquettes.collection[idx].tags.splice(p,1);
+			}
+		}
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
 	};
 	$scope.CasTagClick = function(e,tag,cas) {
@@ -1034,18 +1286,59 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	}
 	$scope.getPage();
 }]);
-
-app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data) {
+app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
 	$scope.key='contact/'+$routeParams.id;
-	Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
+	Link.context([{type:$scope.key},{type:'tags'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
+	$scope.$watch('Data.modele["contact_prev_next/'+$routeParams.id+'"]',function(n,o){
+		if (n) {
+			Link.context([{type:$scope.key},{type:'tags'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}},
+				{type:'contact/'+n[0]},
+				{type:'contact/'+n[1]}
+			]);
+		}
+	});
 	$scope.sv={};
 	$scope.ev={};
 	$scope.svDesc={};
 	$scope.idx=-1;
 	$scope.modContact=function(contact){
+		Data.modele[$scope.key].nom=contact.nom;
+		Data.modele[$scope.key].prenom=contact.prenom;
 		Link.ajax([{action:'modContact', params:{id:$routeParams.id, nom:contact.nom, prenom:contact.prenom}},
 			{action:'del_verrou',type:$scope.key}]);
 	}
+	$scope.modFirstCas=function(){
+
+	}
+	hotkeys.bindTo($scope)
+	.add({
+		combo: 'w',
+		description: 'Modifier la première casquette / le premier établissement',
+		callback: function() {
+			var idcas=0;
+			angular.forEach(Data.modele[$scope.key].casquettes,function(e,i){
+				if (idcas==0) idcas=i;
+			});
+			//console.log($scope.key);
+			$scope.modCasquetteMod(Data.modele[$scope.key].casquettes[idcas]);
+		}
+	})
+	.add({
+		combo: 'x',
+		description: 'Contact suivant',
+		callback: function() {
+			var next=Data.modele['contact_prev_next/'+$routeParams.id][1];
+			if (next>0) $location.path('/modcontact/'+ next);
+		}
+	})
+	.add({
+		combo: 'q',
+		description: 'Contact précédent',
+		callback: function() {
+			var prev=Data.modele['contact_prev_next/'+$routeParams.id][0];
+			if (prev>0) $location.path('/modcontact/'+ prev);
+		}
+	})
 	$scope.modCasquetteMod=function(cas){
 		Link.set_verrou(['casquette/'+cas.id]);
 		$scope.casquetteCopy=angular.copy(cas);
@@ -1066,6 +1359,11 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		});
 		modal.result.then(function (cas) {
 			Link.ajax([{action:'modCasquette', params:{cas:cas}}, {action:'del_verrou', type:'casquette/'+cas.id}]);
+			var idx=-1;
+			angular.forEach(Data.modele[$scope.key].casquettes,function(e,i){
+				if (e.id==cas.id) idx=i;
+			});
+			if (idx>=0) Data.modele[$scope.key].casquettes[idx]=cas;
 		}, function(){Link.del_verrou('casquette/'+cas.id);});
 	}
 	$scope.modContactMod=function(){
@@ -1110,11 +1408,28 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 			Link.ajax([{action:'modCasquette', params:{cas:cas}}],
 			function(){
 				Link.del_verrou('casquette/'+cas.id);
-				Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
+				Link.context([{type:$scope.key},{type:'tags'}]);
 			});
 		},function(){
 			Link.del_verrou('casquette/'+cas.id);
-			Link.context([{type:$scope.key},{type:'tags'},{type:'suivis'}]);
+			Link.context([{type:$scope.key},{type:'tags'}]);
+		});
+	}
+	$scope.assCasquette=function(etab){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/asscasquette.html',
+			controller: 'assIndividuModCtl',
+			resolve: {
+				parsed: function () {
+					return $scope.parsed;
+				}
+			}
+		});
+		modal.result.then(function (cas) {
+			Link.ajax([{action:'assCasquette', params:{id_etab:etab.id,id_cas:cas.id}}]);
+			Link.context([{type:$scope.key},{type:'tags'}]);
+		},function(){
+			Link.context([{type:$scope.key},{type:'tags'}]);
 		});
 	}
 	$scope.assTag=function(cas){
@@ -1124,12 +1439,21 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		});
 
 		modal.result.then(function (tag) {
-			Link.ajax([{action:'addCasTag', params:{cas:cas, tag:tag}}]);
+			var idx=-1;
+			angular.forEach(Data.modele[$scope.key].casquettes,function(e,i){
+				if (e.id==cas.id) idx=i;
+			});
+			if (idx>=0 && Data.modele[$scope.key].casquettes[idx].tags.indexOf(tag.id)<0) Data.modele[$scope.key].casquettes[idx].tags.push(tag.id);
+
+			Link.ajax([{action:'addCasTag', params:{cas:{id:cas.id,id_contact:cas.id_contact}, tag:{id:tag.id}}}]);
 		});
 	}
 	$scope.desAssEtablissement = function (cas) {
 		cas.id_etab=0;
 		Link.ajax([{action:'modCasquette', params:{cas:cas}}]);
+	};
+	$scope.desAssEtablissementCol = function (cas) {
+		Link.ajax([{action:'desAssEtablissement', params:{cas:cas}}]);
 	};
 	$scope.addCasquetteMod=function(type){
 		$scope.modCasquette={type:type,donnees:[]};
@@ -1160,12 +1484,42 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		});
 	}
 	$scope.delCasquette=function(cas){
-		if ($filter('toArray')(Data.modele[$scope.key].casquettes).length>1) {
-			Link.ajax([{action:'delCasquette', params:{cas:cas}}]);
-		}
+		Link.ajax([{action:'delCasquette', params:{cas:cas}}]);
+	}
+	$scope.delThread=function(thread){
+		Link.ajax([{action:'delSuivisThread', params:{id:thread.id}}]);
 	}
 	$scope.addSuivi=function(cas){
-		$location.path('/addsuivi/'+ cas.id +'/0');
+		$scope.addSuivisThreadMod(cas);
+	}
+	$scope.addSuivisThreadMod=function(cas){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/addsuivisthreadmod.html',
+			controller: 'addSuivisThreadModCtl',
+			resolve: {
+				suivis:cas.suivis
+			}
+		});
+		modal.result.then(function (st) {
+			st.id_casquette=cas.id;
+			st.desc= st.desc ? st.desc : '';
+			Link.ajax([{action:'addSuivisThread', params:{suivis_thread:st}}],function(r){$location.path('/addsuivi/'+ r.res);});
+		});
+	}
+	$scope.modSuivisThread=function(thread){
+		$scope.modSuivisThreadMod(thread);
+	}
+	$scope.modSuivisThreadMod=function(thread){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/modsuivisthreadmod.html',
+			controller: 'modSuivisThreadModCtl',
+			resolve: {
+				thread:thread
+			}
+		});
+		modal.result.then(function (thread) {
+			Link.ajax([{action:'modSuivisThread', params:{suivis_thread:thread}}]);
+		});
 	}
 	$scope.CasTagClick = function(e,tag,cas) {
 		if (e.shiftKey || e.ctrlKey){
@@ -1177,7 +1531,93 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		}
 	};
 	$scope.delCasTag = function(tag,cas) {
+		var idx=-1;
+		angular.forEach(Data.modele[$scope.key].casquettes,function(e,i){
+			if (e.id==cas.id) idx=i;
+		});
+		if (idx>=0) {
+			var p=Data.modele[$scope.key].casquettes[idx].tags.indexOf(tag.id)
+			if (p>=0) {
+				Data.modele[$scope.key].casquettes[idx].tags.splice(p,1);
+			}
+		}
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
+	};
+}]);
+app.controller('doublonsTexteCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
+	$scope.getPage=function(init){
+		var page;
+		if (init) {
+			if (!Data.pageDoublonsTexte) Data.pageDoublonsTexte=1;
+			page=1;
+		}
+		page=Data.pageDoublonsTexte;
+		Link.context([{type:'doublons_texte', params:{page:page, nb:$scope.itemsParPage}},{type:'tags'}]);
+	};
+	$scope.$watch('Data.pageDoublonsTexte',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
+	$scope.nonDoublonTexte=function(cas) {
+		Link.ajax([{action:'nonDoublonTexte', params:{id_doublon:cas.id_doublon,id_contact:cas.id_contact}}]);
+	}
+	$scope.getPage(1);
+	$scope.delContact=function(cas){
+		Link.ajax([{action:'delContact', params:{cas:cas}}]);
+	};
+	$scope.dropValidate=function(cas,d){
+		return cas.id_doublon==d.id_doublon && cas.id_contact!=d.id_contact;
+	}
+	$scope.dropOnCas=function(e,s,d,cas,ctrl){
+		if(ctrl) {
+			if (confirm("Vous êtes sur le point de déplacer la casquette / l'établissement. Sûr ?")) {
+				s.id_contact=cas.id_contact;
+				Link.ajax([{action:'moveCasquette', params:{cas:s}}]);
+			}
+		} else {
+			if (confirm("Vous êtes sur le point de fusionner les casquettes / les établissements. Sûr ?\nCeci déplacera les suivis vers la fiche cible.")) {
+				Link.ajax([{action:'mergeCasquette', params:{d:{id:cas.id},s:{id:s.id}}}]);
+			}
+		}
+	};
+}]);
+app.controller('doublonsEmailCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
+	$scope.getPage=function(init){
+		var page;
+		if (init) {
+			if (!Data.pageDoublonsEmail) Data.pageDoublonsEmail=1;
+			page=1;
+		}
+		page=Data.pageDoublonsEmail;
+		Link.context([{type:'doublons_email', params:{page:page, nb:$scope.itemsParPage}},{type:'tags'}]);
+	};
+	$scope.$watch('Data.pageDoublonsEmail',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
+	$scope.getPage(1);
+	$scope.delCasquette=function(cas){
+		Link.ajax([{action:'delCasquette', params:{cas:cas}}]);
+	};
+	$scope.delEmail=function(cas){
+		Link.ajax([{action:'delEmailCasquette', params:{cas:cas}}]);
+	};
+	$scope.dropValidate=function(cas,d){
+		return cas.id_doublon==d.id_doublon && cas.id_contact!=d.id_contact;
+	}
+	$scope.dropOnCas=function(e,s,d,cas,ctrl){
+		if(ctrl) {
+			if (confirm("Vous êtes sur le point de déplacer la casquette / l'établissement. Sûr ?")) {
+				s.id_contact=cas.id_contact;
+				Link.ajax([{action:'moveCasquette', params:{cas:s}}]);
+			}
+		} else {
+			if (confirm("Vous êtes sur le point de fusionner les casquettes / les établissements. Sûr ?\nCeci déplacera les suivis vers la fiche cible.")) {
+				Link.ajax([{action:'mergeCasquette', params:{d:{id:cas.id},s:{id:s.id}}}]);
+			}
+		}
 	};
 }]);
 //mailing
@@ -1199,7 +1639,7 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	$scope.delPj=function(pj){
 		Link.ajax([{action:'delMailPj', params:{id:$routeParams.id,	pj:pj}}]);
 	}
-	$scope.envoyer=function(mail){
+	$scope.envoyer=function(){
 		var contexts=Data.contexts;
 		var modal = $uibModal.open({
 			templateUrl: 'partials/envoyer.html',
@@ -1231,7 +1671,7 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 app.controller('mailCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
 	$scope.key='mail/'+$routeParams.id;
 	Link.context([{type:$scope.key}]);
-	$scope.envoyer=function(mail){
+	$scope.envoyer=function(){
 		var contexts=Data.contexts;
 		var modal = $uibModal.open({
 			templateUrl: 'partials/envoyer.html',
@@ -1322,30 +1762,30 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			angular.element(document.getElementById('news-container')).css('transform','scale('+scale+')');
 		} else {
 			angular.element(document.getElementById('news-container')).css('transform-origin','top left');
-			angular.element(document.getElementById('news-container')).css('transform','scale(1)');	
+			angular.element(document.getElementById('news-container')).css('transform','scale(1)');
 		}
 	};
 	$scope.pdf=function(){
 		var data={
 			type:'news_pdf',
 			id_news:$routeParams.id
-		};			
+		};
 		angular.element.redirect('doc.php',data,'POST','_blank');
 	};
 	$scope.publie=function(){
 		Data.modele[$scope.key].publie=1;
-		$scope.save();		
+		$scope.save();
 	};
 	$scope.unpublie=function(){
 		Data.modele[$scope.key].publie=0;
-		$scope.save();		
+		$scope.save();
 	};
 	$scope.modCats=[];
 	$scope.buildModCats=function(){
 		if (Data.modele.modeles){
 			var tmp=[];
 			angular.forEach(Data.modele.modeles, function(m){
-				var tab=m.nom.split('::');
+				var tab=m.nom ? m.nom.split('::') : [''];
 				if (tab.length>1) {
 					theme=tab[0];
 					if (tmp.indexOf(theme)<0) tmp.push(theme);
@@ -1353,7 +1793,7 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			});
 			tmp.sort();
 			angular.forEach(Data.modele.modeles, function(m){
-				var tab=m.nom.split('::');
+				var tab=m.nom ? m.nom.split('::') : [''];
 				if (tab.length==1) {
 					theme='Sans thème';
 					if (tmp.indexOf(theme)<0) tmp.push(theme);
@@ -1361,10 +1801,10 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			});
 			var res=[];
 			angular.forEach(tmp, function(nom){
-				var tab=nom.split('_');
+				var tab=nom ? nom.split('_') : [''];
 				if (tab.length>1) {
 					res.push({label:tab[1],nom:nom});
-				} else {	
+				} else {
 					res.push({label:nom,nom:nom});
 				}
 			});
@@ -1474,12 +1914,16 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		}
 	};
 	$scope.addBloc = function(e,d,i){
-		var bloc={id_modele:d.id};
+		var bloc={id_modele:d.id, id:Math.random().toString(36).substr(2, 9)};
 		Data.modele[$scope.key].blocs.splice(i,0,bloc);
 		$scope.save();
 	};
-	$scope.modBlocMod=function(i){
-		Link.set_verrou(['newsbloc/'+$routeParams.id+'/'+i]);
+	$scope.modBlocMod=function(bloc){
+		if (!bloc.id) {
+			bloc.id=Math.random().toString(36).substr(2, 9);
+			$scope.save();
+		}
+		Link.set_verrou(['newsbloc/'+$routeParams.id+'/'+bloc.id]);
 		var modal = $uibModal.open({
 			templateUrl: 'partials/modblocmod.html',
 			controller: 'modBlocModCtl',
@@ -1488,7 +1932,7 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 					return $scope.trust;
 				},
 				bloc: function () {
-					return angular.copy(Data.modele[$scope.key].blocs[i]);
+					return angular.copy(bloc);
 				},
 				pjs: function () {
 					return angular.copy(Data.modele[$scope.key].pjs);
@@ -1496,13 +1940,15 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 			}
 		});
 		modal.result.then(function (bloc) {
-			Data.modele[$scope.key].blocs[i]=bloc;
-			Link.ajax([{action:'modNews', params:{news:$scope.prepNews(Data.modele[$scope.key])}},{action:'del_verrou', type:'newsbloc/'+$routeParams.id+'/'+i}]);
-		}, function(){Link.del_verrou('newsbloc/'+$routeParams.id+'/'+i);});
+			Data.modele[$scope.key].blocs.forEach(function(e,i){
+				if (e.id==bloc.id) Data.modele[$scope.key].blocs[i]=bloc;
+			});
+			Link.ajax([{action:'modNews', params:{news:$scope.prepNews(Data.modele[$scope.key])}},{action:'del_verrou', type:'newsbloc/'+$routeParams.id+'/'+bloc.id}]);
+		}, function(){Link.del_verrou('newsbloc/'+$routeParams.id+'/'+bloc.id);});
 	};
 	$scope.delBloc=function(i){
 		Data.modele[$scope.key].blocs.splice(i,1);
-		$scope.save();	
+		$scope.save();
 	};
 	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
 			url: 'upload.php',
@@ -1512,25 +1958,34 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 	$scope.delPj=function(pj){
 		Link.ajax([{action:'delNewsPj', params:{id:$routeParams.id, pj:pj}}]);
 	}
-	$scope.envoyer=function(mail){
-		var contexts=angular.copy(Data.contexts);
-		var modal = $uibModal.open({
-			templateUrl: 'partials/envoyer.html',
-			controller: 'envoyerModCtl',
-			resolve:{
-				parsed: function () {
-					return $scope.parsed;
-				},
-				type: function () {
-					return 'mail';
-				}
-			}
+	$scope.delModele=function(modele){
+		Link.ajax([{action:'delModele', params:{modele:modele}}]);
+	}
+	$scope.envoyer=function(){
+		var nbpj=0;
+		angular.forEach(Data.modele[$scope.key].pjs,function(e){
+			if (!e.used) nbpj++;
 		});
-		modal.result.then(function (res) {
-			var expediteur={id:res.expediteur.nom.id,nom:res.expediteur.nom.value,email:res.expediteur.email.value};
-			res.expediteur=expediteur;
-			Link.ajax([{action:'envoyer', params:{type:'news', e:Data.modele[$scope.key], res:res}}], function(r){$location.path('/modenvoi/'+r.res);});
-		},function(){Link.context(contexts);});
+		if (nbpj==0 || nbpj>0 && confirm("Cette newsletter a "+nbpj+" piece(s) jointe(s).\nSi ce n'est pas normal, pensez à supprimer les images non utilisées dans la newsletter.")) {
+			var contexts=angular.copy(Data.contexts);
+			var modal = $uibModal.open({
+				templateUrl: 'partials/envoyer.html',
+				controller: 'envoyerModCtl',
+				resolve:{
+					parsed: function () {
+						return $scope.parsed;
+					},
+					type: function () {
+						return 'mail';
+					}
+				}
+			});
+			modal.result.then(function (res) {
+				var expediteur={id:res.expediteur.nom.id,nom:res.expediteur.nom.value,email:res.expediteur.email.value};
+				res.expediteur=expediteur;
+				Link.ajax([{action:'envoyer', params:{type:'news', e:Data.modele[$scope.key], res:res}}], function(r){$location.path('/modenvoi/'+r.res);});
+			},function(){Link.context(contexts);});
+		}
 	}
 	$scope.$on("$destroy", function(){
 		angular.element($window).off('resize', $scope.resizeNews);
@@ -1538,7 +1993,7 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 	waitUntil(function(){return document.getElementById('news-container') && document.getElementById('news-container').clientWidth>0},$scope.resizeNews);
 }]);
 app.controller('modmodeleCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, Link, Data) {
-	
+
 	$scope.key='modele/'+$routeParams.id;
 	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.save = function() {
@@ -1551,7 +2006,7 @@ app.controller('modmodeleCtl', ['$scope', '$http', '$location', '$routeParams', 
 
 //envois
 app.controller('envoisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
-	Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);	
+	Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
 	$scope.$watch('pageCourante.erreur',function(n,o){
 		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
 	});
@@ -1559,7 +2014,7 @@ app.controller('envoisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link'
 		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
 	});
 	$scope.checkImap=function(){
-		Link.ajax([{action:'checkImap', params:{}}]);	
+		Link.ajax([{action:'checkImap', params:{}}]);
 	};
 }]);
 app.controller('modenvoiCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $sce, $uibModal, Link, Data) {
@@ -1607,6 +2062,32 @@ app.controller('modenvoiCtl', ['$scope', '$http', '$location', '$routeParams', '
 	}
 	$scope.vide=function(){
 		Link.ajax([{action:'videEnvoi',params:{id:$routeParams.id}}]);
+	}
+	$scope.delSchedule=function(date){
+		Link.ajax([{action:'delScheduleEnvoi', params:{id_envoi:$routeParams.id}}]);
+	}
+	$scope.modSchedule=function(date){
+		var test=false;
+		var d=new Date();
+		if (date) test=true;
+		else date=d.getTime();
+		var modal = $uibModal.open({
+			templateUrl: 'partials/modscheduleenvoimod.html',
+			controller: 'modScheduleEnvoiModCtl',
+			resolve:{
+				date: function () {
+					return date;
+				},
+				bouton: function () {
+					return 'Modifier';
+				}
+			}
+		});
+		modal.result.then(function (d) {
+			console.log(d);
+			if (test) Link.ajax([{action:'modScheduleEnvoi', params:{id_envoi:$routeParams.id,date:d}}]);
+			else Link.ajax([{action:'addScheduleEnvoi', params:{id_envoi:$routeParams.id,date:d}}]);
+		});
 	}
 }]);
 
@@ -1693,12 +2174,124 @@ app.controller('modsupportCtl', ['$scope', '$http', '$location', '$routeParams',
 		Link.del_verrou($scope.key);
 	});
 }]);
+//templates
+app.controller('templatesCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
+	Link.context([{type:'templates'}]);
+	$scope.addTemplateMod=function(type){
+		$scope.addTemplate={};
+		var modal = $uibModal.open({
+			templateUrl: 'partials/addtemplatemod.html',
+			controller: 'addTemplateModCtl',
+			resolve:{
+				template: function () {
+					return $scope.addTemplate;
+				}
+			}
+		});
+
+		modal.result.then(function (template) {
+			Link.ajax([{action:'addTemplate',params:{template:template}}],function(r){
+				$location.path('/modtemplate/'+ r.res[0]);
+			});
+		});
+	};
+	$scope.delTemplate=function(template){
+		Link.ajax([{action:'delTemplate', params:{template:template}}]);
+	}
+}]);
+app.controller('modtemplateCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
+	$scope.key='template/'+$routeParams.id;
+	Link.context([{type:$scope.key}],[$scope.key]);
+	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
+		url: 'upload.php',
+		autoUpload:true,
+		formData:[{id:$routeParams.id},{type:'template'}]
+	});
+	$scope.delTpl=function(tpl){
+		Link.ajax([{action:'delTpl', params:{id:$routeParams.id,tpl:tpl}}]);
+	}
+	$scope.pdf=function(){
+		var contexts=Data.contexts;
+		var modal = $uibModal.open({
+			templateUrl: 'partials/pdf.html',
+			controller: 'envoyerModCtl',
+			resolve:{
+				parsed: function () {
+					return $scope.parsed;
+				},
+				type: function () {
+					return 'tout';
+				}
+			}
+		});
+		modal.result.then(function (res) {
+			var data={
+				verb:'getPdf',
+				type:'publipostage_template',
+				template:Data.modele[$scope.key].template[0].path,
+				res:res
+			};
+			angular.element.redirect('doc.php',data,'POST','_blank');
+			Link.context(contexts);
+		},function(){Link.context(contexts);});
+	}
+	$scope.save=function(){
+		Link.ajax([{action:'modTemplate',params:{template:Data.modele[$scope.key]}}]);
+	};
+	$scope.$watch('Data.modele["'+$scope.key+'"].verrou',function(n,o){
+		if (n=='none') Link.set_verrou([$scope.key])
+	});
+	$scope.$on("$destroy", function(){
+		if(!$scope.pristine($scope.key) && confirm("Le template n'a pas été sauvé, sauver ?")) $scope.save();
+		Link.del_verrou($scope.key);
+	});
+}]);
 
 
 
 //suivis
 app.controller('suivisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
-	Link.context([{type:'suivis'}]);
+	$scope.getPage=function(init){
+		var pagePr;
+		var pageRe;
+		var pageTe;
+		if (init) {
+			if (!Data.pageSuivisPr) Data.pageSuivisPr=1;
+			if (!Data.pageSuivisRe) Data.pageSuivisRe=1;
+			if (!Data.pageSuivisTe) Data.pageSuivisTe=1;
+			Data.suiviGroup=0;
+			page=1;
+		}
+		pagePr=Data.pageSuivisPr;
+		pageRe=Data.pageSuivisRe;
+		pageTe=Data.pageSuivisTe;
+		group=Data.suivisGroup;
+		Link.context([{type:'suivis', params:{pagePr:pagePr, pageRe:pageRe, pageTe:pageTe, group:group, nb:$scope.itemsParPage}}]);
+	};
+	$scope.$watch('Data.suivisGroup',function(n,o){
+		if (n!=o) {
+			Data.pageSuivisPr=1;
+			Data.pageSuivisRe=1;
+			Data.pageSuivisTe=1;
+			$scope.getPage();
+		}
+	});
+	$scope.$watch('Data.pageSuivisPr',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
+	$scope.$watch('Data.pageSuivisRe',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
+	$scope.$watch('Data.pageSuivisTe',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
+	$scope.getPage(1);
 }]);
 app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
 	$scope.key='suivi/'+$routeParams.id;
@@ -1707,6 +2300,7 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 	$scope.test=true;
 	$scope.casKey=0;
 	$scope.contactKey=0;
+	$scope.threadKey=0;
 	$scope.$watchCollection('Data', function(){
 		if ($scope.test && Data.modele[$scope.key]) {
 			$scope.update();
@@ -1715,10 +2309,27 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 	});
 	$scope.update=function(){
 		if (Data.modele[$scope.key].statut==0) Link.set_verrou([$scope.key]);
-		$scope.casKey=Data.modele[$scope.key].id_casquette;
+		$scope.casKey=Data.modele[$scope.key].cas.id;
 		$scope.contactKey='contact/'+Data.modele[$scope.key].cas.id_contact;
-		Link.context([{type:'suivi/'+$routeParams.id},{type:$scope.contactKey},{type:'tags'},{type:'suivis'}]);
+		$scope.threadKey='suivis_thread/'+Data.modele[$scope.key].id_thread;
+		Link.context([{type:'suivi/'+$routeParams.id},{type:$scope.threadKey},{type:$scope.contactKey},{type:'tags'}]);
 	};
+	if (Data.modele[$scope.key]) $scope.update();
+	$scope.modSuivisThread=function(thread){
+		$scope.modSuivisThreadMod(thread);
+	}
+	$scope.modSuivisThreadMod=function(thread){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/modsuivisthreadmod.html',
+			controller: 'modSuivisThreadModCtl',
+			resolve: {
+				thread:thread
+			}
+		});
+		modal.result.then(function (thread) {
+			Link.ajax([{action:'modSuivisThread', params:{suivis_thread:thread}}]);
+		});
+	}
 	$scope.sv=false;
 	$scope.cas={};
 	$scope.showDesc={};
@@ -1728,30 +2339,69 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		height:'300px'
 	};
 	$scope.del = function() {
-		Link.ajax([{action:'delSuivi',params:{id:$routeParams.id}}],function(){
-			$location.path('/suivis');
+		Link.ajax([{action:'delSuivi',params:{id:$routeParams.id}}],function(data){
+			var id=data.res[0];
+			//console.log(id);
+			if (id>0) $location.path('/modsuivi/'+id);
+			else $location.path('/suivis/');
 		});
 	}
 	$scope.save = function() {
 		Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
-		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}],$scope.update);
+		var s={};
+		s.titre=Data.modele[$scope.key].titre;
+		s.desc=Data.modele[$scope.key].desc;
+		s.date=Data.modele[$scope.key].date;
+		s.statut=Data.modele[$scope.key].statut;
+		s.id=Data.modele[$scope.key].id;
+		s.id_thread=Data.modele[$scope.key].id_thread;
+		Link.ajax([{action:'modSuivi',params:{suivi:s}}],$scope.update);
 	}
 	$scope.next = function() {
 		Data.modele[$scope.key].statut=1;
 		Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
-		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}], function(){$location.path('/addsuivi/'+ Data.modele[$scope.key].id_casquette+'/'+ $routeParams.id);});
+		var s={};
+		s.titre=Data.modele[$scope.key].titre;
+		s.desc=Data.modele[$scope.key].desc;
+		s.date=Data.modele[$scope.key].date;
+		s.statut=Data.modele[$scope.key].statut;
+		s.id=Data.modele[$scope.key].id;
+		s.id_thread=Data.modele[$scope.key].id_thread;
+		Link.ajax([{action:'modSuivi',params:{suivi:s}}], function(){$location.path('/addsuivi/'+ Data.modele[$scope.key].id_thread)});
 	}
 	$scope.close = function() {
 		Link.del_verrou($scope.key);
 		Data.modele[$scope.key].statut=1;
 		Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
-		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}]);
+		var s={};
+		s.titre=Data.modele[$scope.key].titre;
+		s.desc=Data.modele[$scope.key].desc;
+		s.date=Data.modele[$scope.key].date;
+		s.statut=Data.modele[$scope.key].statut;
+		s.id=Data.modele[$scope.key].id;
+		s.id_thread=Data.modele[$scope.key].id_thread;
+		Link.ajax([{action:'modSuivi',params:{suivi:s}}]);
 	}
 	$scope.open = function() {
 		Link.set_verrou([$scope.key]);
 		Data.modele[$scope.key].statut=0;
 		Data.modele[$scope.key].date=new Date(Data.modele[$scope.key].date).getTime();
-		Link.ajax([{action:'modSuivi',params:{suivi:Data.modele[$scope.key]}}]);
+		var s={};
+		s.titre=Data.modele[$scope.key].titre;
+		s.desc=Data.modele[$scope.key].desc;
+		s.date=Data.modele[$scope.key].date;
+		s.statut=Data.modele[$scope.key].statut;
+		s.id=Data.modele[$scope.key].id;
+		s.id_thread=Data.modele[$scope.key].id_thread;
+		Link.ajax([{action:'modSuivi',params:{suivi:s}}]);
+	}
+	$scope.modSuivi=function(suivi){
+		if (!Data.modele['suivi/'+suivi.id]) {
+			suivi.cas=Data.modele[$scope.key].cas;
+			Data.modele['suivi/'+suivi.id]=suivi;
+			Data.modeleSrv['suivi/'+suivi.id]=suivi;
+		}
+		$location.path('/modsuivi/'+ suivi.id);
 	}
 	$scope.assCasquette=function(){
 		var modal = $uibModal.open({
@@ -1768,18 +2418,18 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 			Data.modele[$scope.key].cas=cas;
 			$scope.save();
 		}, function(){
-			$scope.update();	
+			$scope.update();
 		});
 	}
 	$scope.toggle_acl_group=function(g){
-		if (Data.modele[$scope.key].acl.group.indexOf(g.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'group',id_acces:g.id}}]);
-		else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'group',id_acces:g.id,level:3}}]);
+		if (Data.modele[$scope.threadKey].acl.group.indexOf(g.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis_threads',id_ressource:Data.modele[$scope.key].id_thread,type_acces:'group',id_acces:g.id}}]);
+		else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis_threads',id_ressource:Data.modele[$scope.key].id_thread,type_acces:'group',id_acces:g.id,level:3}}]);
 	}
 	$scope.toggle_acl_user=function(u){
-		if (Data.modele[$scope.key].acl.user.indexOf(u.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'user',id_acces:u.id}}]);
-		else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis',id_ressource:$routeParams.id,type_acces:'user',id_acces:u.id,level:3}}]);
+		if (Data.modele[$scope.threadKey].acl.user.indexOf(u.id)>=0) Link.ajax([{action:'delAcl',params:{type_ressource:'suivis_threads',id_ressource:Data.modele[$scope.key].id_thread,type_acces:'user',id_acces:u.id}}]);
+		else Link.ajax([{action:'addAcl',params:{type_ressource:'suivis_threads',id_ressource:Data.modele[$scope.key].id_thread,type_acces:'user',id_acces:u.id,level:3}}]);
 	}
-	
+
 	$scope.$on("$destroy", function(){
 		Link.del_verrou($scope.key);
 	});
@@ -1790,8 +2440,7 @@ app.controller('addsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		desc:'',
 		date:new Date().getTime(),
 		statut:0,
-		id_casquette:$routeParams.id,
-		id_precedent:$routeParams.id_suivi
+		id_thread:$routeParams.id
 	};
 	$scope.editorOptions = {
 		language: 'fr',
@@ -1803,15 +2452,16 @@ app.controller('addsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		Link.ajax([{action:'addSuivi',params:{suivi:$scope.suivi}}],function(r){$location.path('/modsuivi/'+ r.res);});
 	}
 }]);
-	
+
 
 //admin
 app.controller('adminCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
 	Link.context([{type:'log'}]);
+	$scope.page={users:1,groups:1};
 	$scope.setVerrou=function(){
 		Link.set_verrou(['config']);
 		$scope.stopVerrou=$scope.$watchCollection('Data.modele.config',function(n,o){
-			if (n!=o) Link.set_verrou(['config']);		
+			if (n!=o) Link.set_verrou(['config']);
 		});
 	}
 	$scope.delVerrou=function(){
@@ -1835,7 +2485,7 @@ app.controller('adminCtl', ['$scope', '$http', '$location', 'Link', 'Data', func
 	}
 	$scope.show={};
 	$scope.setConfig=function(){
-		Link.ajax([{action:'setConfig',params:{config:Data.modele.config.config}}]);	
+		Link.ajax([{action:'setConfig',params:{config:Data.modele.config.config}}]);
 	}
 }]);
 app.controller('addUserCtl', ['$scope', '$http', '$location', 'Link', 'Data', function ($scope, $http, $location, Link, Data) {
@@ -1886,7 +2536,7 @@ app.controller('moiCtl', ['$scope', '$http', '$location', '$timeout', 'Link', 'D
 		else Link.ajax([{action:'addUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
 	}
 	$scope.mod=function(){
-		Link.ajax([{action:'modUser',params:{id:Data.user.id,login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
+		Link.ajax([{action:'modUser',params:{login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
 			$location.path('/admin');
 		});
 	};
@@ -1939,10 +2589,46 @@ app.controller('modGroupCtl', ['$scope', '$http', '$location', '$routeParams', '
 	});
 }]);
 
+app.controller('addSuivisThreadModCtl', ['$scope', '$uibModalInstance', '$uibModal', '$location', 'Data', 'suivis', function ($scope, $uibModalInstance, $uibModal, $location, Data, suivis) {
+	$scope.Data=Data;
+	$scope.suivis=suivis;
+	$scope.form={};
+	$scope.st={nom:'Suivi'};
+	$scope.select=function(thread){
+		$uibModalInstance.dismiss();
+		$location.path('/addsuivi/'+thread.id);
+	}
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+	$scope.ok = function () {
+		if ($scope.form.SuivisThread.$valid){
+			$uibModalInstance.close($scope.st);
+		}
+	};
+}]);
+app.controller('modSuivisThreadModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'thread', function ($scope, $uibModalInstance, $uibModal, thread) {
+	$scope.thread=angular.copy(thread);
+	$scope.form={};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+	$scope.ok = function () {
+		if ($scope.form.modSuivisThread.$valid){
+			$uibModalInstance.close($scope.thread);
+		}
+	};
+}]);
 app.controller('modContactModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'contact', function ($scope, $uibModalInstance, $uibModal, contact) {
 
 	$scope.form={};
 	$scope.contact=angular.copy(contact);
+
+	$scope.permute= function() {
+		var a=$scope.contact.prenom;
+		$scope.contact.prenom=$scope.contact.nom;
+		$scope.contact.nom=a;
+	}
 	$scope.cancel = function () {
 		$uibModalInstance.dismiss();
 	};
@@ -1978,8 +2664,100 @@ app.controller('modNewsletterModCtl', ['$scope', '$uibModalInstance', '$uibModal
 		$uibModalInstance.close(idx);
 	};
 }]);
-app.controller('modCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'cas', 'index', 'bouton', function ($scope, $uibModalInstance, $uibModal, cas, index, bouton) {
+app.controller('modScheduleEnvoiModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data', 'date', function ($scope, $uibModalInstance, $uibModal, Data, date) {
 
+	$scope.altInputFormats = ['M!/d!/yyyy'];
+	$scope.dateOptions = {
+		formatYear: 'yy',
+		startingDay: 1
+	};
+	$scope.form={};
+	$scope.date=new Date(date);
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+	$scope.ok = function () {
+		var date= $scope.date.getTime();
+		$uibModalInstance.close(date);
+	};
+}]);
+app.controller('modCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data', 'cas', 'index', 'bouton', function ($scope, $uibModalInstance, $uibModal, Data, cas, index, bouton) {
+
+	$scope.Data=Data;
+	$scope.hasTagList=function(tl,cl){
+		var tab=tl.split(',');
+		for(var i=0;i<cl.length;i++) {
+			if (tab.indexOf(cl[i])>=0) return true;
+		};
+		return false;
+	}
+	$scope.descendants=function(tag){
+		var tab=[];
+		angular.forEach(Data.modele.tags,function(e){
+			if (e.id_parent==tag.id) tab.push(e);
+		});
+		if (tab.length==0) return tab;
+		else {
+			angular.forEach(tab,function(e){
+				tab=tab.concat($scope.descendants(e));
+			});
+		}
+		tab.sort(function(a,b) {
+			return $scope.formatDescTag($scope.descTagParent(a,parent.id)).localeCompare($scope.formatDescTag($scope.descTagParent(b,parent.id)));
+		});
+		return tab;
+	}
+	$scope.descTagRec=function(tag,id_parent){
+		var h=[tag];
+		if (tag.id_parent!=id_parent && tag.id_parent!=0){
+			angular.forEach($scope.descTagRec(Data.modele.tags[tag.id_parent],id_parent), function(t){
+				h.push(t);
+			});
+		}
+		return h;
+	};
+	$scope.descTag=function(tag){
+		var h=$scope.descTagRec(tag,0);
+		return h.reverse();
+	};
+	$scope.descTagParent=function(tag,id_parent){
+		var h=$scope.descTagRec(tag,id_parent);
+		return h.reverse();
+	};
+	$scope.formatDescTag=function(t){
+		var tab=[];
+		angular.forEach(t,function(e){tab.push(e.nom);});
+		return tab.join('>');
+	};
+	$scope.parNomTag = function(tags,parent) {
+		var t = angular.copy(tags);
+		if (t) {
+
+		}
+		return t;
+	};
+	$scope.tagB={};
+	$scope.tagL={};
+	if (!cas.tags) cas.tags=[];
+	angular.forEach($scope.Data.modele.tags,function(p){
+		if (p.type=='boutons') {
+			$scope.tagB[p.id]={};
+			angular.forEach($scope.descendants(p),function(e){
+				if (cas.tags.indexOf(e.id)>=0) $scope.tagB[p.id][e.id]=true;
+				else $scope.tagB[p.id][e.id]=false;
+			});
+		}
+	});
+	//console.log($scope.tagB);
+	angular.forEach($scope.Data.modele.tags,function(p){
+		if (p.type=='liste') {
+			$scope.tagL[p.id]="0";
+			angular.forEach($scope.descendants(p),function(e){
+				if (cas.tags.indexOf(e.id)>=0) $scope.tagL[p.id]=e.id;
+			});
+		}
+	});
+	//console.log($scope.tagL);
 	$scope.bouton=bouton;
 	$scope.index=index;
 	$scope.addChampPerso=function(){
@@ -1998,11 +2776,28 @@ app.controller('modCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal'
 		cas.donnees.splice(idx,1);
 	}
 
-
 	$scope.cas=angular.copy(cas);
 	if (!$scope.cas.nom && $scope.cas.type==1) $scope.cas.nom="Perso";
 	if (!$scope.cas.nom && $scope.cas.type==2) $scope.cas.nom="Siège";
 	$scope.form={};
+	$scope.$watch('tagB',function(o,n){
+		angular.forEach($scope.tagB,function(p){
+			angular.forEach(p,function(e,k){
+				var idx=$scope.cas.tags.indexOf(k)
+				if (e && idx<0) $scope.cas.tags.push(k);
+				if (!e && idx>=0) $scope.cas.tags.splice(idx,1);
+			});
+		});
+	}, true);
+	$scope.$watch('tagL',function(o,n){
+		angular.forEach($scope.tagL,function(p,k){
+			angular.forEach($scope.descendants(Data.modele.tags[k]),function(e){
+				var idx=$scope.cas.tags.indexOf(e.id)
+				if (p==e.id && idx<0) $scope.cas.tags.push(p);
+				if (p!=e.id && idx>=0) $scope.cas.tags.splice(idx,1);
+			});
+		});
+	}, true);
 	$scope.ok = function () {
 		if ($scope.form.modCas.$valid){
 			angular.forEach($scope.cas.donnees,function(d){
@@ -2101,13 +2896,21 @@ app.controller('modCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal'
 		}
 		$scope.cas.donnees.push(d);
 	}
-	$scope.hasType = function(type){
+	$scope.hasType = function(type,label){
 		var test=false
-		angular.forEach($scope.cas.donnees,function(d){
-			if (d.type==type) {
-				test=true;
-			}
-		});
+		if (label) {
+			angular.forEach($scope.cas.donnees,function(d){
+				if (d.type==type && d.label==label) {
+					test=true;
+				}
+			});
+		} else {
+			angular.forEach($scope.cas.donnees,function(d){
+				if (d.type==type) {
+					test=true;
+				}
+			});
+		}
 		return test;
 	}
 }]);
@@ -2124,7 +2927,7 @@ app.controller('envoyerModCtl', ['$scope', '$uibModalInstance', '$uibModal', '$h
 		return Math.min(a,b);
 	};
 	$scope.fullQuery=function(){
-		if ($scope.type=='mail') return Data.mainQuery=='' ? ':email' : '('+Data.mainQuery+')&:email';	  
+		if ($scope.type=='mail') return Data.mainQuery=='' ? ':email' : '('+Data.mainQuery+')&:email';
 		if ($scope.type=='adresse') return Data.mainQuery=='' ? ':adresse' : '('+Data.mainQuery+')&:adresse';
 		return Data.mainQuery;
 	}
@@ -2157,7 +2960,7 @@ app.controller('envoyerModCtl', ['$scope', '$uibModalInstance', '$uibModal', '$h
 		Link.context([{type:'casquettes', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.fullQuery())}},{type:'panier'},{type:'tags'}]);
 	}
 	$scope.ok = function () {
-		$scope.res.query=$scope.parsed.back($scope.fullQuery());	
+		$scope.res.query=$scope.parsed.back($scope.fullQuery());
 		$uibModalInstance.close($scope.res);
 	};
 	$scope.cancel = function () {
@@ -2205,6 +3008,35 @@ app.controller('modTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Lin
 	if (!$scope.modTag.color) $scope.modTag.color='#333333';
 	$scope.bouton=bouton;
 	$scope.form={};
+	$scope.descendantSpecial=function (tag) {
+		var tab=[];
+		angular.forEach(Data.modele.tags,function(t){
+			if (t.id_parent==tag.id) tab.push(t);
+		});
+		if (tab.length==0) return false;
+		else {
+			var res=false;
+			angular.forEach(tab,function(e){
+				if (e.type) res=true;
+				else res=res || $scope.descendantSpecial(e);
+			});
+			return res;
+		}
+	};
+	$scope.ancestorSpecial=function (tag) {
+		if (tag.id_parent==0) return false;
+		else {
+			var p=Data.modele.tags[tag.id_parent];
+			if (p.type) return true;
+			else return $scope.ancestorSpecial(Data.modele.tags[p.id]);
+		}
+	};
+	$scope.hasSpecial=function (cas) {
+		angular.forEach(cas.tags,function(id){Data.modele.tags[id]
+			if ($scope.ancestorSpecial(Data.modele.tags[id])) return true;
+		});
+		return false;
+	};
 	$scope.ok = function () {
 		if ($scope.form.modTag.$valid){
 			$uibModalInstance.close($scope.modTag);
@@ -2268,7 +3100,7 @@ app.controller('addContactModCtl', ['$scope', '$uibModalInstance', '$uibModal', 
 	$scope.$watch('page.courante',function(o,n){
 		if (o!=n) $scope.getPage($scope.page.courante);
 	});
-	
+
 }]);
 app.controller('addNewsModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'news', function ($scope, $uibModalInstance, $uibModal, news) {
 	$scope.news=news;
@@ -2301,7 +3133,7 @@ app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bl
 		toolbar: 'lite',
 		height:'300px'
 	};
-	
+
 }]);
 app.controller('addModeleModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'modele', function ($scope, $uibModalInstance, $uibModal, modele) {
 	$scope.modele=modele;
@@ -2339,6 +3171,18 @@ app.controller('addSupportModCtl', ['$scope', '$uibModalInstance', '$uibModal', 
 		$uibModalInstance.dismiss();
 	};
 }]);
+app.controller('addTemplateModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'template', function ($scope, $uibModalInstance, $uibModal, template) {
+	$scope.template=template;
+	$scope.form={};
+	$scope.ok = function () {
+		if ($scope.form.addTemplate.$valid){
+			$uibModalInstance.close($scope.template);
+		}
+	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+}]);
 app.controller('assEtablissementModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Link', 'Data', 'cas', 'index', 'parsed', function ($scope, $uibModalInstance, $uibModal, Link, Data, cas, index, parsed) {
 	$scope.parsed=parsed;
 	$scope.Data=Data;
@@ -2355,7 +3199,7 @@ app.controller('assEtablissementModCtl', ['$scope', '$uibModalInstance', '$uibMo
 		if (o!=n) $scope.getPage($scope.page.courante);
 	});
 	$scope.getPage=function(page){
-		Link.context([{type:'etabs', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query)}}]);
+		Link.context([{type:'etabs', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query) + ' AND ::type/2::'}}]);
 	}
 	$scope.assEtablissement = function (e) {
 		$scope.cas.id_etab=e.id;
@@ -2382,6 +3226,30 @@ app.controller('assCasquetteModCtl', ['$scope', '$uibModalInstance', '$uibModal'
 	});
 	$scope.getPage=function(page){
 		Link.context([{type:'casquettes_sel', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query)}}]);
+	}
+	$scope.assCasquette = function (e) {
+		$uibModalInstance.close(e);
+	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+	$scope.getPage(1);
+}]);
+app.controller('assIndividuModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Link', 'Data', 'parsed', function ($scope, $uibModalInstance, $uibModal, Link, Data, parsed) {
+	$scope.parsed=parsed;
+	$scope.Data=Data;
+	$scope.page={courante:1};
+	$scope.itemsParPage=10;
+	$scope.maxSize=5;
+	$scope.query='';
+	$scope.min=function(a,b){
+		return Math.min(a,b);
+	};
+	$scope.$watch('page.courante',function(o,n){
+		if (o!=n) $scope.getPage($scope.page.courante);
+	});
+	$scope.getPage=function(page){
+		Link.context([{type:'casquettes_sel', params:{page:page, nb:$scope.itemsParPage, query:$scope.parsed.back($scope.query) + ' AND ::type/1::'}}]);
 	}
 	$scope.assCasquette = function (e) {
 		$uibModalInstance.close(e);
@@ -2420,7 +3288,7 @@ app.controller('assTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Dat
 	$scope.currentPage=1;
 	$scope.itemsParPage=5;
 	$scope.maxSize=5;
-	
+
 }]);
 app.controller('movTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data', 'moveok', 'modTag',  function ($scope, $uibModalInstance, $uibModal, Data, moveok, modTag) {
 	$scope.Data=Data;
@@ -2453,7 +3321,7 @@ app.controller('movTagModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Dat
 	$scope.currentPage=1;
 	$scope.itemsParPage=5;
 	$scope.maxSize=5;
-	
+
 }]);
 app.controller('addChampPersoModCtl', ['$scope', '$uibModalInstance', function ($scope, $uibModalInstance) {
 	$scope.form={};
@@ -2618,6 +3486,3 @@ app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'F
 		$uibModalInstance.dismiss();
 	};
 }]);
-
-
-

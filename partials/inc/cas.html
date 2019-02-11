@@ -1,0 +1,66 @@
+			<div class="col-sm-12 cas">
+
+				<div class="contact-btn cursor" ng-if="c[$index+1].id_contact!=cas.id_contact">
+					<span class="glyphicon glyphicon-trash" ng-confirm-click="delContact(cas)" ng-confirm-message="Sûr? Cela supprimera également les fiches de suivi de ce contact."></span>
+				</div>
+				<div class="col-xs-12" ng-if="hasSpecial(cas)">
+					<a class="cursor" ng-href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact">
+					<span ng-click="modCas(cas)">
+						<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
+					</span>
+					</a> <span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" class="mini" ng-if="cas.nom_cas!='Siège social' && cas.nom_cas!='Siège' && cas.nom_cas!='Perso' && cas.nom_cas!=cas.nom_etab">/ {{cas.nom_cas}}</span> <span class="mini" ng-if="cas.fonction"> {{cas.fonction}}</span> &nbsp;
+					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'liste'}:true)" ng-show="parent.okL.length>0">
+						<span class="cursor" ng-repeat="tag in (parent.okL=(descendants(parent) | inCas:cas))" ng-include="'partials/inc/tag_liste.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+					</span>	
+					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'boutons'}:true)" ng-show="parent.okB.length>0">
+						<span class="cursor" ng-repeat="tag in (parent.okB=(descendants(parent) | inCas:cas | orderBy:'nom'))" ng-include="'partials/inc/tag_boutons.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+					</span>
+				</div>
+				<div class="col-xs-6 col-md-4">
+					<div ng-if="!hasSpecial(cas)">
+						<a class="cursor" ng-href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact">
+						<span  ng-click="modCas(cas)">
+							<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
+						</span>
+						</a> <span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" class="mini" ng-if="cas.nom_cas!='Siège social' && cas.nom_cas!='Siège' && cas.nom_cas!='Perso' && cas.nom_cas!=cas.nom_etab">/ {{cas.nom_cas}}</span> <span class="mini" ng-if="cas.fonction"> {{cas.fonction}}</span> &nbsp;
+					</div>
+					<div ng-if="d.type=='adresse'" ng-repeat="d in cas.donnees">
+						<span>
+						{{d.value.cp}} {{d.value.ville}}
+						</span>&nbsp;
+					</div>
+				</div>
+				<div class="col-xs-6 col-md-4" style="overflow:hidden;">
+					<div ng-class="{'erreur':d.type=='email_erreur'}" ng-if="d.type=='email' || d.type=='email_erreur'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div class="col-xs-6 col-md-4" style="overflow:hidden;">
+					<div ng-if="d.type=='tel'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div class="clearfix"></div>
+				<div class="col-xs-12 small gris" style="overflow:hidden;">
+					<div ng-if="d.type=='note'" ng-repeat="d in cas.donnees">
+						{{d.value}}
+					</div>
+				</div>
+				<div  class="col-sm-12 light">
+					<span ng-if="cas.id_etab>0"><a ng-href="modcontact/{{cas.id_contact_etab}}"><span ng-click="modCasEtab(cas)" class="cursor structure">> {{cas.nom_etab}} <span class="mini structure" ng-if="cas.nom_cas_etab!='Siège social' && cas.nom_cas_etab!='Siège'">/ {{cas.nom_cas_etab}}</span></span></a></span>
+					<span class='individu' ng-show="cas.cols.length>0 && cas.type==2" ng-repeat="c in cas.cols">
+						<span ng-if="$first">> </span>
+						<a class="cursor" ng-href="modcontact/{{c.id_contact}}">
+						<span ng-click="modCas(c)">
+							<span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}
+						</span>
+						</a>
+						<span class="mini" ng-if="c.fonction"> {{c.fonction}}</span><span ng-if="!$last">, </span>
+					</span>
+				</div>
+				<div class="col-sm-12">
+					<span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in (parNomTag(cas.tags) | normaux:Data.modele.tags)" ng-click="CasTagClick($event,Data.modele.tags[id],cas)"></span>
+				</div>
+				
+			</div>
+

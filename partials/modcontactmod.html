@@ -4,6 +4,9 @@
 	<input class="form-control" type="text" ng-model="contact.nom"/><br />
 	<label ng-if="contact.type==1" for="prenom"><span ng-class="{'individu':contact.type==1, 'structure':contact.type==2}">Prenom</span></label>
 	<input ng-if="contact.type==1" class="form-control" type="text" ng-model="contact.prenom"/><br ng-if="contact.type==1" />
+	<span class="pull-right cursor mini" ng-if="contact.type==1">
+		<span ng-click="permute()">permuter nom <> prénom</span>
+	</span>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="ok()">Enregistrer</button>

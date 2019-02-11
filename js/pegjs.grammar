@@ -18,6 +18,8 @@ primary
 integer "integer"
   = ':tag' id:[0-9]+ { return '::tag'+id.join("")+'::'; }
   / '!:tag' id:[0-9]+ { return 'pas dans ::tag'+id.join("")+'::'; }
+  / ':tag_parent' id:[0-9]+ { return 'a le tag ::tag'+id.join("")+'::'; }
+  / '!:tag_parent' id:[0-9]+ { return 'n\'a pas le tag ::tag'+id.join("")+'::'; }
   / ':etab' id:[0-9]+ { return 'dans la structure '+id.join(""); }
   / '!:etab' id:[0-9]+ { return 'pas dans la structure '+id.join(""); }
   / ':envoi' id:[0-9]+ { return 'destinataire de l\'envoi n° '+id.join(""); }
@@ -81,6 +83,8 @@ integer "integer"
   / '!:panier' { return 'pas dans le panier'; }
   / ':mailerreur' { return 'e-mail en erreur'; }
   / '!:mailerreur' { return "pas d'e-mail en erreur"; }
+  / ':gpserreur' { return 'coordonnées gps incorrectes'; }
+  / '!:gpserreur' { return "coordonnées gps correctes"; }
   / ':email' { return 'a un e-mail'; }
   / '!:email' { return "n'a pas d'e-mail"; }
   / ':adresse' { return 'a une adresse'; }

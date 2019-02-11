@@ -1,0 +1,30 @@
+<form role="form" name="form.schedule">
+<div class="modal-body">
+	<p>
+		<label>
+			<span class="individu">Date de l'envoi</span>
+		</label>
+	</p>
+	<table width="100%">
+		<tr>
+			<td width="5%" align="center" valign="center">
+				Le
+			</td>
+			<td width="60%" valign="center">
+				<input type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy" ng-model="date" is-open="popup.opened" ng-required="true" ng-click="popup.opened=true"/>
+			</td>
+			<td width="5%" align="center" valign="center">
+				à
+			</td>
+			<td width="30%" valign="center">
+				<div uib-timepicker ng-model="date" ng-change="changed()" hour-step="1" minute-step="1" show-meridian="false"></div>
+			</td>
+		</tr>
+	</table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">Confirmer</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>
+
