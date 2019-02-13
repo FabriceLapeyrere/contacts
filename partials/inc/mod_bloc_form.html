@@ -1,0 +1,8 @@
+<label>{{donnee.label}}</label><input ng-if="donnee.type == 'text' " class="form-control autoFocus" type="text" ng-model="donnee.valeur"/>
+<input ng-if="donnee.type == 'nb' " class="form-control autoFocus" type="number" ng-model="donnee.valeur"/>
+<input ng-if="donnee.type == 'couleur' " class="form-control autoFocus" type="color" ng-model="donnee.valeur"/>
+<input ng-if="donnee.type == 'texte_court'" class="form-control autoFocus" type="texte" ng-model="donnee.valeur"/>
+<textarea ng-if="donnee.type == 'texte_long'" ckeditor="editorOptions" class="form-control autoFocus" type="text" ng-model="donnee.valeur"></textarea>
+<select ng-if="donnee.type == 'image'" class="form-control autoFocus" ng-options="pj.path as pj.filename for pj in pjs | image" ng-model="donnee.valeur"></select>
+<ng-include ng-if="donnee.type != 'nb' && donnee.type != 'texte_long' && donnee.type != 'image' && donnee.type != 'couleur' && donnee.type != 'texte_court'" src="'data/news_elements/partial_'+donnee.type+'.html'"></ng-include>
+<div class="clearfix inter col-xs-12"></div>
