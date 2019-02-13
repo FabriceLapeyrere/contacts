@@ -5,9 +5,11 @@
 </button>
 <div class="list-group">
 <div ng-repeat="item in donnee.valeur" class="list-group-item">
-    <div ng-repeat="donnee in item">
-        <ng-include ng-if="donnee.type!='liste'" src="'partials/inc/mod_bloc_form.html'"></ng-include>
-        <div ng-if="donnee.type=='liste'" ng-include="'partials/inc/mod_bloc_liste.html'"></div>
+    <div ng-repeat="donnee in bloc.donnees" ng-if="donnee.type!='liste'">
+        <ng-include src="'partials/inc/mod_bloc_form.html'"></ng-include>
+    </div>
+    <div ng-repeat="donnee in bloc.donnees" ng-if="donnee.type=='liste'">
+        <div ng-include="'partials/inc/mod_bloc_liste.html'"></div>
     </div>
 </div>
 </div>
