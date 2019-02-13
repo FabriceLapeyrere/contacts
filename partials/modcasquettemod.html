@@ -23,7 +23,7 @@
 	</p>
     <p>
 		<span class="btn btn-xs btn-default cursor"
-            ng-show="!hasType(champPerso.type.value,champPerso.label.value)"
+            ng-show="champPerso.type.value && champPerso.label.value && !hasType(champPerso.type.value,champPerso.label.value)"
             ng-repeat="champPerso in Data.modele.config.config.app.champs_personnalises.value"
             ng-click="addDonnee(champPerso.type.value,champPerso.label.value)">
             <span class="glyphicon glyphicon-plus"> </span> {{champPerso.label.value}}

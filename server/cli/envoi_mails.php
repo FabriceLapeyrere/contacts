@@ -11,7 +11,7 @@ $C=Config::get();
 if($envoi['statut']==1) {
     $emails_ok=array();
 	$M=Mailing::do_play_envoi($id_envoi);
-	WS_maj($M['maj']);	
+	WS_maj($M['maj']);
 	error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi commencé.\n", 3, "data/log/envoi.log");
 	$sujet=$envoi['sujet'];
 	$html=$envoi['html'];
@@ -52,7 +52,7 @@ if($envoi['statut']==1) {
 	foreach ($pjs as $pj) {
 		if(!$pj->used) $mail->AddAttachment($pj->path);
 	}
-		
+
 	$mail->From = $exp->email->value;
 	$mail->FromName = $exp->nom->value;
 	error_log(date('d/m/Y H:i:s')." - nb = ".Mailing::nb_messages_boite_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
@@ -66,12 +66,12 @@ if($envoi['statut']==1) {
 				if(Mailing::statut_envoi($id_envoi)==2) {
 					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)." -> arret demandé\n", 3, "data/log/envoi.log");
 					$M=Mailing::do_pause_envoi($id_envoi);
-					WS_maj($M['maj']);	
+					WS_maj($M['maj']);
 					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
 					error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "data/log/envoi.log");
 					exit(0);
 				}
-		
+
 			}
 		} else {
 			$pas++;
@@ -109,10 +109,10 @@ if($envoi['statut']==1) {
 		        $usbcr_hash=base64_encode(json_encode(array("emails"=>array($email))));
 		        $unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
 		        $html_def=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);
-		        
+
 		        $mail->MsgHTML($html_def);
 			    $mail->AddAddress($email,$nom);
-			    
+
 			    $emails_ok[]=$email;
 		        $M=array();
 		        if (!$mail->Send())
@@ -157,6 +157,18 @@ if($envoi['statut']==1) {
 		        Mailing::sup_message($m['id']);
 		    }
 		}
+        if (count($emails)==0) {
+            $log=array(
+		        'date'=>millisecondes(),
+		        'erreur'=>"Ce contact n'a pas d'e-mail...",
+		        'i'=>$i,
+		        'nb'=>$nb,
+		        'cas'=>$c,
+		        'email'=>$email
+	        );
+	        Mailing::log_erreur($id_envoi,$log);
+		    Mailing::sup_message($m['id']);
+        }
 		WS_maj(array_merge($M['maj'],array("envoi/$id_envoi")));
 	}
 }

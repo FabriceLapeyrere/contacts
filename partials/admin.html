@@ -67,7 +67,7 @@
 										<span ng-repeat="p in (tabexp=(exp| toArray | orderBy:'num')) | limitTo:1">{{p.value}}</span>
 									<small class="cursor" ng-click="show[catName+itemName+$index]=!show[catName+itemName+$index]" ng-if="!show[catName+itemName+$index]">voir</small>
 									<small class="cursor" ng-click="show[catName+itemName+$index]=!show[catName+itemName+$index]" ng-if="show[catName+itemName+$index]">cacher</small></h4>
-									<div class="array-btn cursor" ng-if="item.value.length>1">
+									<div class="array-btn cursor" ng-if="item.value.length>0">
 										<span class="glyphicon glyphicon-trash" ng-confirm-click="item.value.splice($index,1)" ng-confirm-message="Sûr?"></span>
 									</div>
 									<ul class="list-group" ng-show="show[catName+itemName+$index]">
