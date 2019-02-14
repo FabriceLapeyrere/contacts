@@ -92,7 +92,7 @@
 			$u=$this->WS->getSession($this->from,'user');
 			if (isset($u) && ($u['id']==1 || $u['id']==$params->id)) {
 				$pwd=isset($params->pwd) ? $params->pwd : '';
-				$user=$this->User->update($u['id'],$params->login,$params->name,$pwd);
+				$user=$this->User->update($params->id,$params->login,$params->name,$pwd);
 				return $user;
 			} else {
 				return 0;

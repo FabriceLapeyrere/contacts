@@ -8,7 +8,8 @@
 		<input class="form-control" type="password" ng-model="modUser.pwd" autocomplete="off"/><br />
 		<label for="pwdcf">Confirmer le mot de passe :</label>
 		<input class="form-control" type="password" ng-model="modUser.pwdcf" autocomplete="off"/><br />
-		<button ng-if="modUser.name!='' && (modUser.pwd.length>=4 && modUser.pwd==modUser.pwdcf || !modUser.pwd && !modUser.pwdcf)" class="btn btn-primary"  ng-click="mod()">Modifier mon compte</button>
+		<button ng-if="modUser.name!='' && (modUser.pwd.length>=4 && modUser.pwd==modUser.pwdcf || !modUser.pwd && !modUser.pwdcf)"
+			class="btn btn-primary"  ng-click="mod()">Modifier le compte</button>
 	</form>
     <h3>Groupes</h3>
     <div>
@@ -16,4 +17,3 @@
         <span ng-repeat-end>&nbsp;</span>
     </div>
 </div>
-
