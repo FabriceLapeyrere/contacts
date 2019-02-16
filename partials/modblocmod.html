@@ -5,11 +5,9 @@
     <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
 </div>
 <div class="modal-body">
-    <div ng-repeat="donnee in bloc.donnees" ng-if="donnee.type!='liste'">
-        <ng-include src="'partials/inc/mod_bloc_form.html'"></ng-include>
-    </div>
-    <div ng-repeat="donnee in bloc.donnees" ng-if="donnee.type=='liste'">
-        <div ng-include="'partials/inc/mod_bloc_liste.html'"></div>
+    <div ng-repeat="donnee in bloc.donnees">
+        <ng-include ng-if="donnee.type!='liste'" src="'partials/inc/mod_bloc_form.html'"></ng-include>
+        <div ng-if="donnee.type=='liste'" ng-include="'partials/inc/mod_bloc_liste.html'"></div>
     </div>
 </div>
 <div class="modal-footer">
