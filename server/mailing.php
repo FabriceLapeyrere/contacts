@@ -250,7 +250,7 @@
 			return $newss;
 		}
 		//news modeles
-		public static function replacePattern($html,$donnees,$datahtml)
+		public static function replacePattern($html,$donnees,$datahtml,$id_news,$id_newsletter,$id_modele,$id)
 		{
 			$pattern = "/::((?:(?!:).){1}(?:(?!::).)*)::/";
 			preg_match_all($pattern, $html, $matches, PREG_OFFSET_CAPTURE, 3);
@@ -282,7 +282,9 @@
 				if(file_exists("data/news_elements/elt_$type.php")) include "data/news_elements/elt_$type.php";
 				elseif(file_exists("server/news_elements/elt_$type.php")) include "server/news_elements/elt_$type.php";
 				$html=str_replace($code,$valeur,$html);
+				error_log("replacePatternDonneesHtml\n-------------\n".var_export($donneeshtml,true)."\n-------------\n",3,"/tmp/fab.log");
 				$datahtml=oMerge($datahtml,$donneeshtml);
+				error_log("replacePatternDataHtml\n-------------\n".var_export($donneeshtml,true)."\n-------------\n",3,"/tmp/fab.log");
 			}
 			//error_log("replacePatternBeforeBeforeDatacheck\n-------------\n".var_export(array($html,$donnees),true)."\n-------------\n",3,"/tmp/fab.log");
 			foreach($donnees as $k=>$donnee){
@@ -318,7 +320,7 @@
 			//error_log("replacePatternAfterDatacheck\n-------------\n".var_export(array($html,$donnees_ok),true)."\n-------------\n",3,"/tmp/fab.log");
 			return array($html,$donnees_ok,$datahtml);
 		}
-		public static function parseTagsRecursive($html,$data,$datahtml)
+		public static function parseTagsRecursive($html,$data,$datahtml,$id_news,$id_newsletter,$id_modele,$id)
 		{
 			//error_log("replacedata0\n-------------\n".var_export($data,true)."\n-------------\n",3,"/tmp/fab.log");
 			$html_orig=$html;
@@ -341,7 +343,7 @@
 					}
 				}
 				foreach($liste as $k=>$d){
-					list($html_e,$data_e,$datahtml_e)=Mailing::parseTagsRecursive($innerCode,$d,$datahtml);
+					list($html_e,$data_e,$datahtml_e)=Mailing::parseTagsRecursive($innerCode,$d,$datahtml,$id_news,$id_newsletter,$id_modele,$id);
 					$html_res.=$html_e;
 					$data[$liste_key]->valeur[$k]=$data_e;
 					$datahtml=oMerge($datahtml,$datahtml_e);
@@ -356,11 +358,11 @@
 					$data[]=$d;
 					$liste_key=count($data)-1;
 				}
-				list($html_d,$data_d,$datahtml_d)=Mailing::parseTagsRecursive($innerCode,array(),new stdClass);
+				list($html_d,$data_d,$datahtml_d)=Mailing::parseTagsRecursive($innerCode,array(),new stdClass,$id_news,$id_newsletter,$id_modele,$id);
 				$data[$liste_key]->schema=$data_d;
 				$data[$liste_key]->code=$code;
 			}
-			list($H,$D,$Dhtml)=Mailing::replacePattern($html,$data,$datahtml);
+			list($H,$D,$Dhtml)=Mailing::replacePattern($html,$data,$datahtml,$id_news,$id_newsletter,$id_modele,$id);
 			usort($D, function($a, $b) use ($html_orig)
 			{
 				$pa=strpos($html_orig,$a->code);
@@ -378,10 +380,10 @@
 			$tab=explode('::',$nom);
 			$modCat='Sans thème';
 			if (count($tab)>0) $modCat=$tab[0];
-			$donneeshtml=json_decode('{}');
+			$donneeshtml=new stdClass;
 			$html=$modele['modele'];
 
-			list($html_ok,$data_ok,$donneeshtml_ok) = Mailing::parseTagsRecursive($html,$data,$donneeshtml);
+			list($html_ok,$data_ok,$donneeshtml_ok) = Mailing::parseTagsRecursive($html,$data,$donneeshtml,$id_news,$id_newsletter,$id_modele,$id);
 			//error_log("output\n-------------\n".var_export(array($html_ok,$data_ok),true)."\n-------------\n",3,"/tmp/fab.log");
 
 			$wrapper=$C->news->wrapper->value;
@@ -397,7 +399,7 @@
 				$html_ok=str_replace('#FULL#','',$html_ok);
 				$html_ok=str_replace('::nBloc::',$n,$html_ok);
 			}
-			return array($html_ok,$data_ok,$donneeshtml);
+			return array($html_ok,$data_ok,$donneeshtml_ok);
 		}
 		public function del_news_pj($params,$id) {
 			$t=Mailing::do_del_news_pj($params,$id);
