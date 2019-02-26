@@ -42,7 +42,7 @@
 				$password=md5($login.$password);
 				$update = $db->database->prepare('UPDATE users set name=?, password=? WHERE id=?');
 				$update->execute(array($name,$password,$id));
-			} 
+			}
 			$this->WS->maj(array("user/$id"));
 			return User::get_user($id);
 		}
@@ -200,7 +200,7 @@
 			}
 			$prefs=json_decode($res);
 			if (isset($params->nouveaux)) {
-				$prefs->panier=array_merge($prefs->panier, $params->nouveaux);
+				$prefs->panier=array_values(array_unique(array_merge($prefs->panier, $params->nouveaux)));
 			}
 			$update = $db->database->prepare('UPDATE users set prefs=? WHERE id=?');
 			$update->execute(array(json_encode($prefs),$id));
@@ -304,7 +304,6 @@
 			}
 			if ($res!='') $prefs=json_decode($res);
 			else $prefs=(object) NULL;
-			error_log(var_export($prefs->panier,true),3,"data/tmp/debug.log");
 			return is_array($prefs->panier) ? $prefs->panier : array();
 		}
 		public static function get_users_list()
