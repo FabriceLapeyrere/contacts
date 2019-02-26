@@ -3133,7 +3133,10 @@ app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bl
 		toolbar: 'lite',
 		height:'300px'
 	};
-
+	$scope.addSchema=function(d){
+		var s=angular.copy(d.schema);
+		d.valeur.push(s);
+	};
 }]);
 app.controller('addModeleModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'modele', function ($scope, $uibModalInstance, $uibModal, modele) {
 	$scope.modele=modele;

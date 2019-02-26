@@ -158,7 +158,7 @@
 			$news_old=Mailing::get_news($id_news,$id);
 			$maj=array();
 			$db->database->beginTransaction();
-			error_log("count".count($news_old['blocs'])."  ".count($blocs)."\n",3,"/tmp/fab.log");
+			//error_log("count".count($news_old['blocs'])."  ".count($blocs)."\n",3,"/tmp/fab.log");
 			if (count($news_old['blocs'])!=count($blocs)) {
 				$maj[]='modeles';
 				$insert = $db->database->prepare('DELETE FROM modeles_news WHERE id_news=?');
@@ -231,11 +231,12 @@
 					}
 					if (is_array($row['blocs'])){
 						foreach($row['blocs'] as $k=>$b){
-							$row['blocs'][$k]->donnees=Mailing::donnees_modele($row['id'],$row['blocs'][$k]->id_modele,isset($row['blocs'][$k]->donnees) ? $row['blocs'][$k]->donnees : array());
-							$hb=Mailing::html_bloc($row['id'],$row['id_newsletter'],$row['blocs'][$k]->id_modele,$row['blocs'][$k]->donnees,$id,$k);
+							$d=array();
+							if (isset($row['blocs'][$k]->donnees)) $d=(array)$row['blocs'][$k]->donnees;
+							$hb=Mailing::html_bloc($row['id'],$row['id_newsletter'],$row['blocs'][$k]->id_modele,$d,$id,$k);
 							$row['blocs'][$k]->html=$hb[0];
-							$row['blocs'][$k]->donneeshtml=$hb[1];
-							$row['blocs'][$k]->donnees=$hb[2];
+							$row['blocs'][$k]->donnees=$hb[1];
+							$row['blocs'][$k]->donneeshtml=$hb[2];
 						}
 					} else {
 						$row['blocs']=array();
@@ -249,29 +250,51 @@
 			return $newss;
 		}
 		//news modeles
-		public static function donnees_modele($id_news,$id_modele,$donnees) {
-			$donnees_ok=array();
-			$modele=Mailing::get_modele($id_modele);
+		public static function replacePattern($html,$donnees,$datahtml,$id_news,$id_newsletter,$id_modele,$id)
+		{
 			$pattern = "/::((?:(?!:).){1}(?:(?!::).)*)::/";
-			preg_match_all($pattern, $modele['modele'], $matches, PREG_OFFSET_CAPTURE, 3);
+			preg_match_all($pattern, $html, $matches, PREG_OFFSET_CAPTURE, 3);
 			$donnees_modele=array();
+			$donnees_ok=array();
 			foreach($matches[0] as $key=>$value){
 				$code=$matches[0][$key][0];
 				$tab=explode('&',$matches[1][$key][0]);
+				$type=$tab[0];
+				$label=$tab[1];
+				$nom=filter($label);
+				$valeur='';
+				$index=-1;
 				$d=new stdClass;
 				$d->nom=filter($tab[1]);
 				$d->type=$tab[0];
 				$d->valeur=null;
 				$d->label=$tab[1];
+				$d->code=$code;
 				$donnees_modele[]=$d;
+				foreach($donnees as $k=>$donnee){
+					if (isset($donnee->nom) && $donnee->nom==$nom && $donnee->type==$type) {
+						$donnees[$k]->code=$code;
+						$valeur=$donnee->valeur;
+						$index=$k;
+					}
+				}
+				$donneeshtml=new stdClass;
+				if(file_exists("data/news_elements/elt_$type.php")) include "data/news_elements/elt_$type.php";
+				elseif(file_exists("server/news_elements/elt_$type.php")) include "server/news_elements/elt_$type.php";
+				$html=str_replace($code,$valeur,$html);
+				error_log("replacePatternDonneesHtml\n-------------\n".var_export($donneeshtml,true)."\n-------------\n",3,"/tmp/fab.log");
+				$datahtml=oMerge($datahtml,$donneeshtml);
+				error_log("replacePatternDataHtml\n-------------\n".var_export($donneeshtml,true)."\n-------------\n",3,"/tmp/fab.log");
 			}
+			//error_log("replacePatternBeforeBeforeDatacheck\n-------------\n".var_export(array($html,$donnees),true)."\n-------------\n",3,"/tmp/fab.log");
 			foreach($donnees as $k=>$donnee){
 				$donnees_ok[]=$donnee;
 			}
+			//error_log("replacePatternBeforeDatacheck\n-------------\n".var_export(array($html,$donnees_ok),true)."\n-------------\n",3,"/tmp/fab.log");
+			//on rajoute les nouvelles données
 			foreach($donnees_modele as $d) {
 				$test=false;
-				//on rajoute les nouvelles données
-				foreach($donnees as $k=>$donnee){
+				foreach($donnees_ok as $k=>$donnee){
 					if (isset($donnee->nom) && $donnee->nom==$d->nom && $donnee->type==$d->type)
 						$test=true;
 				}
@@ -282,60 +305,101 @@
 			}
 			//on enlève les données obsolètes
 			foreach($donnees_ok as $k=>$donnee){
-				$test=false;
-				foreach($donnees_modele as $d) {
-					if (isset($donnee->nom) && $donnee->nom==$d->nom && $donnee->type==$d->type)
-						$test=true;
-				}
-				if (!$test) {
-					unset($donnees_ok[$k]);
+				if ($donnee->type!='liste') {
+					$test=false;
+					foreach($donnees_modele as $d) {
+						if (isset($donnee->nom)  && $donnee->nom==$d->nom && $donnee->type==$d->type)
+							$test=true;
+					}
+					if (!$test) {
+						unset($donnees_ok[$k]);
+					}
 				}
 			}
-			return $donnees_ok;
+			$donneeshtml= new stdClass;
+			//error_log("replacePatternAfterDatacheck\n-------------\n".var_export(array($html,$donnees_ok),true)."\n-------------\n",3,"/tmp/fab.log");
+			return array($html,$donnees_ok,$datahtml);
 		}
-		public static function html_bloc($id_news,$id_newsletter,$id_modele,$donnees,$id,$n) {
+		public static function parseTagsRecursive($html,$data,$datahtml,$id_news,$id_newsletter,$id_modele,$id)
+		{
+			//error_log("replacedata0\n-------------\n".var_export($data,true)."\n-------------\n",3,"/tmp/fab.log");
+			$html_orig=$html;
+			$pattern = '#\[multiple&([^\]]*)]((?:[^[]|\[(?!/?multiple)[^\]]*\]|(?R))+)\[/multiple]#';
+			preg_match_all($pattern, $html, $matches, PREG_OFFSET_CAPTURE, 3);
+			foreach($matches[0] as $key=>$value){
+				$html_res='';
+				$id=$matches[1][$key][0];
+				$code=$matches[0][$key][0];
+				$innerCode=$matches[2][$key][0];
+				$liste=array();
+				$liste_key=-1;
+				$test=false;
+				foreach($data as $k=>$donnee){
+					if (isset($donnee->nom) && $donnee->nom==$id && $donnee->type=='liste') {
+						$data[$k]->code=$code;
+						$liste=$donnee->valeur;
+						$liste_key=$k;
+						$test=true;
+					}
+				}
+				foreach($liste as $k=>$d){
+					list($html_e,$data_e,$datahtml_e)=Mailing::parseTagsRecursive($innerCode,$d,$datahtml,$id_news,$id_newsletter,$id_modele,$id);
+					$html_res.=$html_e;
+					$data[$liste_key]->valeur[$k]=$data_e;
+					$datahtml=oMerge($datahtml,$datahtml_e);
+				}
+				$html=str_replace($code,$html_res,$html);
+				//on ajoute la liste vide si elle n'existe pas
+				if (!$test) {
+					$d= new stdClass;
+					$d->valeur=array();
+					$d->nom=$id;
+					$d->type='liste';
+					$data[]=$d;
+					$liste_key=count($data)-1;
+				}
+				list($html_d,$data_d,$datahtml_d)=Mailing::parseTagsRecursive($innerCode,array(),new stdClass,$id_news,$id_newsletter,$id_modele,$id);
+				$data[$liste_key]->schema=$data_d;
+				$data[$liste_key]->code=$code;
+			}
+			list($H,$D,$Dhtml)=Mailing::replacePattern($html,$data,$datahtml,$id_news,$id_newsletter,$id_modele,$id);
+			usort($D, function($a, $b) use ($html_orig)
+			{
+				$pa=strpos($html_orig,$a->code);
+				$pb=strpos($html_orig,$b->code);
+				if ($pa<$pb) return -1;
+				if ($pa==$pb) return 0;
+				if ($pa>$pb) return 1;
+			});
+			return array($H,$D,$Dhtml);
+		}
+		public static function html_bloc($id_news,$id_newsletter,$id_modele,$data,$id,$n) {
 			$C=Config::get();
 			$modele=Mailing::get_modele($id_modele);
 			$nom=$modele['nom'];
 			$tab=explode('::',$nom);
 			$modCat='Sans thème';
 			if (count($tab)>0) $modCat=$tab[0];
-			$donneeshtml=json_decode('{}');
+			$donneeshtml=new stdClass;
 			$html=$modele['modele'];
-			$pattern = "/::((?:(?!:).){1}(?:(?!::).)*)::/";
-			preg_match_all($pattern, $modele['modele'], $matches, PREG_OFFSET_CAPTURE, 3);
-			foreach($matches[0] as $key=>$value){
-				$code=$matches[0][$key][0];
-				$tab=explode('&',$matches[1][$key][0]);
-				$type=$tab[0];
-				$label=$tab[1];
-				$nom=filter($label);
-				$valeur='';
-				$index=-1;
-				foreach($donnees as $k=>$donnee){
-					if (isset($donnee->nom) && $donnee->nom==$nom && $donnee->type==$type) {
-						$valeur=$donnee->valeur;
-						$index=$k;
-					}
-				}
-				if(file_exists("data/news_elements/elt_$type.php")) include "data/news_elements/elt_$type.php";
-				elseif(file_exists("server/news_elements/elt_$type.php")) include "server/news_elements/elt_$type.php";
-				$html=str_replace($code,$valeur,$html);
-			}
+
+			list($html_ok,$data_ok,$donneeshtml_ok) = Mailing::parseTagsRecursive($html,$data,$donneeshtml,$id_news,$id_newsletter,$id_modele,$id);
+			//error_log("output\n-------------\n".var_export(array($html_ok,$data_ok),true)."\n-------------\n",3,"/tmp/fab.log");
+
 			$wrapper=$C->news->wrapper->value;
 			if ($id_newsletter>=0) {
 				if (isset($C->news->newsletters->value[$id_newsletter]->wrapper->value) && $C->news->newsletters->value[$id_newsletter]->wrapper->value!="")
 					$wrapper=$C->news->newsletters->value[$id_newsletter]->wrapper->value;
 			}
 			//bloc sans wrapper
-			if (strpos($html,'#FULL#')===false) {
+			if (strpos($html_ok,'#FULL#')===false) {
 				$wrap=str_replace('::nBloc::',$n,$wrapper);
-				$html=str_replace('::code::',$html,$wrap);
+				$html_ok=str_replace('::code::',$html_ok,$wrap);
 			} else {
-				$html=str_replace('#FULL#','',$html);
-				$html=str_replace('::nBloc::',$n,$html);
+				$html_ok=str_replace('#FULL#','',$html_ok);
+				$html_ok=str_replace('::nBloc::',$n,$html_ok);
 			}
-			return array($html,$donneeshtml,$donnees);
+			return array($html_ok,$data_ok,$donneeshtml_ok);
 		}
 		public function del_news_pj($params,$id) {
 			$t=Mailing::do_del_news_pj($params,$id);
