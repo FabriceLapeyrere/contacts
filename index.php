@@ -24,7 +24,7 @@ $conf=conf();
 <link href="css/contacts.css" media="all" type="text/css" rel="stylesheet">
 </head>
 <body>
-<input type="hidden" id="ws-port" value="<?=$conf->ws_port?>"/> 
+<input type="hidden" id="ws-port" value="<?=$conf->ws_port?>"/>
 <div ng-if="Data.user.id>=0" ng-class="{'navbar':Data.user.id>=0, 'navbar-default':Data.user.id>=0}" role="navigation" bs-navbar ng-include="'partials/menu.html'">
 </div>
 <div class="col-xs-12 col-md-6" ng-show="map.show" ng-if="map.ok">
@@ -53,8 +53,7 @@ $conf=conf();
 <script src="lib/hotkeys.js"></script>
 <script src="lib/mapbox-gl.js"></script>
 <script src="lib/ckeditor/ckeditor.js"></script>
-<script src="lib/ckeditor/config.js"></script>
-<script src="lib/ng-ckeditor.js"></script>
+<script src="lib/ng-ckeditor.min.js"></script>
 <script src="lib/mousewheel.js"></script>
 <script src="lib/hamster.js"></script>
 <script src="lib/angular.audio.js"></script>

@@ -57,7 +57,7 @@
 			<label>
 				<span>Note</span>
 			</label>
-			<textarea ckeditor="editorOptions" name="editor" style="height:500px;" class="form-control autoFocus" ng-model="Data.modele[key].desc"></textarea>
+			<ng-ckeditor ng-config="editorOptions" name="editor" ng-model="Data.modele[key].desc"></ng-ckeditor>
 		</locked>
 	</div>
 	<div ng-if="Data.modele[key].statut==1" class="list-group-item col-xs-12">
@@ -102,4 +102,3 @@
 </div>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
-

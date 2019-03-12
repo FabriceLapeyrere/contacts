@@ -13,14 +13,14 @@ form.login{background-color:#fff;width:350px;border-radius:5px;border:1px solid 
 span.groups {
 	display:block;
 	color:#FFF;
-	height:0.8em;	
+	height:0.8em;
 }
 .groups {
 	font-size:0.7em;
 	text-align:right;
 	height:0.5em;
 }
-[draggable] {
+[draggable="true"] {
 	cursor: move;
 }
 .avant {
@@ -321,4 +321,9 @@ pre {
 .carte {
 	width:100%;
 	height:800px;
+}
+.drag-handle {
+	position:absolute;
+	left:2px;
+	top:13px;
 }

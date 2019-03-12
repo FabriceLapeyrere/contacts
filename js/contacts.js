@@ -1,4 +1,4 @@
-var app= angular.module('contacts', ['ngRoute','ngDragDrop','ui.bootstrap', 'toggle-switch', 'angularFileUpload','ngSanitize','cfp.hotkeys','ngCkeditor','fakeWs','luegg.directives','ngTouch','ngAudio']);
+var app= angular.module('contacts', ['ngRoute','ngDragDrop','ui.bootstrap', 'toggle-switch', 'angularFileUpload','ngSanitize','cfp.hotkeys','ng.ckeditor','fakeWs','luegg.directives','ngTouch','ngAudio']);
 
 app.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'loginCtl'});
@@ -1626,7 +1626,25 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	$scope.Data=Data;
 	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.editorOptions = {
-		language: 'fr'
+		height:"500px",
+		language: 'fr',
+		skin:"minimalist",
+		toolbarGroups:[
+			{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+			{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+			{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+			{ name: 'forms', groups: [ 'forms' ] },
+			{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+			{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+			{ name: 'links', groups: [ 'links' ] },
+			{ name: 'insert', groups: [ 'insert' ] },
+			{ name: 'styles', groups: [ 'styles' ] },
+			{ name: 'colors', groups: [ 'colors' ] },
+			{ name: 'tools', groups: [ 'tools' ] },
+			{ name: 'others', groups: [ 'others' ] },
+			{ name: 'about', groups: [ 'about' ] }
+		],
+		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
 	$scope.save = function() {
 			Link.ajax([{action:'modMail',params:{mail:Data.modele[$scope.key]}}])
@@ -2334,9 +2352,25 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 	$scope.cas={};
 	$scope.showDesc={};
 	$scope.editorOptions = {
+		height:"300px",
 		language: 'fr',
-		toolbar: 'lite',
-		height:'300px'
+		skin:"minimalist",
+		toolbarGroups:[
+			{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+			{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+			{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+			{ name: 'forms', groups: [ 'forms' ] },
+			{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+			{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+			{ name: 'links', groups: [ 'links' ] },
+			{ name: 'insert', groups: [ 'insert' ] },
+			{ name: 'styles', groups: [ 'styles' ] },
+			{ name: 'colors', groups: [ 'colors' ] },
+			{ name: 'tools', groups: [ 'tools' ] },
+			{ name: 'others', groups: [ 'others' ] },
+			{ name: 'about', groups: [ 'about' ] }
+		],
+		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
 	$scope.del = function() {
 		Link.ajax([{action:'delSuivi',params:{id:$routeParams.id}}],function(data){
@@ -2443,9 +2477,25 @@ app.controller('addsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		id_thread:$routeParams.id
 	};
 	$scope.editorOptions = {
+		height:"500px",
 		language: 'fr',
-		toolbar: 'lite',
-		height:'300px'
+		skin:"minimalist",
+		toolbarGroups:[
+			{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+			{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+			{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+			{ name: 'forms', groups: [ 'forms' ] },
+			{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+			{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+			{ name: 'links', groups: [ 'links' ] },
+			{ name: 'insert', groups: [ 'insert' ] },
+			{ name: 'styles', groups: [ 'styles' ] },
+			{ name: 'colors', groups: [ 'colors' ] },
+			{ name: 'tools', groups: [ 'tools' ] },
+			{ name: 'others', groups: [ 'others' ] },
+			{ name: 'about', groups: [ 'about' ] }
+		],
+		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
 	$scope.addSuivi=function(cas){
 		$scope.suivi.date=new Date($scope.suivi.date).getTime();
@@ -3130,13 +3180,42 @@ app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bl
 	};
 	$scope.editorOptions = {
 		language: 'fr',
-		toolbar: 'lite',
-		height:'300px'
+		skin:"minimalist",
+		toolbarGroups:[
+			{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+			{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+			{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+			{ name: 'forms', groups: [ 'forms' ] },
+			{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+			{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+			{ name: 'links', groups: [ 'links' ] },
+			{ name: 'insert', groups: [ 'insert' ] },
+			{ name: 'styles', groups: [ 'styles' ] },
+			{ name: 'colors', groups: [ 'colors' ] },
+			{ name: 'tools', groups: [ 'tools' ] },
+			{ name: 'others', groups: [ 'others' ] },
+			{ name: 'about', groups: [ 'about' ] }
+		],
+		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
 	$scope.addSchema=function(d){
 		var s=angular.copy(d.schema);
 		d.valeur.push(s);
 	};
+	$scope.drop = function(e,s,d,c,list){
+		if (c=="listorder") {
+			console.log(s.idx,d);
+			list.splice(d,0,angular.copy(list[s.idx-1]));
+			if (s.idx-1>d)
+				list.splice(s.idx,1);
+			else
+				list.splice(s.idx-1,1)
+		}
+	};
+	$scope.validate=function(a,b,c){
+		console.log(a,b,c)
+		return a.listid==c;
+	}
 }]);
 app.controller('addModeleModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'modele', function ($scope, $uibModalInstance, $uibModal, modele) {
 	$scope.modele=modele;

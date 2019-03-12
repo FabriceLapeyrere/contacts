@@ -62,7 +62,7 @@
 								</option>
 							</select>
 							<ul ng-if="item.type=='array'">
-								<li class="list-group-item" ng-repeat="exp in item.value">
+								<li class="list-group-item" ng-repeat="exp in item.value track by $index">
 									<h4>
 										<span ng-repeat="p in (tabexp=(exp| toArray | orderBy:'num')) | limitTo:1">{{p.value}}</span>
 									<small class="cursor" ng-click="show[catName+itemName+$index]=!show[catName+itemName+$index]" ng-if="!show[catName+itemName+$index]">voir</small>
@@ -71,7 +71,7 @@
 										<span class="glyphicon glyphicon-trash" ng-confirm-click="item.value.splice($index,1)" ng-confirm-message="Sûr?"></span>
 									</div>
 									<ul class="list-group" ng-show="show[catName+itemName+$index]">
-										<li class="list-group-item" ng-repeat="p in tabexp" ng-if="!p.show || exp[p.show].value">
+										<li class="list-group-item" ng-repeat="p in tabexp track by $index" ng-if="!p.show || exp[p.show].value">
 											<h4>{{p.label}}</h4>
 											<input class="form-control" type='email' ng-model="p.value" ng-if="p.type=='email'"/>
 											<input class="form-control" type='number' ng-model="p.value" ng-if="p.type=='integer'"/>

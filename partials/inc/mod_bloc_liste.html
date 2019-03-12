@@ -1,10 +1,10 @@
 <label>{{donnee.nom}}</label>
-<button type="button" ng-click="addSchema(donnee)"
-    class="btn btn-default pull-right">
+<span type="button" ng-click="addSchema(donnee)"
+    class="pull-right cursor" style="padding:5px;font-size:0.9em;">
 	<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-</button>
+</span>
 <div class="list-group">
-<div ng-repeat="item in donnee.valeur" class="list-group-item">
+<div ng-repeat="item in donnee.valeur" class="list-group-item" drag-handle-class="drag-handle" ui-on-drop="drop($event,$data,$index,$channel,donnee.valeur)" drop-channel="listorder" ui-draggable="true" drag="{idx:$index+1,listid:donnee['$$hashKey']}" drag-channel="listorder" drop-validate="validate($data,$channel,donnee['$$hashKey'])">
     <div class="array-btn cursor">
         <span class="glyphicon glyphicon-trash" ng-confirm-click="donnee.valeur.splice($index,1)" ng-confirm-message="Sûr?"></span>
     </div>
@@ -12,6 +12,7 @@
         <ng-include ng-if="donnee.type!='liste'" src="'partials/inc/mod_bloc_form.html'"></ng-include>
         <div ng-if="donnee.type=='liste'" ng-include="'partials/inc/mod_bloc_liste.html'"></div>
     </div>
+    <span class="drag-handle glyphicon glyphicon-option-vertical"></span>
 </div>
 </div>
 <div class="clearfix inter col-xs-12"></div>
