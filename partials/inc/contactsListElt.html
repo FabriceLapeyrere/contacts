@@ -19,7 +19,7 @@
 			<small ng-if="d.type=='adresse'">
 				{{d.value.cp}} {{d.value.ville}}
 			</small>
-			<smal ng-if="d.type!='tel' && d.type!='email' && d.type!='adresse'">
+			<small ng-if="d.type!='tel' && d.type!='email' && d.type!='adresse'">
 				<span class="label-contact">{{d.label}} : </span>...
 			</small>
 		</div>
@@ -33,7 +33,7 @@
 				<a href="modcontact/{{c.id_contact}}"><span ng-show="c.prenom!=''">{{c.prenom}} </span>{{c.nom}}</a><span class="mini" ng-if="valeur(c,'fonction')[0].valeur"> {{valeur(c,'fonction')[0].valeur}}</span><span ng-if="!$last">, </span>
 			</span>
 		</div>
-	
+
 	</div>
 
 
