@@ -1628,6 +1628,10 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	$scope.key='mail/'+$routeParams.id;
 	$scope.Data=Data;
 	Link.context([{type:$scope.key}],[$scope.key]);
+	$scope.editorOk=false;
+	setTimeout(function() {
+		  $scope.editorOk=true;
+	},500);
 	$scope.editorOptions = {
 		height:"500px",
 		language: 'fr',
@@ -2138,6 +2142,10 @@ app.controller('formsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link',
 	}
 }]);
 app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
+	$scope.editorOk=false;
+	setTimeout(function() {
+		  $scope.editorOk=true;
+	},500);
 	$scope.key='form/'+$routeParams.id;
 	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.editorOptions = {

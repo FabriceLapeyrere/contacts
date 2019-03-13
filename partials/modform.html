@@ -11,7 +11,7 @@
 		<label>Nom</label>
 		<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
 		</p>
-		<ng-ckeditor ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
+		<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
 	</div>
     </locked>
 </form>

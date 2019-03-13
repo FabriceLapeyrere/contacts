@@ -7,7 +7,7 @@
 		<span class="pull-right mini" ng-show="!p">Non enregistré</span>
 	</p>
 	<input placeholder="Sujet" ng-model="Data.modele[key].sujet" class="form-control" type="text"/><br />
-	<ng-ckeditor ng-config="editorOptions" name="editor" ng-model="Data.modele[key].html"></ng-ckeditor>
+	<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="editor" ng-model="Data.modele[key].html"></ng-ckeditor>
 	</div>
 	</div>
 </form>
