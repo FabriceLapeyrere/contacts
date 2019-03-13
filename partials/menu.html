@@ -6,6 +6,7 @@
 	<li ng-attr-class="{{path()=='/contacts' && 'active'}}"><a href="contacts">Contacts</a></li>
 	<li ng-if="Data.modele.config.config.carte.mapbox_accessToken.value" ng-attr-class="{{path()=='/carte' && 'active'}}"><a href="carte">Carte</a></li>
 	<li ng-attr-class="{{path()=='/suivis' && 'active'}}"><a href="suivis">À suivre</a></li>
+	<li ng-attr-class="{{path()=='/forms' && 'active'}}"><a href="forms">Formulaires</a></li>
 	<li uib-dropdown is-open="status.isopen">
 		<a uib-dropdown-toggle>
 			Mailing <span class="caret"></span>

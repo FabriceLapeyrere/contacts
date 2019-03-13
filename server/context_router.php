@@ -177,6 +177,12 @@
 					case "chat":
 						$res=Chat::get_chat($u['id']);
 						break;
+					case "forms":
+						$res=Forms::get_forms();
+						break;
+					case "form":
+						$res=Forms::get_form($tab[1]);
+						break;
 				}
 				$this->WS->set_cache($context,$res,$this->from);
 				error_log("computed\n",3,"./data/log/link.log");

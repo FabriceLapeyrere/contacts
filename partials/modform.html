@@ -1,0 +1,17 @@
+<form name="frm" class="col-sm-6 col-sm-offset-3" loading="key" data="Data">
+	<locked key="key" data="Data">
+	<div class="col-xs-12" loading="key" data="Data">
+        <p><button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button></p>
+		<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+		    <span class="pull-right mini" ng-show="p">Enregistré</span>
+		    <span class="pull-right mini" ng-show="!p">Non enregistré</span>
+		</p>
+
+		<p>
+		<label>Nom</label>
+		<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
+		</p>
+		<ng-ckeditor ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
+	</div>
+    </locked>
+</form>

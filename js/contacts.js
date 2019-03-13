@@ -15,6 +15,9 @@ app.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/doublons_texte/', {templateUrl: 'partials/doublons_texte.html', controller: 'doublonsTexteCtl'});
 	$routeProvider.when('/doublons_email/', {templateUrl: 'partials/doublons_email.html', controller: 'doublonsEmailCtl'});
 	$routeProvider.when('/carte', {templateUrl: 'partials/carte.html', controller: 'carteCtl'});
+	//forms
+	$routeProvider.when('/modform/:id', {templateUrl: 'partials/modform.html', controller: 'modformCtl'});
+	$routeProvider.when('/forms', {templateUrl: 'partials/forms.html', controller: 'formsCtl'});
 	//mailing
 	$routeProvider.when('/modmail/:id', {templateUrl: 'partials/modmail.html', controller: 'modmailCtl'});
 	$routeProvider.when('/mail/:id', {templateUrl: 'partials/mail.html', controller: 'mailCtl'});
@@ -2110,6 +2113,66 @@ app.controller('modenvoiCtl', ['$scope', '$http', '$location', '$routeParams', '
 }]);
 
 //supports
+app.controller('formsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
+	Link.context([{type:'forms'}]);
+	$scope.addFormMod=function(type){
+		$scope.addForm={};
+		var modal = $uibModal.open({
+			templateUrl: 'partials/addformmod.html',
+			controller: 'addFormModCtl',
+			resolve:{
+				form: function () {
+					return $scope.addForm;
+				}
+			}
+		});
+
+		modal.result.then(function (form) {
+			Link.ajax([{action:'addForm',params:{form:form}}],function(r){
+				$location.path('/modform/'+ r.res[0]);
+			});
+		});
+	};
+	$scope.delForm=function(form){
+		Link.ajax([{action:'delForm', params:{form:form}}]);
+	}
+}]);
+app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
+	$scope.key='form/'+$routeParams.id;
+	Link.context([{type:$scope.key}],[$scope.key]);
+	$scope.editorOptions = {
+		height:"200px",
+		language: 'fr',
+		skin:"minimalist",
+		toolbarGroups:[
+			{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+			{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+			{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+			{ name: 'forms', groups: [ 'forms' ] },
+			{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+			{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+			{ name: 'links', groups: [ 'links' ] },
+			{ name: 'insert', groups: [ 'insert' ] },
+			{ name: 'styles', groups: [ 'styles' ] },
+			{ name: 'colors', groups: [ 'colors' ] },
+			{ name: 'tools', groups: [ 'tools' ] },
+			{ name: 'others', groups: [ 'others' ] },
+			{ name: 'about', groups: [ 'about' ] }
+		],
+		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
+	};
+	$scope.save=function(){
+		Link.ajax([{action:'modForm',params:{form:Data.modele[$scope.key]}}]);
+	};
+	$scope.$watch('Data.modele["'+$scope.key+'"].verrou',function(n,o){
+		if (n=='none') Link.set_verrou([$scope.key])
+	});
+	$scope.$on("$destroy", function(){
+		if(!$scope.pristine($scope.key) && confirm("Le formulaire n'a pas été sauvé, sauver ?")) $scope.save();
+		Link.del_verrou($scope.key);
+	});
+}]);
+//supports
 app.controller('supportsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
 	Link.context([{type:'supports'}]);
 	$scope.addSupportMod=function(type){
@@ -3235,6 +3298,18 @@ app.controller('addMailModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'ma
 	$scope.ok = function () {
 		if ($scope.form.addMail.$valid){
 			$uibModalInstance.close($scope.mail);
+		}
+	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+}]);
+app.controller('addFormModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'form', function ($scope, $uibModalInstance, $uibModal, form) {
+	$scope.form=form;
+	$scope.frm={};
+	$scope.ok = function () {
+		if ($scope.frm.addForm.$valid){
+			$uibModalInstance.close($scope.form);
 		}
 	};
 	$scope.cancel = function () {

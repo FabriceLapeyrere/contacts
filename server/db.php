@@ -440,6 +440,36 @@
 						array('nom'=>'by','type'=>'INTEGER','defaut'=>'','options'=>'')
 					)
 				),
+				array(
+					'type'=>'table',
+					'nom'=>'forms',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'schema','type'=>'TEXT','defaut'=>'[]','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'table',
+					'nom'=>'forms_data',
+					'champs'=>array(
+						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
+						array('nom'=>'id_lien','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'type_lien','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'id_schema','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'type','type'=>'TEXT','defaut'=>'texte_court','options'=>''),
+						array('nom'=>'label','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'data','type'=>'TEXT','defaut'=>'{}','options'=>''),
+						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'modifiedby','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
 
 			);
 

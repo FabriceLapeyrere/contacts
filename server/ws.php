@@ -207,8 +207,11 @@ class WS implements MessageComponentInterface {
 			case 'mail':
 				$res=array($type,'mails');
 				break;
-			case 'news':
+            case 'news':
 				$res=array($type,'newss');
+				break;
+            case 'form':
+				$res=array($type,'forms');
 				break;
 			case 'imap':
 				$res=array($type);

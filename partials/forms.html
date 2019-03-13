@@ -1,0 +1,17 @@
+<div loading="'forms'" data="Data">
+	<div class="col-sm-6 col-sm-offset-3">
+		<h1>Formulaires</h1>
+		<p><span class="btn btn-primary"ng-click="addFormMod()">Nouveau formulaire</span></p>
+		<ul class="list-group">
+			<li class="list-group-item" ng-repeat="form in Data.modele.forms | toArray | orderBy:'creationdate':true">
+            <locked key="'form/'+form.id" data="Data">
+				<a href="modform/{{form.id}}">{{form.nom ? form.nom : '(sans titre)'}}</a> <span class="mini">{{calendar(form.modificationdate)}} par {{Data.modele.users[form.modifiedby].name}}</span>
+				<div class="mini-menu">
+					<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delForm(form)" ng-confirm-message="Sûr?"></span>
+				<div>
+
+            </locked>
+			</li>
+		</ul>
+	</div>
+</div>

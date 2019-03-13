@@ -17,7 +17,8 @@
 	 		$this->Contacts= new Contacts($this->WS,$this->from);
 	 		$this->Suivis= new Suivis($this->WS,$this->from);
 	 		$this->Mailing= new Mailing($this->WS,$this->from);
-	 		$this->Publipostage= new Publipostage($this->WS,$this->from);
+			$this->Publipostage= new Publipostage($this->WS,$this->from);
+			$this->Forms= new Forms($this->WS,$this->from);
 	 		$this->Chat= new Chat($this->WS,$this->from);
 	 		$this->Config= new Config($this->WS,$this->from);
 	 	}
@@ -417,5 +418,18 @@
 		public function checkImap($params){
 			$u=$this->WS->getSession($this->from,'user');
 			return Imap::start_check($u['id']);
+		}
+		//FORMS
+		public function addForm($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->add_form($params,$u['id']);
+		}
+		public function modForm($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->mod_form($params,$u['id']);
+		}
+		public function delForm($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->del_form($params,$u['id']);
 		}
 	}
