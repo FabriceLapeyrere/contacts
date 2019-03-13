@@ -2169,6 +2169,38 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 		],
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
+	$scope.addPage=function(){
+		if (!Data.modele[$scope.key].schema.pages) Data.modele[$scope.key].schema.pages=[];
+		var p={id:Math.random().toString(36).substr(2, 9),nom:'',desc:'',elts:[]};
+		Data.modele[$scope.key].schema.pages.push(p);
+		$scope.save();
+	};
+	$scope.delPage=function(p){
+		var i=$scope.index('id',Data.modele[$scope.key].schema.pages,p.id);
+		Data.modele[$scope.key].schema.pages.splice(i,1);
+	};
+	$scope.addElt=function(p,type,nom){
+		var elt={id:Math.random().toString(36).substr(2, 9),nom:nom,type:type,templateUrl:'partials/inc/formelts/'+type+'.html'};
+		p.elts.push(elt);
+		$scope.save();
+	};
+	$scope.delElt=function(p,elt){
+		var i=$scope.index('id',p.elts,elt.id);
+		p.elts.splice(i,1);
+	};
+	$scope.drop = function(e,s,d,c,list){
+		if (c=="listorder") {
+			list.splice(d,0,angular.copy(list[s.idx-1]));
+			if (s.idx-1>d)
+				list.splice(s.idx,1);
+			else
+				list.splice(s.idx-1,1);
+			$scope.save();
+		}
+	};
+	$scope.validate=function(d,id){
+		return d.listid==id;
+	}
 	$scope.save=function(){
 		Link.ajax([{action:'modForm',params:{form:Data.modele[$scope.key]}}]);
 	};
@@ -3280,7 +3312,7 @@ app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bl
 			if (s.idx-1>d)
 				list.splice(s.idx,1);
 			else
-				list.splice(s.idx-1,1)
+				list.splice(s.idx-1,1);
 		}
 	};
 	$scope.validate=function(a,b,c){
