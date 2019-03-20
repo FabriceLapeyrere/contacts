@@ -20,7 +20,8 @@
 			    <div class="col-xs-12">
 					<span class="pull-right cursor mini">
 						<span ng-click="modCasquetteMod(cas)">modifier</span> |
-						<span ng-click="addSuivi(cas)">suivre</span>
+						<span ng-click="addSuivi(cas)">suivre</span> |
+						<span ng-click="addForm(cas)">formulaires</span>
 						<span ng-if="(Data.modele[key].casquettes | toArray).length>1" ng-confirm-click="delCasquette(cas)" ng-confirm-message="Sûr ? Cela supprimera également les fiches de suivi de cette casquette.">| supprimer</span>
 					</span>
 					<p>{{cas.nom_cas}}  <span class="mini">#{{cas.id}}</span></p>
@@ -120,6 +121,17 @@
 						</div>
 					</div>
 					<div class="col-xs-12 inter clearfix"></div>
+					<div ng-if="cas.forms.length>0" class="col-xs-12 clearfix list-group-item">
+						<span class="label-contact">Formulaires</span>
+						<div>
+							<span ng-repeat="f in cas.forms | toArray | orderBy:'nom'"
+						        ng-click="fillForm(f,cas)">
+						        <span class="btn btn-primary">{{Data.modele.forms[f].nom}}
+									<span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delFormCas(f,cas)" ng-confirm-message="Sûr?"></span>
+								</span>
+						    </span>
+						</div>
+					</div>
 					<div ng-if="cas.envois.length>0" class="col-xs-12 clearfix list-group-item">
 						<span class="label-contact">Envois ({{cas.envois.length}})</span>
 						<span class="cursor mini" ng-if="!ev[cas.id]" ng-click="ev[cas.id]=true">voir</span>

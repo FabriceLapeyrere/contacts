@@ -1,0 +1,12 @@
+<div class="modal-body">
+<p>&nbsp;</p>
+<p>
+    <span ng-repeat="f in Data.modele.forms | toArray | orderBy:'nom'"
+        ng-click="select(f)" ng-if="cas.forms.indexOf(f.id)<0">
+        <span class="btn btn-primary">{{f.nom}}</span>
+    </span>
+</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>

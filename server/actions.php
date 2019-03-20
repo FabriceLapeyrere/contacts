@@ -432,4 +432,13 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->del_form($params,$u['id']);
 		}
+		public function addFormCas($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->add_form_cas($params,$u['id']);
+		}
+		public function delFormCas($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->del_form_cas($params,$u['id']);
+		}
+
 	}

@@ -77,6 +77,7 @@
 			if ($full) {
 				$cas['suivis']=(object)Suivis::get_suivis_casquette($id_cas,$id);
 				$cas['envois']=Mailing::get_envois_casquette($id_cas,$id);
+				$cas['forms']=Forms::get_forms_casquette($id_cas,$id);
 			}
 			return $cas;
 		}
@@ -449,6 +450,9 @@
 						break;
 					case 'mail':
 						$valeur= "t2.id IN (SELECT id_cas FROM envoi_cas as t10 INNER JOIN envois as t11 ON t10.id_envoi=t11.id WHERE t11.type='mail' AND t11.id_type=$param)";
+						break;
+					case 'form':
+						$valeur= "t2.id IN (SELECT id_casquette FROM form_casquette as tform WHERE tform.id_form=$param)";
 						break;
 					case 'clic-envoi':
 						$valeur= "t2.id IN (SELECT id_cas FROM r WHERE id_envoi=$param)";

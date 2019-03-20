@@ -455,6 +455,20 @@
 				),
 				array(
 					'type'=>'table',
+					'nom'=>'form_casquette',
+					'champs'=>array(
+						array('nom'=>'id_form','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>'')
+					)
+				),
+				array(
+					'type'=>'unique index',
+					'nom'=>'form_casquette_idx',
+					'on'=>'form_casquette',
+					'champs'=>array('id_form', 'id_casquette')
+				),
+				array(
+					'type'=>'table',
 					'nom'=>'forms_data',
 					'champs'=>array(
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),

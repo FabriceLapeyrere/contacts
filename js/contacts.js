@@ -1291,7 +1291,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 }]);
 app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
 	$scope.key='contact/'+$routeParams.id;
-	Link.context([{type:$scope.key},{type:'tags'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
+	Link.context([{type:$scope.key},{type:'tags'},{type:'forms'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
 	$scope.$watch('Data.modele["contact_prev_next/'+$routeParams.id+'"]',function(n,o){
 		if (n) {
 			Link.context([{type:$scope.key},{type:'tags'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}},
@@ -1545,6 +1545,27 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 			}
 		}
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
+	};
+	$scope.addForm=function(cas){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/addformcasmod.html',
+			controller: 'addFormCasModCtl',
+			resolve: {
+				cas:cas
+			}
+		});
+		modal.result.then(function (form) {
+			cas.forms.push(form.id);
+			Link.ajax([{action:'addFormCas', params:{id_form:form.id, id_cas:cas.id}}],function(r){
+				$scope.fillForm(form.id,cas);
+			});
+		});
+	}
+	$scope.delFormCas=function(f,cas){
+		Link.ajax([{action:'delFormCas', params:{id_form:f, id_cas:cas.id}}]);
+	}
+	$scope.fillForm=function(id_form,cas){
+		console.log(id_form,cas.id);
 	};
 }]);
 app.controller('doublonsTexteCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
@@ -3393,6 +3414,16 @@ app.controller('addChoixModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'c
 			$uibModalInstance.close($scope.choix);
 		}
 	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+}]);
+app.controller('addFormCasModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'Data', 'cas', function ($scope, $uibModalInstance, $uibModal, Data, cas) {
+	$scope.cas=cas;
+	$scope.Data=Data;
+	$scope.select=function(f){
+		$uibModalInstance.close(f);
+	}
 	$scope.cancel = function () {
 		$uibModalInstance.dismiss();
 	};

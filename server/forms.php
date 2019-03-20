@@ -28,6 +28,15 @@
 			}
 			return $forms;
 		}
+		public static function get_forms_casquette($id_cas, $id) {
+			$db= new DB();
+			$query = "SELECT id_form FROM form_casquette WHERE id_casquette=$id_cas ORDER BY id_form ASC;";
+			$forms=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$forms[]=$row['id_form'];
+			}
+			return $forms;
+		}
 		public function add_form($params,$id) {
 			$t=Forms::do_add_form($params,$id);
 			$this->WS->maj($t['maj']);
@@ -85,6 +94,30 @@
 			$delete = $db->database->prepare('DELETE FROM forms WHERE id=?');
 			$delete->execute(array($id_form));
 			return array('maj'=>array('forms'), 'res'=>1);
+		}
+		public function add_form_cas($params,$id) {
+			$t=Forms::do_add_form_cas($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_add_form_cas($params,$id) {
+			$db= new DB();
+			$cas=Contacts::get_casquette($params->id_cas,false,$id);
+			$insert= $db->database->prepare('INSERT INTO form_casquette (id_form,id_casquette) VALUES (?,?)');
+			$insert->execute(array($params->id_form,$params->id_cas));
+			return array('maj'=>array("forms","contact/".$cas['id_contact']),'res'=>1);
+		}
+		public function del_form_cas($params,$id) {
+			$t=Forms::do_del_form_cas($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_del_form_cas($params,$id) {
+			$db= new DB();
+			$cas=Contacts::get_casquette($params->id_cas,false,$id);
+			$insert= $db->database->prepare('DELETE FROM form_casquette WHERE id_form=? AND id_casquette=?');
+			$insert->execute(array($params->id_form,$params->id_cas));
+			return array('maj'=>array("forms","contact/".$cas['id_contact']),'res'=>1);
 		}
 	}
 ?>
