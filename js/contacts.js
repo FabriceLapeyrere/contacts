@@ -2169,6 +2169,45 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 		],
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
+	$scope.addChoixMod=function(elt){
+		$scope.addChoix={id:Math.random().toString(36).substr(2, 9)};
+		var modal = $uibModal.open({
+			templateUrl: 'partials/addchoixmod.html',
+			controller: 'addChoixModCtl',
+			resolve:{
+				choix: function () {
+					return $scope.addChoix;
+				}
+			}
+		});
+
+		modal.result.then(function (choix) {
+			if (!elt.choix) elt.choix=[];
+			elt.choix.push(choix);
+			$scope.save();
+		});
+	};
+	$scope.modChoixMod=function(choix){
+		$scope.addChoix=angular.copy(choix);
+		var modal = $uibModal.open({
+			templateUrl: 'partials/addchoixmod.html',
+			controller: 'addChoixModCtl',
+			resolve:{
+				choix: function () {
+					return $scope.addChoix;
+				}
+			}
+		});
+
+		modal.result.then(function (c) {
+			choix.nom=c.nom;
+			$scope.save();
+		});
+	};
+	$scope.delChoix=function(elt,choix){
+		var i=$scope.index('id',elt.choix,choix.id);
+		elt.choix.splice(i,1);
+	};
 	$scope.addPage=function(){
 		if (!Data.modele[$scope.key].schema.pages) Data.modele[$scope.key].schema.pages=[];
 		var p={id:Math.random().toString(36).substr(2, 9),nom:'',desc:'',elts:[]};
@@ -2190,11 +2229,13 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	};
 	$scope.drop = function(e,s,d,c,list){
 		if (c=="listorder") {
-			list.splice(d,0,angular.copy(list[s.idx-1]));
-			if (s.idx-1>d)
-				list.splice(s.idx,1);
-			else
+			if (s.idx-1<d) {
+				list.splice(d+1,0,angular.copy(list[s.idx-1]));
 				list.splice(s.idx-1,1);
+			} else {
+				list.splice(d,0,angular.copy(list[s.idx-1]));
+				list.splice(s.idx,1);
+			}
 			$scope.save();
 		}
 	};
@@ -3338,6 +3379,18 @@ app.controller('addMailModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'ma
 	$scope.ok = function () {
 		if ($scope.form.addMail.$valid){
 			$uibModalInstance.close($scope.mail);
+		}
+	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+}]);
+app.controller('addChoixModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'choix', function ($scope, $uibModalInstance, $uibModal, choix) {
+	$scope.choix=choix;
+	$scope.frm={};
+	$scope.ok = function () {
+		if ($scope.frm.addChoix.$valid){
+			$uibModalInstance.close($scope.choix);
 		}
 	};
 	$scope.cancel = function () {

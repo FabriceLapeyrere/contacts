@@ -1,23 +1,27 @@
-<form name="frm" class="col-sm-6 col-sm-offset-3 col-md-12 col-md-offset-0" loading="key" data="Data">
+<form name="frm" class="col-xs-12 col-sm-6 col-sm-offset-3" loading="key" data="Data">
 	<locked key="key" data="Data">
-	<div class="col-xs-12 col-md-6" loading="key" data="Data">
-        <p><button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button></p>
+	<div class="col-xs-12" loading="key" data="Data">
+        <p>
+			<button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+			<button class="btn btn-primary" ng-click="addPage()">Ajouter une page</button>
+		</p>
 		<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
 		    <span class="pull-right mini" ng-show="p">Enregistré</span>
 		    <span class="pull-right mini" ng-show="!p">Non enregistré</span>
 		</p>
-
-		<p>
-		<label>Nom</label>
-		<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
-		</p>
-		<label>Descriptif</label>
-		<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
-		<p>&nbsp;</p>
 	</div>
-	<div class="col-xs-12 col-md-6" loading="key" data="Data">
-		<p><button class="btn btn-primary" ng-click="addPage()">Ajouter une page</button></p>
+	<div class="col-xs-12" loading="key" data="Data">
+		<p></p>
 		<uib-tabset ng-if="Data.modele[key].schema.pages && Data.modele[key].schema.pages.length>0">
+			<uib-tab heading="Formulaire">
+				<p>
+					<label>Nom</label>
+					<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
+				</p>
+				<label>Descriptif</label>
+				<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
+				<p>&nbsp;</p>
+			</uib-tab>
 			<uib-tab ng-repeat="p in Data.modele[key].schema.pages">
 				<uib-tab-heading>
 					Page {{$index+1}}
@@ -34,7 +38,14 @@
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'checkbox','Case à cocher')"><span class="glyphicon glyphicon-plus"> </span> Case à cocher</span>
 					</p>
 					<div class="list-group">
-						<div ng-repeat="elt in p.elts" class="list-group-item" drag-handle-class="drag-handle" ui-on-drop="drop($event,$data,$index,$channel,p.elts)" drop-channel="listorder" ui-draggable="true" drag="{idx:$index+1,listid:p.id}" drag-channel="listorder" drop-validate="validate($data,p.id)">
+						<div ng-repeat="elt in p.elts" class="list-group-item"
+							drag-handle-class="drag-handle"
+							ui-on-drop="drop($event,$data,$index,$channel,p.elts)"
+							drop-channel="listorder"
+							ui-draggable="true"
+							drag="{idx:$index+1,listid:p.id}"
+							drag-channel="listorder"
+							drop-validate="validate($data,p.id)">
 							<div class="mini-menu">
 								<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delElt(p,elt)" ng-confirm-message="Sûr?"></span>
 							</div>

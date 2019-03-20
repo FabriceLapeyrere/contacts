@@ -1,5 +1,16 @@
 <label>Label</label>
 <input placeholder="Label" ng-model="elt.label" class="form-control" type="text"/>
 <p style="padding-top:15px;">
-    <span class="btn btn-xs btn-default cursor" ng-click="addChoix(elt)"><span class="glyphicon glyphicon-plus"> </span> Choix</span>
+    <span class="btn btn-xs btn-default cursor" ng-click="addChoixMod(elt)"><span class="glyphicon glyphicon-plus"> </span> Choix</span>
 </p>
+<div>
+    <label class="btn btn-default btn-margin" ng-repeat="choix in elt.choix"
+        ui-on-drop="drop($event,$data,$index,$channel,elt.choix)"
+        drop-channel="listorder"
+        ui-draggable="true"
+        drag="{idx:$index+1,listid:elt.id}"
+        drag-channel="listorder"
+        drop-validate="validate($data,elt.id)">
+        {{choix.nom}} <span class="glyphicon glyphicon-pencil cursor" style="font-size:0.7em;" ng-click="modChoixMod(choix)"></span> <span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delChoix(elt,choix)" ng-confirm-message="Sûr?"></span>
+    </label>
+</div>
