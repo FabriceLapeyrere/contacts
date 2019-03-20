@@ -50,12 +50,27 @@
 								<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delElt(p,elt)" ng-confirm-message="Sûr?"></span>
 							</div>
 							<div class="small gris">{{elt.nom}}</div>
-							<ng-include src="elt.templateUrl"></ng-include>
+							<ng-include src="'partials/inc/formelts/'+elt.type+'.html'"></ng-include>
 							<span class="drag-handle glyphicon glyphicon-option-vertical"></span>
 						</div>
 					</div>
 				</div>
 			</uib-tab>
+			<uib-tab heading="Contacts">
+				<div ng-show="Data.modele['form_casquettes/'+id_form].tout.collection.length>0">
+					<h1>Tout</h1>
+					<uib-pagination ng-if="Data.modele['form_casquettes/'+id_form].tout.total>itemsParPage" boundary-links="true" total-items="Data.modele['form_casquettes/'+id_form].tout.total" ng-model="Data.pageForms[id_form].tout" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+					<span ng-if="Data.modele['form_casquettes/'+id_form].tout.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.modele['form_casquettes/'+id_form].tout.page-1)+1}} - {{min(itemsParPage*Data.modele['form_casquettes/'+id_form].tout.page,Data.modele['form_casquettes/'+id_form].tout.total)}} de {{Data.modele['form_casquettes/'+id_form].tout.total}}</span>
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="cas in Data.modele['form_casquettes/'+id_form].tout.collection">
+			                <a href="showform/{{id_form}}/{{cas.id}}">
+								<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</uib-tab>
+
 		<uib-tabset>
 	</div>
     </locked>

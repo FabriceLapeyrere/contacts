@@ -18,6 +18,8 @@ app.config(['$routeProvider', function($routeProvider) {
 	//forms
 	$routeProvider.when('/modform/:id', {templateUrl: 'partials/modform.html', controller: 'modformCtl'});
 	$routeProvider.when('/forms', {templateUrl: 'partials/forms.html', controller: 'formsCtl'});
+	$routeProvider.when('/showform/:idform/:idcas', {templateUrl: 'partials/showform.html', controller: 'showformCtl'});
+	$routeProvider.when('/fillform/:idform/:idcas', {templateUrl: 'partials/fillform.html', controller: 'fillformCtl'});
 	//mailing
 	$routeProvider.when('/modmail/:id', {templateUrl: 'partials/modmail.html', controller: 'modmailCtl'});
 	$routeProvider.when('/mail/:id', {templateUrl: 'partials/mail.html', controller: 'mailCtl'});
@@ -332,6 +334,16 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 			}
 		});
 		return i;
+	};
+	$scope.elByIndex=function(k,a,v){
+		var o;
+		angular.forEach(a,function(e){
+			if(e[k]==v) {
+				o=e;
+				return;
+			}
+		});
+		return o;
 	};
 	$scope.updatePanier=function(){
 		Link.ajax([{action:'modPanier', params:{panier:Data.modele.panier}}]);
@@ -2163,11 +2175,28 @@ app.controller('formsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link',
 	}
 }]);
 app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
+	$scope.getPage=function(init){
+		var pagePr;
+		var pageRe;
+		var pageTe;
+		if (init) {
+			if (!Data.pageForms) Data.pageForms={};
+			if (!Data.pageForms[$routeParams.id]) Data.pageForms[$routeParams.id]={};
+			if (!Data.pageForms[$routeParams.id].tout) Data.pageForms[$routeParams.id].tout=1;
+			if (!Data.pageForms[$routeParams.id].encours) Data.pageForms[$routeParams.id].encours=1;
+			if (!Data.pageForms[$routeParams.id].ok) Data.pageForms[$routeParams.id].ok=1;
+		}
+		pageTout=Data.pageForms[$routeParams.id].tout;
+		pageEncours=Data.pageForms[$routeParams.id].encours;
+		pageOk=Data.pageForms[$routeParams.id].ok;
+		Link.context([{type:$scope.key},{type:'form_casquettes/'+$routeParams.id, params:{pageTout:pageTout, pageEncours:pageEncours, pageOk:pageOk, nb:$scope.itemsParPage}}]);
+	};
 	$scope.editorOk=false;
 	setTimeout(function() {
 		  $scope.editorOk=true;
 	},500);
 	$scope.key='form/'+$routeParams.id;
+	$scope.id_form=$routeParams.id;
 	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.editorOptions = {
 		height:"200px",
@@ -2273,6 +2302,54 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 		if(!$scope.pristine($scope.key) && confirm("Le formulaire n'a pas été sauvé, sauver ?")) $scope.save();
 		Link.del_verrou($scope.key);
 	});
+	$scope.getPage(1);
+}]);
+app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
+	$scope.idform=$routeParams.idform;
+	$scope.idcas=$routeParams.idcas;
+	$scope.formkey='form/'+$scope.idform;
+	$scope.key='form_instance/'+$scope.idform+'/'+$scope.idcas;
+	Link.context([{type:$scope.formkey},{type:$scope.key}]);
+	$scope.check=function(elt){
+		if (elt.default===undefined) elt.default='';
+		if (!Data.modele[$scope.key][elt.id]) Data.modele[$scope.key][elt.id]={id_schema:elt.id,valeur:elt.default};
+	}
+	$scope.checkAll=function(){
+		console.log('checkAll');
+		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+			angular.forEach(p.elts,function(elt){
+				$scope.check(elt);
+			});
+		});
+	};
+	$scope.save=function(){
+		$scope.checkAll();
+		Link.ajax([{action:'modFormInstance',params:{id_form:$scope.idform,id_cas:$scope.idcas,instance:Data.modele[$scope.key]}}]);
+	};
+	$scope.editorOptions = {
+		height:"200px",
+		language: 'fr',
+		skin:"minimalist",
+		toolbarGroups:[
+			{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+			{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+			{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+			{ name: 'forms', groups: [ 'forms' ] },
+			{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+			{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+			{ name: 'links', groups: [ 'links' ] },
+			{ name: 'insert', groups: [ 'insert' ] },
+			{ name: 'styles', groups: [ 'styles' ] },
+			{ name: 'colors', groups: [ 'colors' ] },
+			{ name: 'tools', groups: [ 'tools' ] },
+			{ name: 'others', groups: [ 'others' ] },
+			{ name: 'about', groups: [ 'about' ] }
+		],
+		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
+	};
+	setTimeout(function() {
+		  $scope.editorOk=true;
+	},500);
 }]);
 //supports
 app.controller('supportsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {

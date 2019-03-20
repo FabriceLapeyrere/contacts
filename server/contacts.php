@@ -1694,5 +1694,18 @@
 			Contacts::index_gps();
 			return array('maj'=>array('*'), 'res'=>1);
 		}
+		public static function get_form_casquettes($id_form,$params,$id)
+		{
+			$c_tout=Contacts::get_casquettes(array('query'=>"::form/$id_form::",'page'=>$params->pageTout,'nb'=>$params->nb),0,$id);
+			$c_encours=Contacts::get_casquettes(array('query'=>"::form/$id_form::",'page'=>$params->pageEncours,'nb'=>$params->nb),0,$id);
+			$c_ok=Contacts::get_casquettes(array('query'=>"::form/$id_form::",'page'=>$params->pageOk,'nb'=>$params->nb),0,$id);
+			return array(
+				'params'=>$params,
+				'tout'=>$c_tout,
+				'encours'=>$c_encours,
+				'ok'=>$c_ok
+			);
+		}
+
 	}
 ?>

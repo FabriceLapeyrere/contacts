@@ -428,6 +428,10 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->mod_form($params,$u['id']);
 		}
+		public function modFormInstance($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->mod_form_instance($params,$u['id']);
+		}
 		public function delForm($params){
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->del_form($params,$u['id']);

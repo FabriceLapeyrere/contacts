@@ -1,2 +1,10 @@
 <label>Label</label>
 <input placeholder="Label" ng-model="elt.label" class="form-control" type="text"/>
+<label>Valeur si vrai</label>
+<input placeholder="Valeur si vrai" ng-model="elt.trueValue" class="form-control" type="text"/>
+<label>Valeur si faux</label>
+<input placeholder="Valeur si faux" ng-model="elt.falseValue" class="form-control" type="text"/>
+<label>Valeur par défaut</label><br />
+<label class="btn btn-primary" ng-model="elt.default" uib-btn-checkbox btn-checkbox-true="'1'" btn-checkbox-false="'0'">
+    <span ng-if="elt.default=='1'">{{elt.trueValue || 1}}</span><span ng-if="elt.default=='0' || !elt.default">{{elt.falseValue || 0}}</span>
+</label>

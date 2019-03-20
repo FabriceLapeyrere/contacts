@@ -54,7 +54,7 @@ app.directive('sticky', ['$timeout', function($timeout){
 				// Attach our listeners
 				//
 				$window.on('scroll', checkSticky);
-				
+
 				setInitial();
 			});
 		},
@@ -102,7 +102,7 @@ app.directive('loading', function($timeout) {
 		restrict: 'A',
 		template: "<div class='loader-container' ng-if='wait'><img class='loader' src='img/loader.gif' /></div><div ng-if='!wait' class='cache'><ng-transclude></ng-transclude></div>",
 		transclude: true,
-		scope:{data:'=', loading:'='},
+		scope:{data:'=', loading:'=', action:'&'},
 		link: function(scope, element, attrs) {
 			var keys=scope.loading ? scope.loading.split(',') : [];
 			element.children('.cache').removeClass("cache");
@@ -112,6 +112,7 @@ app.directive('loading', function($timeout) {
 				angular.forEach(keys, function(k){
 					if(scope.data.modele[k]===undefined) scope.wait=true;
 				})
+				if (!scope.wait) scope.action();
 			})
 		}
 	};
@@ -119,7 +120,7 @@ app.directive('loading', function($timeout) {
 app.directive("deferredCloak", function () {
 	return {
 		restrict: 'A',
-		link: function (scope, element, attrs) {	   
+		link: function (scope, element, attrs) {
 			attrs.$set("deferredCloak", undefined);
 			element.removeClass("deferred-cloak");
 		}

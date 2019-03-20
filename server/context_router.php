@@ -178,12 +178,18 @@
 						$res=Chat::get_chat($u['id']);
 						break;
 					case "forms":
-						$res=Forms::get_forms();
+						$res=Forms::get_forms($u['id']);
 						break;
 					case "form":
-						$res=Forms::get_form($tab[1]);
+						$res=Forms::get_form($tab[1],$u['id']);
 						break;
-				}
+					case "form_casquettes":
+						$res=Contacts::get_form_casquettes($tab[1],$params,$u['id']);
+						break;
+					case "form_instance":
+						$res=Forms::get_form_instance($tab[1],$tab[2],$u['id']);
+						break;
+					}
 				$this->WS->set_cache($context,$res,$this->from);
 				error_log("computed\n",3,"./data/log/link.log");
 			}
