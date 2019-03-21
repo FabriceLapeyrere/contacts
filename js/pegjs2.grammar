@@ -28,6 +28,7 @@ integer "integer"
   / '!:news' id:[0-9]+ { return 'NOT (::news/'+id.join("")+'::)'; }
   / ':mail' id:[0-9]+ { return '::mail/'+id.join("")+'::'; }
   / '!:mail' id:[0-9]+ { return 'NOT (::mail/'+id.join("")+'::)'; }
+  / ':form' idform:[0-9]+ '/' idchamp:[0-9]+ '=' valeur:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return '::form-champ/'+idform.join("")+'|'+idchamp.join("")+'|'+valeur.join("")+'::';  }
   / ':form' id:[0-9]+ { return '::form/'+id.join("")+'::'; }
   / '!:form' id:[0-9]+ { return 'NOT (::form/'+id.join("")+'::)'; }
   / ':clic-envoi' id:[0-9]+ { return '::clic-envoi/'+id.join("")+'::'; }

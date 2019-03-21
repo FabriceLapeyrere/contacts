@@ -28,6 +28,7 @@ integer "integer"
   / '!:news' id:[0-9]+ { return 'pas destinataire de la newsletter n° '+id.join(""); }
   / ':mail' id:[0-9]+ { return 'destinataire du mail n° '+id.join(""); }
   / '!:mail' id:[0-9]+ { return 'pas destinataire du mail n° '+id.join(""); }
+  / ':form' idform:[0-9]+ '/' idchamp:[0-9]+ '=' word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return 'le champ n°' + idchamp.join('') + ' du formulaire n°' + idform.join("") + ' vaut ' + word.join(''); }
   / ':form' id:[0-9]+ { return 'est associé au formulaire n° '+id.join(""); }
   / '!:form' id:[0-9]+ { return 'n\'est pas associé au formulaire n° '+id.join(""); }
   / ':clic-envoi' id:[0-9]+ { return 'a cliqué sur l\'envoi n° '+id.join(""); }

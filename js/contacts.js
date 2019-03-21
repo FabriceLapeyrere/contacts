@@ -2191,6 +2191,21 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 		pageOk=Data.pageForms[$routeParams.id].ok;
 		Link.context([{type:$scope.key},{type:'form_casquettes/'+$routeParams.id, params:{pageTout:pageTout, pageEncours:pageEncours, pageOk:pageOk, nb:$scope.itemsParPage}}]);
 	};
+	$scope.$watch('Data.pageForms["'+$routeParams.id+'"].tout',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
+	$scope.$watch('Data.pageForms["'+$routeParams.id+'"].encours',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
+	$scope.$watch('Data.pageForms["'+$routeParams.id+'"].ok',function(n,o){
+		if (n!=o) {
+			$scope.getPage();
+		}
+	});
 	$scope.editorOk=false;
 	setTimeout(function() {
 		  $scope.editorOk=true;
@@ -2292,7 +2307,31 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	$scope.validate=function(d,id){
 		return d.listid==id;
 	}
+	$scope.associer=function(){
+		var contexts=Data.contexts;
+		var modal = $uibModal.open({
+			templateUrl: 'partials/associer.html',
+			controller: 'envoyerModCtl',
+			resolve:{
+				parsed: function () {
+					return $scope.parsed;
+				},
+				type: function () {
+					return '';
+				}
+			}
+		});
+		modal.result.then(function (res) {
+			Link.ajax([{action:'assFormCasquettes',params:{form:Data.modele[$scope.key],res:res}}]);
+			Link.context(contexts);
+		},function(){Link.context(contexts);});
+	}
 	$scope.save=function(){
+		angular.forEach(Data.modele[$scope.key].schema.pages,function(p){
+			angular.forEach(p.elts,function(e){
+				delete e.$$hashKey;
+			});
+		});
 		Link.ajax([{action:'modForm',params:{form:Data.modele[$scope.key]}}]);
 	};
 	$scope.$watch('Data.modele["'+$scope.key+'"].verrou',function(n,o){

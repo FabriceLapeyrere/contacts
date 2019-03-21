@@ -1,0 +1,21 @@
+<div class="modal-body">
+	<h1>Publipostage</h1>
+    <h3>{{Data.modele.casquettes.total}} contact(s) sélectionné(s)</h3>
+    <form>
+        <p><input class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" ng-change="getPage(1)" ng-model-options="{ debounce: 500 }"/></p>
+        <p dyn-tpl tpl="parsed.front(fullQuery())" data="Data"></p>
+    </form>
+    <span ng-if="Data.modele.casquettes" class="pagination-span">{{itemsParPage*(Data.modele.casquettes.page-1)+1}} - {{min(itemsParPage*Data.modele.casquettes.page,Data.modele.casquettes.total)}} de {{Data.modele.casquettes.total}}</span>
+	<uib-pagination ng-if="Data.modele.casquettes.total>0" boundary-links="true" total-items="Data.modele.casquettes.total" ng-model="page.courante" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+    <div ng-if="Data.modele.casquettes.total==0">Aucun résultat</div>
+    <ul ng-if="Data.modele.casquettes.total>0" class="list-group" id="contacts-list" ng-class="{'loading':page.courante!=Data.modele.casquettes.page}">
+		<li class="list-group-item etab" ng-repeat="cas in (c=(Data.modele.casquettes.collection | toArray))" ng-class="{'individu':cas.type==1, 'structure':cas.type==2,'cas-suivante':!(Data.modele.casquettes.page==1 && $index==0 || c[$index-1].id_contact!=cas.id_contact)}">
+            <div ng-class="{'panier-btn-ko':!dansPanier(cas), 'panier-btn-ok':dansPanier(cas)}" ng-click="dansPanier(cas) ? panierDel(cas) : panierAdd(cas)"></div>
+	        <ng-include src="'partials/inc/casquette_ligne.html'"></ng-include>
+		</li>
+	</ul>
+</div>
+<div class="modal-footer">
+    <button ng-if="Data.modele.casquettes.total>0" class="btn btn-primary" ng-click="ok()">Confirmer</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>

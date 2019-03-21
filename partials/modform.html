@@ -9,6 +9,7 @@
 	    <p>
 			<button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
 			<button class="btn btn-primary" ng-click="addPage()">Ajouter une page</button>
+			<button class="btn btn-default" ng-click="associer()">Associer aux contacts</button>
 		</p>
 	</div>
 	<div class="col-xs-12">
@@ -42,19 +43,20 @@
 					</p>
 					<div class="list-group">
 						<div ng-repeat="elt in p.elts" class="list-group-item"
-							drag-handle-class="drag-handle"
 							ui-on-drop="drop($event,$data,$index,$channel,p.elts)"
 							drop-channel="listorder"
-							ui-draggable="true"
-							drag="{idx:$index+1,listid:p.id}"
-							drag-channel="listorder"
 							drop-validate="validate($data,p.id)">
 							<div class="mini-menu">
 								<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delElt(p,elt)" ng-confirm-message="Sûr?"></span>
 							</div>
-							<div class="small gris">{{elt.nom}}</div>
+							<div class="small gris"
+								ui-draggable="true"
+								drag="{idx:$index+1,listid:p.id}"
+								drag-channel="listorder">
+								<span class="glyphicon glyphicon-option-vertical"></span> {{elt.nom}}
+
+							</div>
 							<ng-include src="'partials/inc/formelts/'+elt.type+'.html'"></ng-include>
-							<span class="drag-handle glyphicon glyphicon-option-vertical"></span>
 						</div>
 					</div>
 				</div>

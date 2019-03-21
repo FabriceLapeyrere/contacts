@@ -444,5 +444,9 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->del_form_cas($params,$u['id']);
 		}
+		public function assFormCasquettes($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->associer($params,$u['id']);
+		}
 
 	}

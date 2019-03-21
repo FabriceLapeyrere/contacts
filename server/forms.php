@@ -18,6 +18,16 @@
 			}
 			return $res[0];
 		}
+		public static function get_id_schema_idx($id_form,$idx,$id){
+			$form=Forms::get_form($id_form,$id);
+			$i=1;
+			foreach($form['schema']->pages as $p){
+				foreach($p->elts as $e){
+					if ($idx==$i) return $e->id;
+					$i++;
+				}
+			}
+		}
 		public static function get_form_instance($id_form,$id_cas,$id) {
 			$id_contact=Contacts::get_contact_casquette($id_cas);
 			$db= new DB();
@@ -48,7 +58,6 @@
 				}
 				if (!$test) $new[]=$e;
 			}
-			error_log(var_export($mod,true),3,"/tmp/fab.log");
 			$db= new DB();
 			$db->database->beginTransaction();
 			foreach($new as $n) {
@@ -80,7 +89,7 @@
 				);
 			}
 			$db->database->commit();
-			return array('maj'=>array("form_instance/".$params->id_form."/".$params->id_cas),'res'=>1);
+			return array('maj'=>array("casquettes","form_instance/".$params->id_form."/".$params->id_cas),'res'=>1);
 		}
 		public static function get_forms() {
 			$db= new DB();
@@ -169,7 +178,7 @@
 			$cas=Contacts::get_casquette($params->id_cas,false,$id);
 			$insert= $db->database->prepare('INSERT INTO form_casquette (id_form,id_casquette) VALUES (?,?)');
 			$insert->execute(array($params->id_form,$params->id_cas));
-			return array('maj'=>array("forms","contact/".$cas['id_contact'],"form_casquettes/".$params->id_form),'res'=>1);
+			return array('maj'=>array("contact/".$cas['id_contact'],"form_casquettes/".$params->id_form),'res'=>1);
 		}
 		public function del_form_cas($params,$id) {
 			$t=Forms::do_del_form_cas($params,$id);
@@ -181,7 +190,26 @@
 			$cas=Contacts::get_casquette($params->id_cas,false,$id);
 			$insert= $db->database->prepare('DELETE FROM form_casquette WHERE id_form=? AND id_casquette=?');
 			$insert->execute(array($params->id_form,$params->id_cas));
-			return array('maj'=>array("forms","contact/".$cas['id_contact'],"form_casquettes/".$params->id_form),'res'=>1);
+			return array('maj'=>array("contact/".$cas['id_contact'],"form_casquettes/".$params->id_form),'res'=>1);
+		}
+		public function associer($params,$id) {
+			$t=Forms::do_associer($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_associer($params,$id){
+			$db= new DB();
+			$selection=array();
+			$query=$params->res->query;
+			$casquettes=Contacts::get_casquettes(array('query'=>$query,'page'=>1,'nb'=>10,'all'=>1),0,$id);
+			$selection=$casquettes['collection'];
+			$db->database->beginTransaction();
+			foreach($selection as $c){
+				$insert = $db->database->prepare('INSERT OR IGNORE INTO form_casquette (id_form,id_casquette) VALUES (?,?)');
+				$insert->execute(array($params->form->id,$c['id']));
+			}
+			$db->database->commit();
+			return array('maj'=>array("contact/*","form_casquettes/".$params->id_form),'res'=>1);
 		}
 	}
 ?>

@@ -382,7 +382,7 @@
 				$row['tags']= $row['tags']!="" ? explode(',',$row['tags']) : array();
 				$casquettes[]=$row;
 			}
-			$query='';
+			//$query='';
 			return array('params'=>$params,'collection'=>$casquettes,'page'=>$page, 'nb'=>$nb, 'total'=>$total,'query'=>$query);
 		}
 		public static function build_query($query,$id){
@@ -450,6 +450,11 @@
 						break;
 					case 'mail':
 						$valeur= "t2.id IN (SELECT id_cas FROM envoi_cas as t10 INNER JOIN envois as t11 ON t10.id_envoi=t11.id WHERE t11.type='mail' AND t11.id_type=$param)";
+						break;
+					case 'form-champ':
+						list($id_form,$idx,$valeur)=explode('|',$param);
+						$id_schema=Forms::get_id_schema_idx($id_form,$idx,$id);
+						$valeur= "t2.id IN (SELECT id_lien FROM forms_data as tform WHERE tform.id_form=$id_form AND tform.type_lien='casquette' AND tform.id_schema='$id_schema' AND tform.valeur='".str_replace("'","''",$valeur)."')";
 						break;
 					case 'form':
 						$valeur= "t2.id IN (SELECT id_casquette FROM form_casquette as tform WHERE tform.id_form=$param)";
