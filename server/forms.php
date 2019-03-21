@@ -19,9 +19,10 @@
 			return $res[0];
 		}
 		public static function get_form_instance($id_form,$id_cas,$id) {
+			$id_contact=Contacts::get_contact_casquette($id_cas);
 			$db= new DB();
 			$query = "SELECT * FROM forms_data WHERE id_form=$id_form AND type_lien='casquette' AND id_lien=$id_cas";
-			$res=array();
+			$res=array('id_contact'=>$id_contact);
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$res[$row['id_schema']]=$row;
 			}

@@ -1,16 +1,17 @@
 <form name="frm" class="col-xs-12 col-sm-6 col-sm-offset-3" loading="key" data="Data">
 	<locked key="key" data="Data">
-	<div class="col-xs-12" loading="key" data="Data">
-        <p>
-			<button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
-			<button class="btn btn-primary" ng-click="addPage()">Ajouter une page</button>
-		</p>
+	<div class="col-xs-12">
+    	<h3 class="cursor individu">{{Data.modele[key].nom}}</h3>
 		<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
 		    <span class="pull-right mini" ng-show="p">Enregistré</span>
 		    <span class="pull-right mini" ng-show="!p">Non enregistré</span>
 		</p>
+	    <p>
+			<button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+			<button class="btn btn-primary" ng-click="addPage()">Ajouter une page</button>
+		</p>
 	</div>
-	<div class="col-xs-12" loading="key" data="Data">
+	<div class="col-xs-12">
 		<p></p>
 		<uib-tabset>
 			<uib-tab heading="Formulaire">
@@ -36,6 +37,8 @@
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'date','Date')"><span class="glyphicon glyphicon-plus"> </span> Date</span>
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'multiples','Choix multiples')"><span class="glyphicon glyphicon-plus"> </span> Choix multiples</span>
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'checkbox','Case à cocher')"><span class="glyphicon glyphicon-plus"> </span> Case à cocher</span>
+						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'titre','Titre')"><span class="glyphicon glyphicon-plus"> </span> Titre</span>
+						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'texte','Texte informatif')"><span class="glyphicon glyphicon-plus"> </span> Texte informatif</span>
 					</p>
 					<div class="list-group">
 						<div ng-repeat="elt in p.elts" class="list-group-item"

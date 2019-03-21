@@ -2309,6 +2309,7 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 	$scope.idcas=$routeParams.idcas;
 	$scope.formkey='form/'+$scope.idform;
 	$scope.key='form_instance/'+$scope.idform+'/'+$scope.idcas;
+	$scope.contactkey='';
 	Link.context([{type:$scope.formkey},{type:$scope.key}]);
 	$scope.check=function(elt){
 		if (elt.default===undefined) elt.default='';
@@ -2318,9 +2319,13 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 		console.log('checkAll');
 		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
 			angular.forEach(p.elts,function(elt){
-				$scope.check(elt);
+				if (elt.type!='titre' && elt.type!='texte') $scope.check(elt);
 			});
 		});
+		if ($scope.contactkey=='') {
+			$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
+			Link.context([{type:$scope.formkey},{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
+		}
 	};
 	$scope.save=function(){
 		$scope.checkAll();
