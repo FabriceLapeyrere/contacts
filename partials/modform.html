@@ -20,11 +20,29 @@
 					<label>Nom</label>
 					<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
 				</p>
+				<p>
+				<label>État</label>
+				<div class="btn-group">
+			        <label class="btn btn-primary" ng-model="Data.modele[key].state" uib-btn-radio="'open'">Ouvert</label>
+			        <label class="btn btn-primary" ng-model="Data.modele[key].state" uib-btn-radio="'closed'">Fermé</label>
+			        <label class="btn btn-primary" ng-model="Data.modele[key].state" uib-btn-radio="'scheduled'">Planifié</label>
+			    </div>
+				<div class="row" ng-if="Data.modele[key].state=='scheduled'">
+					<div class="col-xs-6">
+						<label>Date d'ouverture</label>
+						<input type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy" ng-model="Data.modele[key].from_date" ng-required="true" is-open="popup1.opened" ng-click="popup1.opened=true"/>
+					</div>
+					<div class="col-xs-6">
+						<label>Date de fermeture</label>
+						<input type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy" ng-model="Data.modele[key].to_date" ng-change="checkDates()" ng-required="true" is-open="popup2.opened" ng-click="popup2.opened=true"/>
+					</div>
+				</div>
+			    </p>
 				<label>Descriptif</label>
 				<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
 				<p>&nbsp;</p>
 			</uib-tab>
-			<uib-tab ng-repeat="p in Data.modele[key].schema.pages">
+			<uib-tab ng-repeat="p in Data.modele[key].schema.pages" ng-init="pageIndex=$index">
 				<uib-tab-heading>
 					Page {{$index+1}}
 				</uib-tab-heading>
@@ -37,12 +55,12 @@
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'texte_long','Texte long')"><span class="glyphicon glyphicon-plus"> </span> Texte long</span>
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'date','Date')"><span class="glyphicon glyphicon-plus"> </span> Date</span>
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'multiples','Choix multiples')"><span class="glyphicon glyphicon-plus"> </span> Choix multiples</span>
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'checkbox','Case à cocher')"><span class="glyphicon glyphicon-plus"> </span> Case à cocher</span>
+						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'checkbox','Case à cocher','0')"><span class="glyphicon glyphicon-plus"> </span> Case à cocher</span>
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'titre','Titre')"><span class="glyphicon glyphicon-plus"> </span> Titre</span>
 						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'texte','Texte informatif')"><span class="glyphicon glyphicon-plus"> </span> Texte informatif</span>
 					</p>
 					<div class="list-group">
-						<div ng-repeat="elt in p.elts" class="list-group-item"
+						<div ng-repeat="elt in p.elts" class="list-group-item pad-bottom"
 							ui-on-drop="drop($event,$data,$index,$channel,p.elts)"
 							drop-channel="listorder"
 							drop-validate="validate($data,p.id)">
@@ -57,6 +75,7 @@
 
 							</div>
 							<ng-include src="'partials/inc/formelts/'+elt.type+'.html'"></ng-include>
+							<div class='bas-droite'><span class="mini">#{{currentIndex($index,pageIndex)}}</span></div>
 						</div>
 					</div>
 				</div>
@@ -68,7 +87,7 @@
 					<span ng-if="Data.modele['form_casquettes/'+id_form].tout.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.modele['form_casquettes/'+id_form].tout.page-1)+1}} - {{min(itemsParPage*Data.modele['form_casquettes/'+id_form].tout.page,Data.modele['form_casquettes/'+id_form].tout.total)}} de {{Data.modele['form_casquettes/'+id_form].tout.total}}</span>
 					<ul class="list-group">
 						<li class="list-group-item" ng-repeat="cas in Data.modele['form_casquettes/'+id_form].tout.collection">
-			                <a href="showform/{{id_form}}/{{cas.id}}">
+			                <a href="showform/{{id_form}}/{{cas.id}}" ng-class="{'individu':cas.type==1, 'structure':cas.type==2}">
 								<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
 							</a>
 						</li>

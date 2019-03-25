@@ -61,18 +61,27 @@ class WS implements MessageComponentInterface {
 		$datas=$params->data;
 		$res=array();
 		error_log("---------------------------------------------\n:::: ".$uid." :::: AJAX CALL 1 $t\n",3,"./data/log/link.log");
-		if (count($datas)==1 && $datas[0]->action=='login' ) {
+        if (count($datas)==1 && $datas[0]->action=='login' ) {
 			$res[]=$Actions->login($datas[0]->params);
 		}
-		if ($rid==-1 && $key=='1234') {
+        if ($rid==-1 && $key=='1234') {
 			$this->setSession($from,'user',array(
 				'login'=>'admin',
 				'name'=>'Admin',
 				'id'=>'1'
 			));
 		}
-		$u=$this->getSession($from,'user');
-		if ($u!==NULL && is_array($datas)) {
+        $u=$this->getSession($from,'user');
+		if (count($datas)==1 && $datas[0]->action=='public-login' &&  $u===NULL) {
+		    $this->setSession($from,'user',array(
+				'login'=>'anonyme',
+				'name'=>'Anonyme',
+				'id'=>'-2'
+			));
+            $u=$this->getSession($from,'user');
+        }
+        error_log(var_export($u,true),3,'/tmp/fab.log');
+        if ($u!==NULL && is_array($datas)) {
 			foreach($datas as $data) {
 				//d'abord les verrous
 				if ($data->action=='del_verrou') {
@@ -87,7 +96,9 @@ class WS implements MessageComponentInterface {
 				}
 			}    //ensuite le modele
 			foreach($datas as $data) {
-				if ($data->action!='del_verrou'
+				if ($data->action!='login'
+                    && $data->action!='public-login'
+                    && $data->action!='del_verrou'
 					&& $data->action!='maj'
 					&& $data->action!='set_verrou'
 					&& $data->action!='kill_me'

@@ -7,6 +7,7 @@ fakeWs.value('Data', {
 		id:-1
 	},
 	uid:0,
+	accept_anonymous:false,
 	contexts:[],
 	modele:{},
 	modeleSrv:{},
@@ -27,30 +28,33 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 	link.retry={};
 	link.context=function(contexts,verrous){
 		Data.contexts=contexts;
-		var hasconfig=false, hasverrous=false, haschat=false, haslogged=false, hasusers=false, hasusersall=false, hasgroups=false;
-		for(var i=0;i<contexts.length;i++){
-			if (contexts[i].type=='config') hasconfig=true;
-			if (contexts[i].type=='verrous') hasverrous=true;
-			if (contexts[i].type=='chat') haschat=true;
-			if (contexts[i].type=='logged') haslogged=true;
-			if (contexts[i].type=='users') hasusers=true;
-			if (contexts[i].type=='usersall') hasusersall=true;
-			if (contexts[i].type=='groups') hasgroups=true;
+		if (!Data.accept_anonymous) {
+			var hasconfig=false, hasverrous=false, haschat=false, haslogged=false, hasusers=false, hasusersall=false, hasgroups=false;
+			for(var i=0;i<contexts.length;i++){
+				if (contexts[i].type=='config') hasconfig=true;
+				if (contexts[i].type=='verrous') hasverrous=true;
+				if (contexts[i].type=='chat') haschat=true;
+				if (contexts[i].type=='logged') haslogged=true;
+				if (contexts[i].type=='users') hasusers=true;
+				if (contexts[i].type=='usersall') hasusersall=true;
+				if (contexts[i].type=='groups') hasgroups=true;
+			}
+			if (!hasconfig) Data.contexts.push({type:'config'});
+			if (!hasverrous) Data.contexts.push({type:'verrous'});
+			if (!haschat) Data.contexts.push({type:'chat'});
+			if (!haslogged) Data.contexts.push({type:'logged'});
+			if (!hasusers) Data.contexts.push({type:'users'});
+			if (!hasusersall) Data.contexts.push({type:'usersall'});
+			if (!hasgroups) Data.contexts.push({type:'groups'});
 		}
-		if (!hasconfig) Data.contexts.push({type:'config'});  
-		if (!hasverrous) Data.contexts.push({type:'verrous'});  
-		if (!haschat) Data.contexts.push({type:'chat'});
-		if (!haslogged) Data.contexts.push({type:'logged'});
-		if (!hasusers) Data.contexts.push({type:'users'});
-		if (!hasusersall) Data.contexts.push({type:'usersall'});
-		if (!hasgroups) Data.contexts.push({type:'groups'});
 		var actions=[{action:'update_contexts', contexts:Data.contexts}];
 		if (verrous) {
 			for(var i=0;i<verrous.length;i++){
 				actions.push({action:'set_verrou', verrou:verrous[i]});
 			}
 		}
-		link.ajax(actions);
+		if (Data.user && (Data.user.id>0 || Data.accept_anonymous && Data.user.id==-2)) link.ajax(actions);
+		else link.ajax([]);
 	};
 	link.logout=function(){
 		link.ajax([{action:'logout'}]);
@@ -63,10 +67,9 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 			Data.modeleFresh=false;
 			link.ws.send({data:data},
 				function(res){
-					callback(res.data);
 					Data.modeleFresh=true;
 					console.log('ajax ok');
-					if (res.data.user && res.data.user.id>0) {
+					if (res.data.user &&  (res.data.user.id>0 || Data.accept_anonymous && res.data.user.id==-2)) {
 						Data.user=res.data.user;
 						Data.uid=res.data.uid;
 						if (Data.logged==false) $location.path(Data.startUrl);
@@ -80,19 +83,27 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 							id:-1
 						};
 						Data.uid=0;
-						$location.path('/login');
+						if (Data.accept_anonymous) {
+							var data=[{
+								action:'public-login',
+								params: {}
+							}];
+							link.ajax(data);
+						} else $location.path('/login');
 					}
+					callback(res.data);
+					$rootScope.$broadcast('data-update');
 				}
 			)
 		}
 	};
 	link.set_verrou = function(verrous) {
 		var actions=[];
-		for (var i=0; i<verrous.length;i++) {		
+		for (var i=0; i<verrous.length;i++) {
 			verrous[i]=verrous[i];
 			actions.push({action:'set_verrou', verrou:verrous[i]});
 		}
-		link.ajax(actions);	
+		link.ajax(actions);
 	}
 	link.del_verrou = function(key) {
 		var verrou=key;
@@ -106,8 +117,9 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 		console.log('init');
 		Data.offline=false;
 		Data.canLink=true;
+		$rootScope.$broadcast('link-ready');
 		if ($location.path()!='/login') Data.startUrl=$location.path();
-		link.ajax([{action:'update_contexts', contexts:Data.contexts}]);
+		link.ajax([],function(){link.context(Data.contexts);});
 	}
 	link.ws.onopen(link.initSocket);
 	link.ws.onreopen(link.initSocket);
@@ -117,7 +129,7 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 	});
 
 	link.ws.onmessage(function(r) {
-		if (r.data.user && r.data.user.id>0) {
+		if (r.data.user && (r.data.user.id>0 || Data.accept_anonymous && r.data.user.id==-2)) {
 			Data.user=r.data.user;
 			Data.uid=r.data.uid;
 			if (Data.logged==false) $location.path(Data.startUrl);
@@ -131,9 +143,15 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 				id:-1
 			};
 			Data.uid=0;
-			$location.path('/login');
+			if (Data.accept_anonymous) {
+				var data=[{
+					action:'public-login',
+					params: {}
+				}];
+				link.ajax(data);
+			} else $location.path('/login');
 		}
-		if (r.data.user && r.data.user.id>0 && r.data.modele) {
+		if (r.data.user && (r.data.user.id>0 || Data.accept_anonymous && r.data.user.id==-2) && r.data.modele) {
 			console.log('data received',r.data.modele);
 			var params={};
 			var types=['casquettes','carte','cluster','etabs'];
@@ -156,6 +174,7 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 				}
 			});
 		}
-	});	
+		$rootScope.$broadcast('data-update');
+	});
 	return link;
 }]);

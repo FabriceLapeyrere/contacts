@@ -1,5 +1,5 @@
 <label>{{elt.label}}</label>
-<span ng-model="Data.modele[key][elt.id].valeur" uib-btn-checkbox btn-checkbox-true="'1'" btn-checkbox-false="'0'">
-    <span ng-if="Data.modele[key][elt.id].valeur=='1'" class="btn-group"><span class="btn btn-primary">{{elt.trueValue}}</span><span  class="btn btn-default">{{elt.falseValue}}</span></span>
-    <span ng-if="Data.modele[key][elt.id].valeur=='0'" class="btn-group"><span class="btn btn-default">{{elt.trueValue}}</span><span  class="btn btn-primary">{{elt.falseValue}}</span></span>
+<span ng-model="Data.modele[key].collection[elt.id].valeur" uib-btn-checkbox btn-checkbox-true="'1'" btn-checkbox-false="'0'">
+    <span ng-if="Data.modele[key].collection[elt.id].valeur=='1'" class="btn-group"><span class="btn btn-primary">{{elt.trueValue}}</span><span  class="btn btn-default">{{elt.falseValue}}</span></span>
+    <span ng-if="Data.modele[key].collection[elt.id].valeur=='0'" class="btn-group"><span class="btn btn-default">{{elt.trueValue}}</span><span  class="btn btn-primary">{{elt.falseValue}}</span></span>
 </span>

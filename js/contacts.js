@@ -51,6 +51,10 @@ app.config(['$locationProvider', function($locationProvider) {
 	$locationProvider.html5Mode(true);
 }]);
 app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$uibModal', '$q', '$window', '$sce', 'Link', 'Data', 'ngAudio', function ($scope, $http, $location, $timeout, $interval, $uibModal, $q, $window, $sce, Link, Data, ngAudio) {
+	$scope.editorOk=false;
+	$scope.$watch(function(){return CKEDITOR.status;},function(o,n){
+		$scope.editorOk=true;
+	});
 	Data.mainQuery='';
 	Data.suivisGroup=0;
 	$scope.help=function(id){
@@ -1661,10 +1665,6 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	$scope.key='mail/'+$routeParams.id;
 	$scope.Data=Data;
 	Link.context([{type:$scope.key}],[$scope.key]);
-	$scope.editorOk=false;
-	setTimeout(function() {
-		  $scope.editorOk=true;
-	},500);
 	$scope.editorOptions = {
 		height:"500px",
 		language: 'fr',
@@ -2206,12 +2206,15 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 			$scope.getPage();
 		}
 	});
-	$scope.editorOk=false;
-	setTimeout(function() {
-		  $scope.editorOk=true;
-	},500);
 	$scope.key='form/'+$routeParams.id;
 	$scope.id_form=$routeParams.id;
+	$scope.currentIndex=function(i,pi){
+		var idx=i+1;
+		for(var j=0;j<pi;j++){
+			idx=idx+Data.modele[$scope.key].schema.pages[j].elts.length;
+		}
+		return idx;
+	}
 	Link.context([{type:$scope.key}],[$scope.key]);
 	$scope.editorOptions = {
 		height:"200px",
@@ -2283,8 +2286,9 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 		var i=$scope.index('id',Data.modele[$scope.key].schema.pages,p.id);
 		Data.modele[$scope.key].schema.pages.splice(i,1);
 	};
-	$scope.addElt=function(p,type,nom){
-		var elt={id:Math.random().toString(36).substr(2, 9),nom:nom,type:type,templateUrl:'partials/inc/formelts/'+type+'.html'};
+	$scope.addElt=function(p,type,nom,defaut){
+		if (!defaut) defaut='';
+		var elt={id:Math.random().toString(36).substr(2, 9),nom:nom,type:type,default:defaut};
 		p.elts.push(elt);
 		$scope.save();
 	};
@@ -2326,7 +2330,14 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 			Link.context(contexts);
 		},function(){Link.context(contexts);});
 	}
+	$scope.checkDates=function(){
+		var df=new Date(Data.modele[$scope.key].from_date).getTime();
+		var dt=new Date(Data.modele[$scope.key].to_date).getTime();
+		if (df>dt) Data.modele[$scope.key].to_date=Data.modele[$scope.key].from_date;
+	}
 	$scope.save=function(){
+		Data.modele[$scope.key].from_date=new Date(Data.modele[$scope.key].from_date).getTime();
+		Data.modele[$scope.key].to_date=new Date(Data.modele[$scope.key].to_date).getTime();
 		angular.forEach(Data.modele[$scope.key].schema.pages,function(p){
 			angular.forEach(p.elts,function(e){
 				delete e.$$hashKey;
@@ -2352,7 +2363,7 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 	Link.context([{type:$scope.formkey},{type:$scope.key}]);
 	$scope.check=function(elt){
 		if (elt.default===undefined) elt.default='';
-		if (!Data.modele[$scope.key][elt.id]) Data.modele[$scope.key][elt.id]={id_schema:elt.id,valeur:elt.default};
+		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default};
 	}
 	$scope.checkAll=function(){
 		console.log('checkAll');
@@ -2391,9 +2402,6 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 		],
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
-	setTimeout(function() {
-		  $scope.editorOk=true;
-	},500);
 }]);
 //supports
 app.controller('supportsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {

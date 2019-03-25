@@ -1,33 +1,41 @@
-<div class="col-xs-12 col-sm-6" loading="key" data="Data" action="checkAll()">
-    <div>
-        <p>
-            <button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
-        </p>
-    </div>
-	<uib-tabset>
-        <uib-tab ng-repeat="p in Data.modele[formkey].schema.pages">
-            <uib-tab-heading>
-                Page {{$index+1}}
-            </uib-tab-heading>
-            <div>
-                <p>&nbsp;</p>
-                <div class="list-group">
-                    <div ng-repeat="elt in p.elts" class="list-group-item">
-                        <span class="mini" ng-if="Data.modele[key][elt.id].modificationdate">({{calendar(Data.modele[key][elt.id].modificationdate)}} par {{Data.modele.usersall[Data.modele[key][elt.id].modifiedby].name}})<br /></span>
-                        <ng-include src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
+<div loading="key" data="Data" action="checkAll()">
+	<div class="col-xs-12" ng-if="!Data.modele[key].hash">
+		Ce formulaire n'existe pas.
+	</div>
+	<div ng-if="Data.modele[key].hash" class="col-xs-12 col-sm-6">
+        <div>
+            <p>
+                <button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+            </p>
+            <p>
+                URL : {{Data.modele.config.config.app.url.value}}/form.php?h={{Data.modele[key].hash}}
+            </p>
+        </div>
+    	<uib-tabset>
+            <uib-tab ng-repeat="p in Data.modele[formkey].schema.pages">
+                <uib-tab-heading>
+                    Page {{$index+1}}
+                </uib-tab-heading>
+                <div>
+                    <p>&nbsp;</p>
+                    <div class="list-group">
+                        <div ng-repeat="elt in p.elts" class="list-group-item">
+                            <span class="mini" ng-if="Data.modele[key].collection[elt.id].modificationdate">({{calendar(Data.modele[key].collection[elt.id].modificationdate)}} par {{Data.modele.usersall[Data.modele[key].collection[elt.id].modifiedby].name}})<br /></span>
+                            <ng-include src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </uib-tab>
-    <uib-tabset>
-</div>
-<div class="col-xs-12 col-sm-6">
-    <div loading="formkey" data="Data">
-        <h3>Formulaire : <a href="modform/{{Data.modele[formkey].id}}">{{Data.modele[formkey].nom}}</a></h3>
-        <div ng-if="Data.modele[formkey].schema.descriptif" ng-bind-html="trust(Data.modele[formkey].schema.descriptif)"></div>
+            </uib-tab>
+        <uib-tabset>
     </div>
-    <div loading="contactkey" data="Data">
-        <h3 class="cursor" ng-class="{'individu':Data.modele[contactkey].casquettes[idcas].type==1, 'structure':Data.modele[contactkey].casquettes[idcas].type==2}"><a href="modcontact/{{Data.modele[contactkey].casquettes[idcas].id_contact}}">{{Data.modele[contactkey].casquettes[idcas].prenom}} {{Data.modele[contactkey].casquettes[idcas].nom}}</a></h3>
-        <div ng-repeat="cas in [Data.modele[contactkey].casquettes[idcas]]" ng-include="'partials/inc/casquetteInfos.html'"></div>
+    <div ng-if="Data.modele[key].hash" class="col-xs-12 col-sm-6">
+        <div loading="formkey" data="Data">
+            <h3>Formulaire : <a href="modform/{{Data.modele[formkey].id}}">{{Data.modele[formkey].nom}}</a></h3>
+            <div ng-if="Data.modele[formkey].schema.descriptif" ng-bind-html="trust(Data.modele[formkey].schema.descriptif)"></div>
+        </div>
+        <div loading="contactkey" data="Data">
+            <h3 class="cursor" ng-class="{'individu':Data.modele[contactkey].casquettes[idcas].type==1, 'structure':Data.modele[contactkey].casquettes[idcas].type==2}"><a href="modcontact/{{Data.modele[contactkey].casquettes[idcas].id_contact}}">{{Data.modele[contactkey].casquettes[idcas].prenom}} {{Data.modele[contactkey].casquettes[idcas].nom}}</a></h3>
+            <div ng-repeat="cas in [Data.modele[contactkey].casquettes[idcas]]" ng-include="'partials/inc/casquetteInfos.html'"></div>
+        </div>
     </div>
 </div>

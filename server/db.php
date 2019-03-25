@@ -447,6 +447,9 @@
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
 						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'schema','type'=>'TEXT','defaut'=>'[]','options'=>''),
+						array('nom'=>'state','type'=>'string','defaut'=>'closed','options'=>''),
+						array('nom'=>'from_date','type'=>'string','defaut'=>'','options'=>''),
+						array('nom'=>'to_date','type'=>'string','defaut'=>'','options'=>''),
 						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'modificationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
@@ -458,7 +461,8 @@
 					'nom'=>'form_casquette',
 					'champs'=>array(
 						array('nom'=>'id_form','type'=>'INTEGER','defaut'=>'','options'=>''),
-						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>'')
+						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'hash','type'=>'string','defaut'=>'','options'=>''),
 					)
 				),
 				array(

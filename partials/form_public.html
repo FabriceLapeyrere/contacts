@@ -1,0 +1,35 @@
+<div class="col-xs-12 col-md-8 col-md-offset-2" loading="key" data="Data" action="checkAll()">
+    <div loading="contactkey" data="Data">
+        Bonjour <span class="cursor">{{Data.modele[contactkey].casquettes[idcas].prenom}} {{Data.modele[contactkey].casquettes[idcas].nom}}</span>
+    </div>
+    <h3>{{Data.modele[formkey].nom}}</h3>
+    <div ng-bind-html="trust(Data.modele[formkey].schema.descriptif)"></div>
+    <div>
+        <p>
+            <button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+        </p>
+    </div>
+    <div>
+    <uib-tabset>
+        <uib-tab ng-repeat="p in Data.modele[formkey].schema.pages">
+            <uib-tab-heading>
+                Page {{$index+1}}
+            </uib-tab-heading>
+            <div>
+                <p>&nbsp;</p>
+                <div class="list-group">
+                    <div ng-repeat="elt in p.elts" class="list-group-item">
+                        <ng-include src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+    <uib-tabset>
+    </div>
+    <div class="clearfix"></div>
+    <div>
+        <p>
+            <button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+        </p>
+    </div>
+</div>

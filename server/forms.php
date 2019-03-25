@@ -10,10 +10,12 @@
 		//forms
 		public static function get_form($id_form,$id) {
 			$db= new DB();
-			$query = "SELECT * FROM forms WHERE id=$id_form";
+			$query = "SELECT *, (SELECT count(*)>0 FROM form_casquette WHERE id_form=t1.id) as has_instance FROM forms as t1 WHERE id=$id_form";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$row['schema']=json_decode($row['schema']);
+				$row['from_date']=$row['from_date']+0;
+				$row['to_date']=$row['to_date']+0;
 				$res[]=$row;
 			}
 			return $res[0];
@@ -30,13 +32,18 @@
 		}
 		public static function get_form_instance($id_form,$id_cas,$id) {
 			$id_contact=Contacts::get_contact_casquette($id_cas);
+			$res=array('id_contact'=>$id_contact,'collection'=>array());
 			$db= new DB();
-			$query = "SELECT * FROM forms_data WHERE id_form=$id_form AND type_lien='casquette' AND id_lien=$id_cas";
-			$res=array('id_contact'=>$id_contact);
+			$query = "SELECT * FROM form_casquette WHERE id_form=$id_form AND id_casquette=$id_cas";
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				$res[$row['id_schema']]=$row;
+				$res['hash']=$row['hash'];
 			}
-			return (object) $res;
+			$query = "SELECT * FROM forms_data WHERE id_form=$id_form AND type_lien='casquette' AND id_lien=$id_cas";
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$res['collection'][$row['id_schema']]=$row;
+			};
+			$res['collection']=(object)$res['collection'];
+			return $res;
 		}
 		public function mod_form_instance($params,$id) {
 			$t=Forms::do_mod_form_instance($params,$id);
@@ -47,10 +54,11 @@
 			$db_instance=Forms::get_form_instance($params->id_form,$params->id_cas,$id);
 			$new=array();
 			$mod=array();
-			foreach($params->instance as $k=>$e){
+			error_log(var_export($params->instance,true),3,"/tmp/fab.log");
+			foreach($params->instance->collection as $k=>$e){
 				$e->id_schema=$k;
 				$test=false;
-				foreach($db_instance as $oe){
+				foreach($db_instance['collection'] as $oe){
 					if ($e->id_schema==$oe['id_schema']) {
 						$test=true;
 						if ($e->valeur!=$oe['valeur']) $mod[]=$e;
@@ -58,6 +66,9 @@
 				}
 				if (!$test) $new[]=$e;
 			}
+			error_log(var_export($new,true),3,"/tmp/fab.log");
+			error_log(var_export($mod,true),3,"/tmp/fab.log");
+
 			$db= new DB();
 			$db->database->beginTransaction();
 			foreach($new as $n) {
@@ -93,7 +104,7 @@
 		}
 		public static function get_forms() {
 			$db= new DB();
-			$query = "SELECT * FROM forms ORDER BY id ASC";
+			$query = "SELECT *, (SELECT count(*)>0 FROM form_casquette WHERE id_form=t1.id) as has_instance FROM forms as t1 ORDER BY id ASC";
 			$forms=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$row['schema']=json_decode($row['schema']);
@@ -140,18 +151,24 @@
 			$update= $db->database->prepare('UPDATE forms SET
 				nom=?,
 				schema=?,
+				state=?,
+				from_date=?,
+				to_date=?,
 				modificationdate=?,
 				modifiedby=?
 				WHERE id=?');
 			$update->execute(array(
 				$params->form->nom,
 				json_encode($params->form->schema),
+				$params->form->state,
+				$params->form->from_date,
+				$params->form->to_date,
 				millisecondes(),
 				$id,
 				$params->form->id
 				)
 			);
-			return array('maj'=>array("form/".$params->form->id),'res'=>Forms::get_form($params->form->id));
+			return array('maj'=>array("form/".$params->form->id),'res'=>Forms::get_form($params->form->id,$id));
 		}
 		public function del_form($params,$id) {
 			$t=Forms::do_del_form($params,$id);
@@ -176,9 +193,10 @@
 		public static function do_add_form_cas($params,$id) {
 			$db= new DB();
 			$cas=Contacts::get_casquette($params->id_cas,false,$id);
-			$insert= $db->database->prepare('INSERT INTO form_casquette (id_form,id_casquette) VALUES (?,?)');
-			$insert->execute(array($params->id_form,$params->id_cas));
-			return array('maj'=>array("contact/".$cas['id_contact'],"form_casquettes/".$params->id_form),'res'=>1);
+			$hash=md5(rand(0,10000)."-".millisecondes()."-".$params->id_cas."-".$params->id_form);
+			$insert= $db->database->prepare('INSERT INTO form_casquette (id_form,id_casquette,hash) VALUES (?,?,?)');
+			$insert->execute(array($params->id_form,$params->id_cas,$hash));
+			return array('maj'=>array("form_instance/".$params->id_form."/".$params->id_cas,"contact/".$cas['id_contact'],"form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>1);
 		}
 		public function del_form_cas($params,$id) {
 			$t=Forms::do_del_form_cas($params,$id);
@@ -188,9 +206,14 @@
 		public static function do_del_form_cas($params,$id) {
 			$db= new DB();
 			$cas=Contacts::get_casquette($params->id_cas,false,$id);
-			$insert= $db->database->prepare('DELETE FROM form_casquette WHERE id_form=? AND id_casquette=?');
-			$insert->execute(array($params->id_form,$params->id_cas));
-			return array('maj'=>array("contact/".$cas['id_contact'],"form_casquettes/".$params->id_form),'res'=>1);
+			$instance=Forms::get_form_instance($params->id_form,$params->id_cas,$id);
+			$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
+			$insert->execute(array($params->id_form."|".$params->id_cas,'form_instance',json_encode($instance),millisecondes(),$id));
+			$delete= $db->database->prepare('DELETE FROM form_casquette WHERE id_form=? AND id_casquette=?');
+			$delete->execute(array($params->id_form,$params->id_cas));
+			$delete= $db->database->prepare('DELETE FROM forms_data WHERE id_form=? AND id_lien=? AND type_lien=?');
+			$delete->execute(array($params->id_form,$params->id_cas,'casquette'));
+			return array('maj'=>array("form_instance/".$params->id_form."/".$params->id_cas,"contact/".$cas['id_contact'],"form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>1);
 		}
 		public function associer($params,$id) {
 			$t=Forms::do_associer($params,$id);
@@ -205,11 +228,12 @@
 			$selection=$casquettes['collection'];
 			$db->database->beginTransaction();
 			foreach($selection as $c){
-				$insert = $db->database->prepare('INSERT OR IGNORE INTO form_casquette (id_form,id_casquette) VALUES (?,?)');
-				$insert->execute(array($params->form->id,$c['id']));
+				$hash=md5(rand(0,10000)."-".millisecondes()."-".$c['id']."-".$params->form->id);
+				$insert = $db->database->prepare('INSERT OR IGNORE INTO form_casquette (id_form,id_casquette,hash) VALUES (?,?,?)');
+				$insert->execute(array($params->form->id,$c['id'],$hash));
 			}
 			$db->database->commit();
-			return array('maj'=>array("contact/*","form_casquettes/".$params->id_form),'res'=>1);
+			return array('maj'=>array("contact/*","form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>1);
 		}
 	}
 ?>

@@ -125,11 +125,9 @@
 						<span class="label-contact">Formulaires</span>
 						<div>
 							<span ng-repeat="f in cas.forms | toArray | orderBy:'nom'">
-						        <a href="showform/{{f}}/{{cas.id}}">
-								<span class="btn btn-primary">{{Data.modele.forms[f].nom}}
-									<span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delFormCas(f,cas)" ng-confirm-message="Sûr?"></span>
-								</span>
-								<a href="">
+						        <a href="showform/{{f}}/{{cas.id}}"><span class="btn btn-primary">{{Data.modele.forms[f].nom}}
+								</span></a>
+								<span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delFormCas(f,cas)" ng-confirm-message="Sûr?"></span>
 						    </span>
 						</div>
 					</div>
