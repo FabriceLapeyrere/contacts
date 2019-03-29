@@ -632,8 +632,9 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		$command = "nohup /usr/bin/php exec.php doublon_emails $arg > /dev/null 2>&1 &";
 		exec($command);
 	}
-	function doublon_maj($id_contact) {
-		$command = "nohup /usr/bin/php exec.php doublon_maj $id_contact > /dev/null 2>&1 &";
+	function doublon_maj($ids_contacts) {
+		$arg=base64_encode(json_encode($ids_contacts));
+		$command = "nohup /usr/bin/php exec.php doublon_maj $arg > /dev/null 2>&1 &";
 		exec($command);
 	}
 	function conf(){

@@ -13,6 +13,7 @@
 				Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.usersall[Data.modele[key].createdby].name}},
 				modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.usersall[Data.modele[key].modifiedby].name}}.
 			</span>
+			<span class="pull-right mini" ng-if="Data.modele[prevNextKey][3]">{{Data.modele[prevNextKey][2]}} de {{Data.modele[prevNextKey][3]}}</span>
 		</p>
 		<ul class="list-group">
 			<li class="list-group-item" ng-repeat="cas in Data.modele[key].casquettes">

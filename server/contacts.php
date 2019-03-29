@@ -687,7 +687,7 @@
 			foreach($casres as $cr) {
 				$tab=array_merge($tab, $cr['maj']);
 			}
-			doublon_maj($id_contact);
+			doublon_maj(array($id_contact));
 			return array('maj'=>$tab,'res'=>1);
 		}
 		public static function touch_contact($id_contact,$id) {
@@ -1422,6 +1422,10 @@
 			$delete->execute(array($params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
 			$delete->execute(array($params->cas->id));
+			$delete = $db->database->prepare('DELETE FROM suivis WHERE id_thread IN (SELECT id FROM suivis_threads WHERE id_casquette=?) ');
+			$delete->execute(array($params->cas->id));
+			$delete = $db->database->prepare('DELETE FROM suivis_threads WHERE id_casquette=? ');
+			$delete->execute(array($params->cas->id));
 			$maj_tab=array();
 			foreach($cas['suivis'] as $id_thread=>$thread){
 				$p=new stdClass;
@@ -1448,14 +1452,20 @@
 			$cass=Contacts::get_casquettes(array('query'=>'::panier::','page'=>1,'nb'=>10,'all'=>1),0,$id);
 			$db->database->beginTransaction();
 			$panier=array();
+			$emails=array();
+			$ids_contacts=array();
 			foreach($cass['collection'] as $cas){
+				$emails=array_merge($emails,$cas['emails']);
+				$ids_contacts[]=$cas['id_contact'];
 				$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
 				$insert->execute(array( $cas['id'],'casquette',json_encode($cas),millisecondes(),$id));
 				$delete = $db->database->prepare('DELETE FROM casquettes WHERE id=? ');
 				$delete->execute(array( $cas['id']));
 				$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
 				$delete->execute(array( $cas['id']));
-				$delete = $db->database->prepare('DELETE FROM suivis WHERE id_casquette=? ');
+				$delete = $db->database->prepare('DELETE FROM suivis WHERE id_thread IN (SELECT id FROM suivis_threads WHERE id_casquette=?) ');
+				$delete->execute(array( $cas['id']));
+				$delete = $db->database->prepare('DELETE FROM suivis_threads WHERE id_casquette=? ');
 				$delete->execute(array( $cas['id']));
 				$update = $db->database->prepare('UPDATE casquettes SET id_etab=0, modificationdate=?, modifiedby=? WHERE id_etab=?');
 				$update->execute(array(millisecondes(),$id, $cas['id']));
@@ -1465,6 +1475,10 @@
 			}
 			$delete = $db->database->exec('DELETE FROM contacts WHERE 0=(select count(*) from casquettes where id_contact=contacts.id)');
 			$db->database->commit();
+			$emails=array_values(array_unique($emails));
+			$ids_contacts=array_values(array_unique($ids_contacts));
+			check_doublon_emails($emails);
+			doublon_maj($ids_contacts);
 			$p= (object) array('nouveaux'=>$panier);
 			$t=User::do_del_panier($p,$id);
 			$tab=array("casquettes","contact/*","suivis","panier");
@@ -1771,6 +1785,7 @@
 			}
 			$db->database->commit();
 			if (count($cass)>0) ldap_update_array($cass);
+			doublon_maj(array());
 			Contacts::index_gps();
 			return array('maj'=>array('*'), 'res'=>1);
 		}
