@@ -1606,6 +1606,7 @@
 			return $t['res'];
 		}
 		public static function do_add_nb_csv($params,$id){
+			$t0=millisecondes();
 			$db= new DB();
 			$tags_new=array();
 			$tags_new_map=array();
@@ -1665,8 +1666,12 @@
 								}
 							}
 							if ($type=='email') {
+								$ti=0;
 								foreach(extractEmailsFromString($row[$k]) as $m) {
-									$donnees[]=array('type'=>'email','label'=>$label,'value'=>$m);
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$donnees[]=array('type'=>'email','label'=>$label.$cl,'value'=>$m);
+									$ti++;
 								}
 							}
 							if ($type=='tel') {
@@ -1710,6 +1715,10 @@
 				}
 				if (!array_key_exists('type',$map)) {
 					$contact['type']=1;
+				}
+				foreach ($donnees as $key => $value) {
+					$donnees[$key]['date']=$t0;
+					$donnees[$key]['by']=$id;
 				}
 				$contact['donnees']=json_decode(json_encode($donnees));
 				$contacts[]=$contact;
