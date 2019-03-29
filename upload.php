@@ -92,7 +92,7 @@ if ( !empty( $_FILES ) ) {
 			$exemples=array();
 			if (($handle = fopen($uploadPath, "r")) !== FALSE) {
 				while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-					if ($row>1 && $row<=101) {
+					if ($row>1) {
 						$exemples[]=$data;
 					}
 					if ($row==1) {
@@ -205,8 +205,12 @@ if ( !empty( $_FILES ) ) {
 								}
 							}
 							if ($type=='email') {
+								$ti=0;
 								foreach(extractEmailsFromString($exemple[$k]) as $m) {
-									$donnees[]=array('type'=>'email','label'=>$label,'value'=>$m);
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$donnees[]=array('type'=>'email','k'=>$k,'suffixe'=>$cl,'value'=>$m);
+									$ti++;
 								}
 							}
 							if ($type=='tel') {
@@ -219,7 +223,7 @@ if ( !empty( $_FILES ) ) {
 									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
 									$tv=$matches[1][0][0];
 									if (isset($matches[2][0][0])) $cl.=" ".$matches[2][0][0];
-									$donnees[]=array('type'=>'tel','label'=>$label.$cl,'value'=>$tv);
+									$donnees[]=array('type'=>'tel','k'=>$k,'suffixe'=>$cl,'value'=>$tv);
 									$ti++;
 								}
 
@@ -234,7 +238,7 @@ if ( !empty( $_FILES ) ) {
 									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
 									$tv=$matches[1][0][0];
 									if (isset($matches[2][0][0])) $cl.=$matches[2][0][0];
-									$donnees[]=array('type'=>'fax','label'=>$label.$cl,'value'=>$t);
+									$donnees[]=array('type'=>'fax','k'=>$k,'suffixe'=>$cl,'value'=>$t);
 									$ti++;
 								}
 							}
@@ -268,12 +272,18 @@ if ( !empty( $_FILES ) ) {
 					}
 				}
 			}
+			$exemples_limited=array();
+			$i=0;
+			foreach($contacts as $indexc=>$c) {
+				if ($i<100) $exemples_limited[$indexc]=$c;
+				$i++;
+			}
 			$answer = array(
 				'status'=> 'ok',
 				'hash'=> $hash,
 				'header'=> $header,
 				'map'=> $map,
-				'exemples'=> $contacts,
+				'exemples'=> $exemples_limited,
 				'rows'=> $row-2,
 				'errorlines'=> $errorlines,
 				'filename'=> $_FILES[ 'file' ][ 'name' ]
