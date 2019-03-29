@@ -5,7 +5,7 @@ function extractEmailsFromString($sChaine) {
 			return array_unique($aEmails[0]);
 		}
 	}
-	return null;
+	return array();
 }
 function Hex2RGB($color){
     $color = str_replace('#', '', $color);
@@ -112,10 +112,10 @@ function cp($a){
 	$cp="";
 	foreach($a as $i){
 		if (isset($i->value) && $i->type=='adresse'){
-			if (strtolower($i->value->pays)=="france" || $i->value->pays=="") {
+			if (!isset($i->value->pays) || strtolower($i->value->pays)=="france" || $i->value->pays=="") {
 				if (isset($i->value->cp)) $cp=$i->value->cp;
 			}
-			if ($i->value->pays!="" && strtolower($i->value->pays)!="france") {
+			if (isset($i->value->pays) && $i->value->pays!="" && strtolower($i->value->pays)!="france") {
 				$cp="E";
 			}
 		}

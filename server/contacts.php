@@ -22,18 +22,20 @@
 			$db= new DB();
 			$query = "SELECT id FROM casquettes WHERE id_contact=$id_contact";
 			$res=array('casquettes'=>array());
-
+			$cas=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$cas=Contacts::get_casquette($row['id'],$full,$id);
 				$res['casquettes'][$cas['id']]=$cas;
 			}
-			$res['nom']= $cas['nom']!==NULL ? $cas['nom'] : '';
-			$res['prenom']= $cas['prenom']!==NULL ? $cas['prenom'] : '';
-			$res['type']=$cas['type'];
-			$res['creationdate']=$cas['creationdate'];
-			$res['modificationdate']=$cas['modificationdate'];
-			$res['createdby']=$cas['createdby'];
-			$res['modifiedby']=$cas['modifiedby'];
+			if (count($cas)>0) {
+				$res['nom']= $cas['nom']!==NULL ? $cas['nom'] : '';
+				$res['prenom']= $cas['prenom']!==NULL ? $cas['prenom'] : '';
+				$res['type']=$cas['type'];
+				$res['creationdate']=$cas['creationdate'];
+				$res['modificationdate']=$cas['modificationdate'];
+				$res['createdby']=$cas['createdby'];
+				$res['modifiedby']=$cas['modifiedby'];
+			}
 			return $res;
 		}
 		public static function get_contact_casquette($id_cas)
@@ -1591,6 +1593,8 @@
 		}
 		public static function do_add_nb_csv($params,$id){
 			$db= new DB();
+			$tags_new=array();
+			$tags_new_map=array();
 			$tags=$params->tags;
 			$map=$params->map;
 			$hash=$params->hash;
@@ -1606,31 +1610,80 @@
 			foreach($rows as $row) {
 				$note="";
 				$contact=array();
+				$contact['tags']=array();
 				$donnees=array();
 				$adresse=array();
-				foreach($map as $type=>$keys) {
+				foreach($map as $type_string=>$keys) {
+					$type_tab=explode('|',$type_string);
+					$type=$type_tab[0];
+					$p1='';
+					if (count($type_tab)>1) $p1=$type_tab[1];
+					$p2='';
+					if (count($type_tab)>2) $p2=$type_tab[2];
 					$i=0;
 					foreach($keys as $k=>$label) {
 						if ($row[$k]!='') {
 							if ($i==0) {
 								if ($type=='id') $contact['id']=$row[$k];
 								if ($type=='idstr') $contact['idstr']=$row[$k];
-								if ($type=='nom') $contact['nom']=$row[$k];
-								if ($type=='prenom') $contact['prenom']=$row[$k];
+								if ($type=='nom') $contact['nom']=trim($row[$k]);
+								if ($type=='prenom') $contact['prenom']=trim($row[$k]);
 								if ($type=='type') $contact['type']=$row[$k];
-								if ($type=='note') $note.="\n".$row[$k];
 								if ($type=='fonction') $donnees[]=array('type'=>'fonction','label'=>$label,'value'=>$row[$k]);
-								if ($type=='adresse') $adresse['adresse']=$row[$k];
-								if ($type=='cp') $adresse['cp']=$row[$k];
-								if ($type=='ville') $adresse['ville']=$row[$k];
-								if ($type=='pays') $adresse['pays']=$row[$k];
+								if ($type=='adresse') $adresse['adresse']=trim($row[$k]);
+								if ($type=='cp') $adresse['cp']=trim($row[$k]);
+								if ($type=='ville') $adresse['ville']=trim($row[$k]);
+								if ($type=='pays') $adresse['pays']=trim($row[$k]);
+							}
+							if ($type=='note') {
+								if (trim($row[$k])!='') $note.="\n".$row[$k];
+							}
+							if ($type=='tag') {
+								$t=explode(',',$row[$k]);
+								foreach ($t as $tv) {
+									if (trim($tv)!="") {
+										if ($p1!='') $tv=$p1.">".$tv;
+										$contact['tags_new'][]=$tv;
+										$contact['tags_new']=array_values(array_unique($contact['tags_new']));
+										$tags_new[]=$tv;
+										$tags_new=array_values(array_unique($tags_new));
+									}
+								}
 							}
 							if ($type=='email') {
 								foreach(extractEmailsFromString($row[$k]) as $m) {
 									$donnees[]=array('type'=>'email','label'=>$label,'value'=>$m);
 								}
 							}
-							if ($type=='tel') $donnees[]=array('type'=>'tel','label'=>$label,'value'=>$row[$k]);
+							if ($type=='tel') {
+								$tel_tab=explode('/',$row[$k]);
+								$ti=0;
+								foreach($tel_tab as $t) {
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$pattern = "/([^\(\)]*)(?:\((.*)\)){0,1}/";
+									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
+									$tv=$matches[1][0][0];
+									if (isset($matches[2][0][0])) $cl.=" ".$matches[2][0][0];
+									$donnees[]=array('type'=>'tel','label'=>$label.$cl,'value'=>$tv);
+									$ti++;
+								}
+
+							}
+							if ($type=='fax') {
+								$fax_tab=explode('/',$row[$k]);
+								$ti=0;
+								foreach($fax_tab as $t) {
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$pattern = "/([^\(\)]*)(?:\((.*)\)){0,1}/";
+									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
+									$tv=$matches[1][0][0];
+									if (isset($matches[2][0][0])) $cl.=" ".$matches[2][0][0];
+									$donnees[]=array('type'=>'fax','label'=>$label.$cl,'value'=>$tv);
+									$ti++;
+								}
+							}
 						}
 						$i++;
 					}
@@ -1638,7 +1691,7 @@
 				if ($note!='') {
 					$donnees[]=array('type'=>'note','label'=>'Note','value'=>trim($note));
 				}
-				if (array_key_exists('cp',$map) && $adresse['cp']!='') {
+				if (array_key_exists('cp',$map) && array_key_exists('cp',$adresse) && $adresse['cp']!='') {
 					$donnees[]=array('type'=>'adresse','label'=>'Adresse','value'=>$adresse);
 				}
 				if (!array_key_exists('type',$map)) {
@@ -1649,6 +1702,22 @@
 			}
 			$cass=array();
 			$db->database->beginTransaction();
+			//on crée les nouveaux tags
+			foreach($tags_new as $tag_string) {
+				$tag_tab=explode('>',$tag_string);
+				if (!array_key_exists($tag_tab[0],$tags_new_map)) {
+					$insert = $db->database->prepare('INSERT INTO tags (nom, color, id_parent, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?,?) ');
+					$insert->execute(array($tag_tab[0],'#000',$tags[0],millisecondes(),$id,millisecondes(),$id));
+					$id_tag = $db->database->lastInsertId();
+					$tags_new_map[$tag_tab[0]]=$id_tag;
+				}
+				if (count($tag_tab)>1) {
+					$insert = $db->database->prepare('INSERT INTO tags (nom, color, id_parent, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?,?) ');
+					$insert->execute(array($tag_tab[1],'#000',$tags_new_map[$tag_tab[0]],millisecondes(),$id,millisecondes(),$id));
+					$id_tag = $db->database->lastInsertId();
+					$tags_new_map[$tag_tab[1]]=$id_tag;
+				}
+			}
 			foreach($contacts as $index=>$contact) {
 				$nom=$contact['nom'];
 				$prenom = isset($contact['prenom']) ? $contact['prenom'] : '';
@@ -1668,6 +1737,21 @@
 				$contacts[$index]['id_cas']=$id_cas;
 				$insert = $db->database->prepare('INSERT INTO casquettes_fts (id,idx) VALUES (?,?)');
 				$insert->execute(array($id_cas,strtolower(normalizeChars($nom." ".$prenom)).idx($donnees)));
+				if (isset($contact['tags_new'])) {
+					//on associe les tags issus de l'import
+					foreach($contact['tags_new'] as $tag_string) {
+						$tag_tab=explode('>',$tag_string);
+						if (count($tag_tab)==1) {
+							$insert = $db->database->prepare('INSERT INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');
+							$insert->execute(array($tags_new_map[$tag_tab[0]],$id_cas,millisecondes()));
+						}
+						if (count($tag_tab)==2) {
+							$insert = $db->database->prepare('INSERT INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');
+							$insert->execute(array($tags_new_map[$tag_tab[1]],$id_cas,millisecondes()));
+						}
+					}
+				}
+
 				//on associe les tags
 				foreach($tags as $id_tag) {
 					$insert = $db->database->prepare('INSERT INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');

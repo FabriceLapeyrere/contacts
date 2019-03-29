@@ -1543,6 +1543,63 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		}
 		Link.ajax([{action:'delCasTag', params:{cas:cas, tag:tag}}]);
 	};
+	$scope.dropOnEtabValidate=function(cas,data){
+		var idx=data.idx;
+		var d=cas.donnees[idx];
+		return d.type=='email' || d.type=='tel' || d.type=='fax';
+	};
+	$scope.dropOnEtab=function(e,data,c,cas,ct){
+		var idx=data.idx;
+		var d=cas.donnees[idx];
+		console.log(d,c,cas);
+		var test=true;
+		var l=d.label;
+		var i=0;
+		while(test){
+			test=false;
+			angular.forEach(cas.etab.donnees,function(cd){
+				if (cd.label==l) {
+					i++;
+					l=d.label+' '+i;
+					test=true;
+				}
+			});
+		}
+		d.label=l;
+		cas.etab.donnees.push(d);
+		cas.donnees_etab.push(d);
+		cas.donnees.splice(idx,1);
+		Link.ajax([{action:'modCasquette', params:{cas:cas.etab}},{action:'modCasquette', params:{cas:cas}}]);
+	};
+	$scope.dropOnCasValidate=function(cas,data){
+		console.log(cas,data);
+		var idx=data.idx;
+		var d=cas.etab.donnees[idx];
+		return d.type=='email' || d.type=='tel' || d.type=='fax';
+	};
+	$scope.dropOnCas=function(e,data,c,cas,ct){
+		var idx=data.idx;
+		var d=cas.etab.donnees[idx];
+		console.log(d,c,cas);
+		var test=true;
+		var l=d.label;
+		var i=0;
+		while(test){
+			test=false;
+			angular.forEach(cas.donnees,function(cd){
+				if (cd.label==l) {
+					i++;
+					l=d.label+' '+i;
+					test=true;
+				}
+			});
+		}
+		d.label=l;
+		cas.donnees.push(d);
+		cas.donnees_etab.splice(idx,1);
+		cas.etab.donnees.splice(idx,1);
+		Link.ajax([{action:'modCasquette', params:{cas:cas.etab}},{action:'modCasquette', params:{cas:cas}}]);
+	};
 }]);
 app.controller('doublonsTexteCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
 	$scope.getPage=function(init){
@@ -3526,6 +3583,7 @@ app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'F
 			formData:[{type:'nbcsv'}],
 			onSuccessItem: function(item, response, status, headers) {
 				if(response.hash){
+					console.log(response);
 					$scope.hash=response.hash;
 					$scope.filename=response.filename;
 					$scope.exemples=response.exemples;

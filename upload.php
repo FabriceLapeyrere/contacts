@@ -111,12 +111,14 @@ if ( !empty( $_FILES ) ) {
 				'prenom',
 				'email',
 				'tel',
+				'fax',
 				'note',
 				'fonction',
 				'adresse',
 				'cp',
 				'ville',
 				'pays',
+				'tag',
 				'id',
 				'idstr'
 			);
@@ -126,18 +128,22 @@ if ( !empty( $_FILES ) ) {
 				'Prénom',
 				'E-mail',
 				'Téléphone',
+				'Fax',
 				'Note',
 				'Fonction',
 				'Adresse',
 				'Cp',
 				'Ville',
 				'Pays',
+				'Catégories',
 				'Identifiant',
 				'Identifiant de la structure'
 			);
 			$map_labels=array();
 			$map=array();
-			foreach($header as $k=>$type){
+			foreach($header as $k=>$type_string){
+				$type_tab=explode('|',$type_string);
+				$type=$type_tab[0];
 				$c=array_search($type, $types);
 				if ($c!==false) {
 					$label=$labels[$c];
@@ -149,18 +155,26 @@ if ( !empty( $_FILES ) ) {
 					}
 					$map_labels[]=$label_alt;
 					if(!isset($map[$type])) $map[$type]=array();
-					$map[$type][$k]=$label_alt;
+					$map[$type_string][$k]=$label_alt;
 				}
 			}
 			$contacts=array();
 			foreach($exemples as $exemple) {
 				$note="";
 				$contact=array();
+				$contact['tags']=array();
 				$donnees=array();
 				$adresse=array();
-				foreach($map as $type=>$keys) {
+				foreach($map as $type_string=>$keys) {
+					$type_tab=explode('|',$type_string);
+					$type=$type_tab[0];
+					$p1='';
+					if (count($type_tab)>1) $p1=$type_tab[1];
+					$p2='';
+					if (count($type_tab)>2) $p2=$type_tab[2];
 					$i=0;
 					foreach($keys as $k=>$v) {
+						$label=$v;
 						if ($exemple[$k]!='') {
 							if ($i==0) {
 								if ($type=='id') $contact['id']=$exemple[$k];
@@ -168,19 +182,62 @@ if ( !empty( $_FILES ) ) {
 								if ($type=='nom') $contact['nom']=$exemple[$k];
 								if ($type=='prenom') $contact['prenom']=$exemple[$k];
 								if ($type=='type') $contact['type']=$exemple[$k];
-								if ($type=='note') $note.="\n".$exemple[$k];
-								if ($type=='fonction') $donnees[]=array('type'=>'fonction','k'=>$k,'value'=>$exemple[$k]);
+								if ($type=='fonction') {
+									$contact['fonction']=$exemple[$k];
+									$donnees[]=array('type'=>'fonction','label'=>$label,'value'=>$exemple[$k]);
+								}
 								if ($type=='adresse') $adresse['adresse']=trim($exemple[$k]);
 								if ($type=='cp') $adresse['cp']=$exemple[$k];
 								if ($type=='ville') $adresse['ville']=$exemple[$k];
 								if ($type=='pays') $adresse['pays']=$exemple[$k];
 							}
-							if ($type=='email') {
-								foreach(extractEmailsFromString($exemple[$k]) as $m) {
-									$donnees[]=array('type'=>'email','k'=>$k,'value'=>$m);
+							if ($type=='note') {
+								if (trim($exemple[$k])!='') $note.="\n".$exemple[$k];
+							}
+							if ($type=='tag') {
+								$t=explode(',',$exemple[$k]);
+								foreach ($t as $tv) {
+									if (trim($tv)!="") {
+										if ($p1!='') $tv=$p1.">".$tv;
+										$contact['tags'][]=$tv;
+										$contact['tags']=array_values(array_unique($contact['tags']));
+									}
 								}
 							}
-							if ($type=='tel') $donnees[]=array('type'=>'tel','k'=>$k,'value'=>$exemple[$k]);
+							if ($type=='email') {
+								foreach(extractEmailsFromString($exemple[$k]) as $m) {
+									$donnees[]=array('type'=>'email','label'=>$label,'value'=>$m);
+								}
+							}
+							if ($type=='tel') {
+								$tel_tab=explode('/',$exemple[$k]);
+								$ti=0;
+								foreach($tel_tab as $t) {
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$pattern = "/([^\(\)]*)(?:\((.*)\)){0,1}/";
+									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
+									$tv=$matches[1][0][0];
+									if (isset($matches[2][0][0])) $cl.=" ".$matches[2][0][0];
+									$donnees[]=array('type'=>'tel','label'=>$label.$cl,'value'=>$tv);
+									$ti++;
+								}
+
+							}
+							if ($type=='fax') {
+								$fax_tab=explode('/',$exemple[$k]);
+								$ti=0;
+								foreach($fax_tab as $t) {
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$pattern = "/([^\(\)]*)(?:\((.*)\)){0,1}/";
+									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
+									$tv=$matches[1][0][0];
+									if (isset($matches[2][0][0])) $cl.=$matches[2][0][0];
+									$donnees[]=array('type'=>'fax','label'=>$label.$cl,'value'=>$t);
+									$ti++;
+								}
+							}
 						}
 						$i++;
 					}
