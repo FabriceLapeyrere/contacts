@@ -1,6 +1,7 @@
 var app= angular.module('contacts', ['ngRoute','ngDragDrop','ui.bootstrap', 'toggle-switch', 'angularFileUpload','ngSanitize','cfp.hotkeys','ng.ckeditor','fakeWs','luegg.directives','ngTouch','ngAudio']);
 
 app.config(['$routeProvider', function($routeProvider) {
+	angular.lowercase = angular.$$lowercase;
 	$routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'loginCtl'});
 	//casquettes
 	$routeProvider.when('/contacts', {templateUrl: 'partials/contacts.html', controller: 'contactsCtl', hotkeys: [
@@ -52,6 +53,14 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		$uibModal.open({
 			templateUrl: 'partials/inc/help_'+id+'.html'
 		});
+	};
+	$scope.localeSensitiveComparator = function(v1, v2) {
+		// If we don't get strings, just compare by index
+		if (v1.type !== 'string' || v2.type !== 'string') {
+			return (v1.index < v2.index) ? -1 : 1;
+		}
+		// Compare strings alphabetically, taking locale into account
+		return v1.value.localeCompare(v2.value);
 	};
 	$scope.isAnswer=function(){
 		var Qparams={};
@@ -1178,6 +1187,13 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	};
 	$scope.delTag = function(tag) {
 		Link.ajax([{action:'delTag', params:{tag:tag}}]);
+	};
+	$scope.videTag = function(e,tag) {
+		if (e.shiftKey || e.ctrlKey){
+			if ($window.confirm('Vider la catégorie ? Cela va supprimer toutes les catégories enfants.')) {
+				Link.ajax([{action:'videTag', params:{tag:tag}}]);
+			}
+		}
 	};
 	$scope.delSelection = function(sel) {
 		Link.ajax([{action:'delSelection', params:{selection:sel}}]);
@@ -2644,7 +2660,7 @@ app.controller('moiCtl', ['$scope', '$http', '$location', '$timeout', 'Link', 'D
 		else Link.ajax([{action:'addUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
 	}
 	$scope.mod=function(){
-		Link.ajax([{action:'modUser',params:{login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
+		Link.ajax([{action:'modUser',params:{id:Data.user.id,login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
 			$location.path('/admin');
 		});
 	};

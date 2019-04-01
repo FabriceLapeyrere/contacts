@@ -8,7 +8,7 @@
 			<uib-pagination ng-show="usersOk.length>itemsParPage" boundary-links="true" total-items="usersOk.length" ng-model="page.users" items-per-page="itemsParPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 			<span ng-if="usersOk.length>itemsParPage" class="pagination-span">{{itemsParPage*(page.users-1)+1}} - {{min(itemsParPage*page.users,usersOk.length)}} de {{usersOk.length}}</span>
 			<ul class="list-group" ng-show="Data.modele.users">
-				<li ng-repeat="u in (usersOk=(Data.modele.users | toArray | orderBy:'name')) | startFrom:(page.users-1)*itemsParPage | limitTo:itemsParPage" class="list-group-item">
+				<li ng-repeat="u in (usersOk=(Data.modele.users | toArray | orderBy:'name':false:localeSensitiveComparator)) | startFrom:(page.users-1)*itemsParPage | limitTo:itemsParPage" class="list-group-item">
 					<locked key="'user/'+u.id" data="Data">
 					<a ng-if="u.id!=1" href="moduser/{{u.id}}">{{u.name}}</a>
 					<a ng-if="u.id==1" href="moi">{{u.name}}</a>

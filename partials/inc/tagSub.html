@@ -4,10 +4,10 @@
 		<span class="glyphicon glyphicon-minus" ng-if="tagsOpen.indexOf(tag.id)>=0" ng-click="tagsOpen.splice(tagsOpen.indexOf(tag.id),1)"></span>
 		<span class="glyphicon glyphicon-plus" ng-if="tagsOpen.indexOf(tag.id)==-1" ng-click="tagsOpen.push(tag.id)"></span>
 	</span>
-	<span ui-draggable="true" drag="tag" drag-channel="tag" style="color:{{tag.color}};">{{tag.nom}} <small>({{tag.nbcas}})</small></span> 
+	<span ui-draggable="true" drag="tag" drag-channel="tag" style="color:{{tag.color}};">{{tag.nom}} <small>({{tag.nbcas}})</small></span>
 	<div class="mini-menu">
 		<span class="glyphicon glyphicon-pencil cursor" ng-click="modTagMod(tag)"></span>
-		<span ng-if="ht=hasChild(tag)" class="glyphicon glyphicon-trash" style="opacity:0.2;"></span>
+		<span ng-if="ht=hasChild(tag)" class="glyphicon glyphicon-trash" style="opacity:0.2;" ng-click="videTag($event,tag)"></span>
 		<span ng-if="!ht" class="glyphicon glyphicon-trash cursor" ng-confirm-click="delTag(tag)" ng-confirm-message="Sûr? Attention cela effacera tous les liens entre les contacts et ce tag !"></span>
 	</div>
     <span class="mini idtag"><span ng-if="tag.type">({{tag.type}}) </span>#{{tag.id}}</span>
@@ -20,4 +20,3 @@
 <li class="list-group-item tag-list" ng-include="'partials/inc/tagSub.html'" ng-repeat="tag in (ts[tag.id]=((tt[tag.id]=(children(tag) | toArray)) | filter:filtre.tags[tag.id] | orderBy:normalizedNom)) | startFrom:(pageCourante.tags[tag.id]-1)*itemsParPageTag | limitTo:itemsParPageTag"></li>
 </ul>
 <div class="racine" ui-on-Drop="dropOnTag($event,$data,$channel,{id_parent:tag.id_parent,id:tag.id_parent},$ctrl)" drop-channel="tag" data-drop-type="tag"></div>
-

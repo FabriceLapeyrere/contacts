@@ -17,7 +17,7 @@ function Hex2RGB($color){
     return $rgb;
 }
 function get_gps($adresse){
-	$pays=$adresse->pays;
+	$pays=isset($adresse->pays) ? $adresse->pays : "France";
 	$cp=10*(floor($adresse->cp/10));
 	//echo "\n".$adresse->cp." // ".$cp."\n";
 	$string = $adresse->ville;
@@ -57,6 +57,7 @@ function get_gps($adresse){
 		curl_setopt ($ch, CURLOPT_HEADER, 0);
 		$tab=json_decode(curl_exec ($ch));
 	}
+	//error_log(var_export($tab,true)."\n".$url."\n",3,"/tmp/fab.log");
 	if (count($tab)>0) return array('x'=>$tab[0]->lon,'y'=>$tab[0]->lat);
 	else return array('x'=>'1001','y'=>'1001');
 }

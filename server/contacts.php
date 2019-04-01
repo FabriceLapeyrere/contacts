@@ -557,6 +557,39 @@
 			}
 			return array_unique($children);
 		}
+		public function vide_tag($params,$id) {
+			$db= new DB();
+			$query = "SELECT * FROM tags";
+			$tags=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				if(!array_key_exists($row['id_parent'],$tags)) $tags[$row['id_parent']]=array();
+				$tags[$row['id_parent']][]=$row['id'];
+			}
+			$t=Contacts::do_vide_tag($params,$tags,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_vide_tag($params,$tags,$id) {
+			$id_tag=$params->tag->id;
+			$test=true;
+			foreach($tags as $id_parent=>$children) {
+				if ($id_parent==$id_tag) {
+					foreach($children as $id_ct){
+						$test=false;
+						$ct=(object) array('tag'=> (object) array('id'=>$id_ct));
+						error_log('vide '.$id_ct."\n",3,"/tmp/fab.log");
+						Contacts::do_vide_tag($ct,$tags,$id);
+						error_log('suppr '.$id_ct."\n",3,"/tmp/fab.log");
+						Contacts::do_del_tag($ct,$id);
+					}
+				}
+			}
+			$tab=array();
+			$tab[]='contact/*';
+			$tab[]='casquettes';
+			$tab[]='tags';
+			return array('maj'=>$tab,'res'=>1);
+		}
 		public function del_tag($params,$id) {
 			$t=Contacts::do_del_tag($params,$id);
 			$this->WS->maj($t['maj']);
@@ -1481,7 +1514,7 @@
 			doublon_maj($ids_contacts);
 			$p= (object) array('nouveaux'=>$panier);
 			$t=User::do_del_panier($p,$id);
-			$tab=array("casquettes","contact/*","suivis","panier");
+			$tab=array("casquettes","contact/*","suivis","panier","tags");
 			return array('maj'=>array_merge($t['maj'],$tab), 'res'=>1);
 		}
 		public function un_error_email_panier($params,$id) {
