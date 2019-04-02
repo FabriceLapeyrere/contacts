@@ -1819,8 +1819,8 @@
 				if (array_key_exists('idstr',$c)) {
 					foreach($contacts as $s) {
 						if (array_key_exists('id',$s) && $s['id']==$c['idstr'] && $s['type']==2) {
-							$update = $db->database->prepare('UPDATE casquettes SET id_etab=? WHERE id=?');
-							$update->execute(array($s['id_cas'],$c['id_cas']));
+							$update = $db->database->prepare('UPDATE casquettes SET nom=?, id_etab=? WHERE id=?');
+							$update->execute(array($s['nom'],$s['id_cas'],$c['id_cas']));
 						}
 					}
 				}
