@@ -1,5 +1,5 @@
 <div class="modal-body">
-	<span class="btn btn-primary" ng-click="assTag(cas)">choisir un tag</span>
+	<span class="btn btn-primary" ng-click="assTag(cas)">choisir un tag</span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('import_csv')"></span>
 	<p>&nbsp;</p>
 	<div>
 		<span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in choosen" ng-click="delTag(id)"></span>
