@@ -46,6 +46,13 @@ app.config(['$routeProvider', function($routeProvider) {
 app.config(['$locationProvider', function($locationProvider) {
 	$locationProvider.html5Mode(true);
 }]);
+app.run(['$rootScope', '$uibModalStack',
+    function ($rootScope,  $uibModalStack) {
+        // close the opened modal on location change.
+        $rootScope.$on('$locationChangeStart', function ($event) {
+            $uibModalStack.dismissAll();
+        });
+    }]);
 app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$uibModal', '$q', '$window', '$sce', 'Link', 'Data', 'ngAudio', function ($scope, $http, $location, $timeout, $interval, $uibModal, $q, $window, $sce, Link, Data, ngAudio) {
 	Data.mainQuery='';
 	Data.suivisGroup=0;
@@ -1810,6 +1817,7 @@ app.controller('mailsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link',
 }]);
 app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
 	Link.context([{type:'newss'}]);
+	$scope.filtre={}
 	$scope.Data=Data;
 	$scope.addNewsMod=function(type){
 		$scope.addNews={};
@@ -1835,6 +1843,12 @@ app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 
 	$scope.dupNews=function(news){
 		Link.ajax([{action:'dupNews',params:{news:news}}]);
 	}
+	$scope.$watch('pageCourante.news',function(n,o){
+		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre}}]);
+	});
+	$scope.$watchCollection('filtre.news',function(n,o){
+		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre.news}}]);
+	});
 }]);
 app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($timeout, $window, $scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
 	$scope.mini={bool:false};
@@ -3572,6 +3586,11 @@ app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'F
 	$scope.filename='';
 	$scope.i=0;
 	$scope.uploader = {};
+	$scope.help=function(id){
+		$uibModal.open({
+			templateUrl: 'partials/inc/help_'+id+'.html'
+		});
+	};
 	$scope.reset=function(){
 		$scope.rows=0;
 		$scope.map=[];

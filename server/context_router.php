@@ -163,7 +163,7 @@
 						$res=Mailing::get_mail($tab[1]);
 						break;
 					case "newss":
-						$res=Mailing::get_newss(0,$u['id']);
+						$res=Mailing::get_newss($params,$u['id']);
 						break;
 					case "news":
 						$res=Mailing::get_news($tab[1],$u['id']);

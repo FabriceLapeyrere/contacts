@@ -180,7 +180,9 @@
 			return array('maj'=>$maj,'res'=>$id);
 		}
 		public static function get_news($id_news,$id) {
-			return Mailing::get_newss($id_news,$id);
+			$params= new stdClass;
+			$params->id_news=$id_news;
+			return Mailing::get_newss($params,$id);
 		}
 		public function del_news($params,$id) {
 			$t=Mailing::do_del_news($params,$id);
@@ -199,18 +201,52 @@
 			$delete->execute(array($id_news));
 			return array('maj'=>array("newss","news/$id_news"),'res'=>1);
 		}
-		public static function get_newss($id_news=0,$id) {
+		public static function get_newss($params,$id) {
+			$sujet='';
+			$id_news=0;
+			$page=1;
+			$nb=10;
+			$total=0;
+			$id_newsletter=-1;
+			if (isset($params->filtre)) {
+				if (isset($params->filtre->sujet)) {
+					$sujet=$params->filtre->sujet;
+				}
+				if (isset($params->filtre->id_newsletter)) {
+					$id_newsletter=$params->filtre->id_newsletter;
+				}
+			}
+			if (isset($params->id_news)) $id_news=$params->id_news;
+			if (isset($params->page)) $page=$params->page;
+			if (isset($params->nb)) $nb=$params->nb;
+			$first=($page-1)*$nb;
 			$db= new DB();
-			$query = "SELECT * FROM news";
+			$query = "SELECT count(*) as nb FROM news WHERE sujet LIKE ?";
+			$tab=array("%$sujet%");
+			if ($id_newsletter>=0) {
+				$query .= " AND id_newsletter=?";
+				$tab[]="$id_newsletter";
+			}
+			$select = $db->database->prepare($query);
+			$select->execute($tab);
+			while($row=$select->fetch(PDO::FETCH_ASSOC)){
+				$total=$row['nb']+0;
+			}
 			if ($id_news>0){
-				$query .= "
-					 WHERE id=$id_news";
+				$query = "SELECT * FROM news WHERE id=$id_news";
+				$select = $db->database->prepare($query);
+				$select->execute();
 			} else {
-				$query .= "
-					 ORDER BY id ASC";
+				$query = "SELECT * FROM news WHERE sujet LIKE ?";
+				if ($id_newsletter>=0) {
+					$query .= " AND id_newsletter=?";
+				}
+				$query .= " ORDER BY id DESC LIMIT $first,$nb";
+				$select = $db->database->prepare($query);
+				$select->execute($tab);
 			}
 			$newss=array();
-			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+			while($row=$select->fetch(PDO::FETCH_ASSOC)){
 				if ($id_news>0) {
 					$row['blocs']=json_decode($row['blocs']);
 					$row['pjs']=array();
@@ -246,8 +282,8 @@
 				}
 				$newss[$row['id']]=$row;
 			}
-			if ($id_news>0) return $row;
-			return $newss;
+			if ($id_news>0) return $newss[$id_news];
+			return array('params'=>$params,'collection'=>$newss,'page'=>$page, 'nb'=>$nb, 'total'=>$total);
 		}
 		//news modeles
 		public static function replacePattern($html,$donnees,$datahtml,$id_news,$id_newsletter,$id_modele,$id)
