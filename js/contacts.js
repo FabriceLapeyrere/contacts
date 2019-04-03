@@ -863,8 +863,8 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		}
 		if (channel=='sel' && (Data.mainQuery!='' || s)) txt='('+txt+')';
 		if (s) txt='!'+txt;
+		if(c) {
 		if (Data.mainQuery!='') {
-			if(c) {
 				txt= '&' + txt;
 				Data.mainQuery= '(' + Data.mainQuery + ')' + txt;
 			} else {
@@ -873,6 +873,9 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			}
 		} else {
 			Data.mainQuery= Data.mainQuery + txt;
+		}
+		if (channel=='etab') {
+			Data.mainQuery=':etab'+data.id;
 		}
 		$scope.getPage(1);
 	};

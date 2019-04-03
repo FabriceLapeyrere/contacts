@@ -2,7 +2,7 @@
 	<p><span class="btn btn-primary" ng-click="addContactMod(1)">Nouveau Contact</span> <span class="btn btn-success" ng-click="addContactMod(2)">Nouvelle Structure</span></p>
 	<form>
 	<div class="rel">
-			<input id="mainInput" class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier" ui-on-Drop="insert($channel,$data,$ctrl)" data-drop-type="query" ng-keydown="history($event)" uib-typeahead="tag.nom for tag in containsCurrentWord(Data.modele.tags,$viewValue) | limitTo:8" typeahead-template-url="partials/inc/typeahead_element.html" typeahead-on-select="typeaheadOnSelect($item)" typeahead-focus-first="false" ng-model-options="{ debounce: 300 }"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
+			<input id="mainInput" class="form-control" placeholder="rechercher" ng-model="Data.mainQuery" drop-channel="sel,tag,panier,etab" ui-on-Drop="insert($channel,$data,$ctrl)" data-drop-type="query" ng-keydown="history($event)" uib-typeahead="tag.nom for tag in containsCurrentWord(Data.modele.tags,$viewValue) | limitTo:8" typeahead-template-url="partials/inc/typeahead_element.html" typeahead-on-select="typeaheadOnSelect($item)" typeahead-focus-first="false" ng-model-options="{ debounce: 300 }"/><span class="input-span"><span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-erase cursor" ng-click="clearQuery()"></span> <span ng-if="Data.mainQuery!=''" class="glyphicon glyphicon-save cursor" ng-click="saveSelectionMod()"></span> <span ng-if="query_history.tab.length>0" class="glyphicon glyphicon-menu-left cursor" ng-click="historyPrev()"></span> <span ng-if="query_history.tab.length>0" class="glyphicon glyphicon-menu-right cursor" ng-click="historyNext()"></span> <span class="glyphicon glyphicon-info-sign cursor" ng-click="help('contacts')"></span></span>
 		</div>
 		<div class="col-xs-12 gris parsed">
 			<p dyn-tpl tpl="parsed.front(Data.mainQuery)" data="Data"></p>
@@ -48,6 +48,12 @@
 					<span class="glyphicon glyphicon-trash" ng-confirm-click="delContact(cas)" ng-confirm-message="Sûr? Cela supprimera également les fiches de suivi de ce contact."></span>
 				</div>
 				<div class="col-xs-12" ng-if="hasSpecial(cas)">
+					<span ng-if="cas.type==2" class="small gris"
+						ui-draggable="true"
+						drag="cas"
+						drag-channel="etab">
+						<span class="glyphicon glyphicon-option-vertical"></span>
+					</span>
 					<a class="cursor" ng-href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact">
 					<span ng-click="modCas(cas)">
 						<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
@@ -58,6 +64,12 @@
 				</div>
 				<div class="col-xs-6 col-md-4">
 					<div ng-if="!hasSpecial(cas)">
+						<span ng-if="cas.type==2" class="small gris"
+							ui-draggable="true"
+							drag="cas"
+							drag-channel="etab">
+							<span class="glyphicon glyphicon-option-vertical"></span>
+						</span>
 						<a class="cursor" ng-href="modcontact/{{cas.id_contact}}" ng-if="$index==0 || c[$index-1].id_contact!=cas.id_contact">
 						<span  ng-click="modCas(cas)">
 							<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
