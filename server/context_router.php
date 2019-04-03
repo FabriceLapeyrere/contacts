@@ -121,7 +121,7 @@
 						$res=User::get_panier($u['id']);
 						break;
 					case "envois":
-						$res=Mailing::get_envois($u['id']);
+						$res=Mailing::get_envois($params,$u['id']);
 						break;
 					case "doublons_texte":
 						$res=Contacts::get_doublons_texte($params,$u['id']);

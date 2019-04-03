@@ -726,14 +726,29 @@
 			}
 			return $impact;
 		}
-		public static function get_envois($id) {
+		public static function get_envois($params,$id) {
+			$sujet='';
+			$id_news=0;
+			$page=1;
+			$nb=10;
+			$total=0;
+			$all=false;
+			if (isset($params->page)) $page=$params->page;
+			if (isset($params->nb)) $nb=$params->nb;
+			if (isset($params->all)) $all=$params->all;
+			$first=($page-1)*$nb;
 			$db= new DB();
-			$query = "SELECT t1.by as by, t1.date as date, t1.id as id, t1.sujet as sujet, t1.statut as statut, (SELECT count(*) FROM boite_envoi WHERE id_envoi=t1.id) as nbleft FROM envois as t1 ORDER BY date DESC;";
+			$query = "SELECT count(*) as nb FROM envois";
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$total=$row['nb'];
+			}
+			$query = "SELECT t1.by as by, t1.date as date, t1.id as id, t1.sujet as sujet, t1.statut as statut, (SELECT count(*) FROM boite_envoi WHERE id_envoi=t1.id) as nbleft FROM envois as t1 ORDER BY date DESC";
+			if (!$all) $query.= " LIMIT $first,$nb";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$res[]=$row;
 			}
-			return $res;
+			return array('params'=>$params,'collection'=>$res,'page'=>$page, 'nb'=>$nb, 'total'=>$total);;
 		}
 		public function envoyer($params,$id) {
 			$t=Mailing::do_envoyer($params,$id);

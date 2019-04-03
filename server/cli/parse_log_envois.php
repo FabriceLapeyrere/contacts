@@ -1,6 +1,8 @@
 <?php
 $db= new DB();
-$envois=Mailing::get_envois(1);
+$params=new stdClass;
+$params->all=true;
+$envois=Mailing::get_envois($params,1);
 foreach($envois as $e) {
 	$id_envoi=$e['id'];
 	echo $e['sujet']."\n";
@@ -12,7 +14,7 @@ foreach($envois as $e) {
 		}
 		if ($nb==0) {
 			$log=file("data/files/envois/$id_envoi/succes.log");
-			$db->database->beginTransaction();		
+			$db->database->beginTransaction();
 			foreach($log as $l) {
 				$o=json_decode($l);
 				echo $o->date." - ".$o->cas->prenom." ".$o->cas->nom." - ".$o->cas->id."\n";
@@ -22,7 +24,6 @@ foreach($envois as $e) {
 			$db->database->commit();
 		}
 	}
-	WS_maj(array("*"));		
+	WS_maj(array("*"));
 }
 echo "\n";
-

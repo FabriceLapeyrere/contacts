@@ -2115,7 +2115,10 @@ app.controller('modmodeleCtl', ['$scope', '$http', '$location', '$routeParams', 
 
 //envois
 app.controller('envoisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
-	Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
+	Link.context([{type:'envois',params:{page:$scope.pageCourante.envois,nb:$scope.itemsParPage}}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
+	$scope.$watch('pageCourante.envois',function(n,o){
+		if (n!=o) Link.context([{type:'envois',params:{page:$scope.pageCourante.envois,nb:$scope.itemsParPage}}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
+	});
 	$scope.$watch('pageCourante.erreur',function(n,o){
 		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
 	});
