@@ -168,6 +168,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.pageCourante.envois=1;
 	$scope.pageCourante.erreur=1;
 	$scope.pageCourante.impacts=1;
+	$scope.pageCourante.envoiCas={};
 	$scope.pageCourante.tags={};
 	$scope.pageCourante.news=1;
 	$scope.pageCourante.mails=1;

@@ -127,14 +127,17 @@
 						<span class="label-contact">Envois ({{cas.envois.length}})</span>
 						<span class="cursor mini" ng-if="!ev[cas.id]" ng-click="ev[cas.id]=true">voir</span>
 						<span class="cursor mini" ng-if="ev[cas.id]" ng-click="ev[cas.id]=false">cacher</span>
-						<div ng-if="ev[cas.id]" ng-repeat="e in cas.envois">
-							<small>
-								<a href='modenvoi/{{e.id_envoi}}'>{{e.sujet}}</a> -
-								<a href="modnews/{{e.id_type}}" ng-if="e.type=='news'">Newsletter n°{{e.id_type}}</a>
-								<a href="mail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
-								>&nbsp;<span ng-repeat="m in e.emails">{{m}} </span>
-							</small>
-							<small class="mini">{{calendar(e.date)}}</small>
+						<div ng-if="ev[cas.id]">
+							<uib-pagination ng-init="pageCourante.envoiCas[cas.id]= pageCourante.envoiCas[cas.id] ? pageCourante.envoiCas[cas.id] : 1" ng-if="cas.envois.length>itemsParPage" boundary-links="true" total-items="cas.envois.length" ng-model="pageCourante.envoiCas[cas.id]" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+							<div ng-repeat="e in cas.envois | startFrom:(pageCourante.envoiCas[cas.id]-1)*itemsParPage | limitTo:itemsParPage">
+								<small>
+									<a href='modenvoi/{{e.id_envoi}}'>{{e.sujet}}</a> -
+									<a href="modnews/{{e.id_type}}" ng-if="e.type=='news'">Newsletter n°{{e.id_type}}</a>
+									<a href="mail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
+									>&nbsp;<span ng-repeat="m in e.emails">{{m}} </span>
+								</small>
+								<small class="mini">{{calendar(e.date)}}</small>
+							</div>
 						</div>
 					</div>
 					<div class="col-xs-12 inter clearfix"></div>
