@@ -12,7 +12,7 @@
 		<input type="text" ng-model="filtre.news.sujet" class="form-control" placeholder="filtre"/>
 		<uib-pagination boundary-links="true" total-items="Data.modele.newss.total" ng-model="pageCourante.news" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 		<span ng-if="Data.modele.newss.total>0" class="pagination-span">{{itemsParPage*(Data.modele.newss.page-1)+1}} - {{min(itemsParPage*Data.modele.newss.page,Data.modele.newss.total)}} de {{Data.modele.newss.total}}</span><ul class="list-group">
-			<li class="list-group-item" ng-repeat="news in (newss=(Data.modele.newss.collection | toArray ))">
+			<li class="list-group-item" ng-repeat="news in Data.modele.newss.collection">
 				<a href="modnews/{{news.id}}">{{news.sujet ? news.sujet : '(sans titre)'}}</a> <span class="mini">{{calendar(news.modificationdate)}} par {{Data.modele.users[news.modifiedby].name}}</span>
 				<div class="mini-menu">
 					<span class="glyphicon glyphicon-duplicate cursor" ng-confirm-click="dupNews(news)" ng-confirm-message="Sûr?"></span>

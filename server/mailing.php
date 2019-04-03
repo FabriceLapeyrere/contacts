@@ -280,9 +280,9 @@
 				} else {
 					unset($row['blocs']);
 				}
-				$newss[$row['id']]=$row;
+				$newss[]=$row;
 			}
-			if ($id_news>0) return $newss[$id_news];
+			if ($id_news>0) return $newss[0];
 			return array('params'=>$params,'collection'=>$newss,'page'=>$page, 'nb'=>$nb, 'total'=>$total);
 		}
 		//news modeles
