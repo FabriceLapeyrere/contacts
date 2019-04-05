@@ -1,6 +1,7 @@
 var app= angular.module('contacts', ['ngRoute','ngDragDrop','ui.bootstrap', 'toggle-switch', 'angularFileUpload','ngSanitize','cfp.hotkeys','ng.ckeditor','fakeWs','luegg.directives','ngTouch','ngAudio']);
 
 app.config(['$routeProvider', function($routeProvider) {
+	angular.lowercase = angular.$$lowercase;
 	$routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'loginCtl'});
 	//casquettes
 	$routeProvider.when('/contacts', {templateUrl: 'partials/contacts.html', controller: 'contactsCtl', hotkeys: [
@@ -50,6 +51,13 @@ app.config(['$routeProvider', function($routeProvider) {
 app.config(['$locationProvider', function($locationProvider) {
 	$locationProvider.html5Mode(true);
 }]);
+app.run(['$rootScope', '$uibModalStack',
+    function ($rootScope,  $uibModalStack) {
+        // close the opened modal on location change.
+        $rootScope.$on('$locationChangeStart', function ($event) {
+            $uibModalStack.dismissAll();
+        });
+    }]);
 app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interval', '$uibModal', '$q', '$window', '$sce', 'Link', 'Data', 'ngAudio', function ($scope, $http, $location, $timeout, $interval, $uibModal, $q, $window, $sce, Link, Data, ngAudio) {
 	$scope.editorOk=false;
 	$scope.$watch(function(){return CKEDITOR.status;},function(o,n){
@@ -61,6 +69,14 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		$uibModal.open({
 			templateUrl: 'partials/inc/help_'+id+'.html'
 		});
+	};
+	$scope.localeSensitiveComparator = function(v1, v2) {
+		// If we don't get strings, just compare by index
+		if (v1.type !== 'string' || v2.type !== 'string') {
+			return (v1.index < v2.index) ? -1 : 1;
+		}
+		// Compare strings alphabetically, taking locale into account
+		return v1.value.localeCompare(v2.value);
 	};
 	$scope.isAnswer=function(){
 		var Qparams={};
@@ -161,6 +177,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.pageCourante.envois=1;
 	$scope.pageCourante.erreur=1;
 	$scope.pageCourante.impacts=1;
+	$scope.pageCourante.envoiCas={};
 	$scope.pageCourante.tags={};
 	$scope.pageCourante.news=1;
 	$scope.pageCourante.mails=1;
@@ -866,8 +883,8 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 		}
 		if (channel=='sel' && (Data.mainQuery!='' || s)) txt='('+txt+')';
 		if (s) txt='!'+txt;
+		if(c) {
 		if (Data.mainQuery!='') {
-			if(c) {
 				txt= '&' + txt;
 				Data.mainQuery= '(' + Data.mainQuery + ')' + txt;
 			} else {
@@ -876,6 +893,9 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 			}
 		} else {
 			Data.mainQuery= Data.mainQuery + txt;
+		}
+		if (channel=='etab') {
+			Data.mainQuery=':etab'+data.id;
 		}
 		$scope.getPage(1);
 	};
@@ -1198,6 +1218,13 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 	$scope.delTag = function(tag) {
 		Link.ajax([{action:'delTag', params:{tag:tag}}]);
 	};
+	$scope.videTag = function(e,tag) {
+		if (e.shiftKey || e.ctrlKey){
+			if ($window.confirm('Vider la catégorie ? Cela va supprimer toutes les catégories enfants.')) {
+				Link.ajax([{action:'videTag', params:{tag:tag}}]);
+			}
+		}
+	};
 	$scope.delSelection = function(sel) {
 		Link.ajax([{action:'delSelection', params:{selection:sel}}]);
 	};
@@ -1307,7 +1334,8 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 }]);
 app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
 	$scope.key='contact/'+$routeParams.id;
-	Link.context([{type:$scope.key},{type:'tags'},{type:'forms'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
+	$scope.prevNextKey='contact_prev_next/'+$routeParams.id;
+	Link.context([{type:$scope.key},{type:'tags'},,{type:'forms'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
 	$scope.$watch('Data.modele["contact_prev_next/'+$routeParams.id+'"]',function(n,o){
 		if (n) {
 			Link.context([{type:$scope.key},{type:'tags'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}},
@@ -1583,6 +1611,63 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 	$scope.fillForm=function(id_form,cas){
 		console.log(id_form,cas.id);
 	};
+	$scope.dropOnEtabValidate=function(cas,data){
+		var idx=data.idx;
+		var d=cas.donnees[idx];
+		return d.type=='email' || d.type=='tel' || d.type=='fax';
+	};
+	$scope.dropOnEtab=function(e,data,c,cas,ct){
+		var idx=data.idx;
+		var d=cas.donnees[idx];
+		console.log(d,c,cas);
+		var test=true;
+		var l=d.label;
+		var i=0;
+		while(test){
+			test=false;
+			angular.forEach(cas.etab.donnees,function(cd){
+				if (cd.label==l) {
+					i++;
+					l=d.label+' '+i;
+					test=true;
+				}
+			});
+		}
+		d.label=l;
+		cas.etab.donnees.push(d);
+		cas.donnees_etab.push(d);
+		cas.donnees.splice(idx,1);
+		Link.ajax([{action:'modCasquette', params:{cas:cas.etab}},{action:'modCasquette', params:{cas:cas}}]);
+	};
+	$scope.dropOnCasValidate=function(cas,data){
+		console.log(cas,data);
+		var idx=data.idx;
+		var d=cas.etab.donnees[idx];
+		return d.type=='email' || d.type=='tel' || d.type=='fax';
+	};
+	$scope.dropOnCas=function(e,data,c,cas,ct){
+		var idx=data.idx;
+		var d=cas.etab.donnees[idx];
+		console.log(d,c,cas);
+		var test=true;
+		var l=d.label;
+		var i=0;
+		while(test){
+			test=false;
+			angular.forEach(cas.donnees,function(cd){
+				if (cd.label==l) {
+					i++;
+					l=d.label+' '+i;
+					test=true;
+				}
+			});
+		}
+		d.label=l;
+		cas.donnees.push(d);
+		cas.donnees_etab.splice(idx,1);
+		cas.etab.donnees.splice(idx,1);
+		Link.ajax([{action:'modCasquette', params:{cas:cas.etab}},{action:'modCasquette', params:{cas:cas}}]);
+	};
 }]);
 app.controller('doublonsTexteCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
 	$scope.getPage=function(init){
@@ -1776,6 +1861,7 @@ app.controller('mailsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link',
 }]);
 app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
 	Link.context([{type:'newss'}]);
+	$scope.filtre={}
 	$scope.Data=Data;
 	$scope.addNewsMod=function(type){
 		$scope.addNews={};
@@ -1801,6 +1887,12 @@ app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 
 	$scope.dupNews=function(news){
 		Link.ajax([{action:'dupNews',params:{news:news}}]);
 	}
+	$scope.$watch('pageCourante.news',function(n,o){
+		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre}}]);
+	});
+	$scope.$watchCollection('filtre.news',function(n,o){
+		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre.news}}]);
+	});
 }]);
 app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($timeout, $window, $scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
 	$scope.mini={bool:false};
@@ -2064,7 +2156,10 @@ app.controller('modmodeleCtl', ['$scope', '$http', '$location', '$routeParams', 
 
 //envois
 app.controller('envoisCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $uibModal, Link, Data) {
-	Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
+	Link.context([{type:'envois',params:{page:$scope.pageCourante.envois,nb:$scope.itemsParPage}}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
+	$scope.$watch('pageCourante.envois',function(n,o){
+		if (n!=o) Link.context([{type:'envois',params:{page:$scope.pageCourante.envois,nb:$scope.itemsParPage}}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
+	});
 	$scope.$watch('pageCourante.erreur',function(n,o){
 		if (n!=o) Link.context([{type:'envois'}, {type:'imap'}, {type:'casquettes_mail_erreur',params:{page:$scope.pageCourante.erreur,nb:$scope.itemsParPage}},{type:'impacts',params:{page:$scope.pageCourante.impacts,nb:$scope.itemsParPage,id_envoi:-1,id_news:-1,id_mail:-1}}]);
 	});
@@ -2880,7 +2975,7 @@ app.controller('moiCtl', ['$scope', '$http', '$location', '$timeout', 'Link', 'D
 		else Link.ajax([{action:'addUserGroup',params:{id_user:Data.user.id,id_group:g.id}}]);
 	}
 	$scope.mod=function(){
-		Link.ajax([{action:'modUser',params:{login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
+		Link.ajax([{action:'modUser',params:{id:Data.user.id,login:Data.user.login,name:$scope.modUser.name,pwd:$scope.modUser.pwd}}],function(){
 			$location.path('/admin');
 		});
 	};
@@ -3826,6 +3921,11 @@ app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'F
 	$scope.filename='';
 	$scope.i=0;
 	$scope.uploader = {};
+	$scope.help=function(id){
+		$uibModal.open({
+			templateUrl: 'partials/inc/help_'+id+'.html'
+		});
+	};
 	$scope.reset=function(){
 		$scope.rows=0;
 		$scope.map=[];
@@ -3854,6 +3954,7 @@ app.controller('addNbCsvModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'F
 			formData:[{type:'nbcsv'}],
 			onSuccessItem: function(item, response, status, headers) {
 				if(response.hash){
+					console.log(response);
 					$scope.hash=response.hash;
 					$scope.filename=response.filename;
 					$scope.exemples=response.exemples;

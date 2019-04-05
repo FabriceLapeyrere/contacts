@@ -1,0 +1,47 @@
+<div class="modal-header">
+    <button class="btn btn-warning" ng-click="$close()">Fermer</button>
+</div>
+<div class="modal-body">
+	<p>Cette fonction permet d'insérer dans la base des contacts stockés sous forme de feuille de calcul. Le format utilisé est le fichier csv (comma separated values). C'est un fichier texte ou chaque ligne représente un contact et chaque champ est séparé par une virgule. Les champs de type texte sont encadrés par le caractère ".</p>
+    <p>LibreOffice Calc par exemple permet de générer de tels fichiers.</p>
+    <h3>Préparer son fichier csv</h3>
+    <p>Votre fichier doit comporter les noms de colonnes dans la première ligne. Les colonnes utilisées par le sytème d'import correspondent aux noms de champs suivants : <i>type</i>, <i>nom</i>, <i>prenom</i>, <i>email</i>, <i>tel</i>, <i>note</i>, <i>fonction</i>, <i>adresse</i>, <i>cp</i>, <i>ville</i>, <i>pays</i>. Les colonnes de type <i>id</i>, <i>idstr</i>, <i>tag</i>, permettent de faire des liens entre individus et structures et entre contacts et catégories (tags).<p/>
+    <h4>Les champs uniques</h4>
+    <p>Pour certains types de champ il ne peut y avoir qu'une seule colonne : il s'agit des champs <i>nom</i>, <i>prenom</i>, <i>type</i>, <i>fonction</i>, <i>adresse</i>, <i>cp</i>, <i>ville</i>, <i>pays</i>. S'il y en a plusieurs, seule la première colonne sera prise en compte. Le champ <i>type</i> indique si le contact est un individu (type=1) ou une structure (type=2), si c'est une structure, le champ <i>prenom</i> sera ignoré.</p>
+    <p>Les champs de type <i>note</i> peuvent apparaitre plusieurs fois, le contenu sera mis à la ligne dans la note du contact.</p>
+    <h4>Les champs multiples</h4>
+    <p>Les champs <i>tel</i> et <i>email</i> peuvent apparaitre plusieurs fois, vous aurez la possibilié de les nommer au moment de l'import ("Téléphone fixe", "Téléphone portable" par exemple).</p>
+    <h4>Associations individu / structure</h4>
+    <p>Vous avez la possibilité d'associer un (ou plusieurs) individu(s) à une structure. Il faut pour cela ajouter deux colonnes : <i>id</i> et <i>idstr</i>. Le champ <i>id</i> doit être renseigné avec une valeur de votre choix (un numéro par exemple) sur la ligne correspondant à la structure. Cette valeur doit être reportée sur la ligne correspondant à l'individu dans le champ <i>idstr</i>. Attention : la valeur de la colonne <i>id</i> doit être différente pour chaque structure.</p>
+    <p>Exemple :</p>
+    <table class="table">
+    <tr>
+        <th>id</th><th>idstr</th><th>type</th><th>nom</th><th>prenom</th>
+    </tr>
+    <tr>
+        <td>1</td><td></td><td>2</td><td>Radio France</td><td></td>
+    </tr>
+    <tr>
+        <td></td><td>1</td><td>1</td><td>Martin</td><td>Nicolas</td>
+    </tr>
+    </table>
+    <h4>Tags</h4>
+    <p>Les tags ou catégories peuvent être associés aux contacts en ajoutant des colonnes <i>tag</i>. S'il y a plusieurs tags dans chaque colonne, il suffit de les séparer par des virgules. On peut aussi préciser dans le nom de colonne un tag parent pour les tags de la colonne (tag|Nom du tag parent).</p>
+    <p>Exemple :</p>
+    <table class="table">
+    <tr>
+        <th>type</th><th>nom</th><th>prenom</th><th>tag|Thématique</th>
+    </tr>
+    <tr>
+        <td>1</td><td>Martin</td><td>Nicolas</td><td>Physique,Chimie,Éthique</td>
+    </tr>
+    </table>
+    <p>Le contact sera associé aux tags suivants : Thématique>Physique, Thématique>Chimie et Thématique>Éthique.</p>
+    <h3>Importer votre fichier</h3>
+    <p>Vous devez commencer par choisir un tag qui sera associé à tous les contacts concernés par l'import. Il est préférable d'en choisir un qui n'est associé à aucun contact, cela vous permettra d'annuler facilement l'import en cas de problème. Vous pouvez en choisir plusieurs, mais seul le premier se verra attribuer les éventuels sous-tags. Si on reprend l'exemple ci dessus, en ayant choisi comme tags pour l'import "import n°1" et "radio", l'import créera les tags suivants : import n°1>Thématique>Physique, import n°1>Thématique>Chimie et import n°1>Thématique>Éthique</p>
+    <p>Un fois l'upload du fichier terminé, le logiciel vous indique les champs qu'il a trouvé. Pour certains, vous pouvez les renommer si besoin (tel, email). En dessous, vous pouvez parcourir les 100 premiers contacts de votre import pour vérifier que les informations sont bien prises en compte.</p>
+    <p>Vous pouvez alors soit modifier votre fichier et le charger à nouveau, ou bien, si tout est bon, valider l'import.</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="$close()">Fermer</button>
+</div>

@@ -22,18 +22,20 @@
 			$db= new DB();
 			$query = "SELECT id FROM casquettes WHERE id_contact=$id_contact";
 			$res=array('casquettes'=>array());
-
+			$cas=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$cas=Contacts::get_casquette($row['id'],$full,$id);
 				$res['casquettes'][$cas['id']]=$cas;
 			}
-			$res['nom']= $cas['nom']!==NULL ? $cas['nom'] : '';
-			$res['prenom']= $cas['prenom']!==NULL ? $cas['prenom'] : '';
-			$res['type']=$cas['type'];
-			$res['creationdate']=$cas['creationdate'];
-			$res['modificationdate']=$cas['modificationdate'];
-			$res['createdby']=$cas['createdby'];
-			$res['modifiedby']=$cas['modifiedby'];
+			if (count($cas)>0) {
+				$res['nom']= $cas['nom']!==NULL ? $cas['nom'] : '';
+				$res['prenom']= $cas['prenom']!==NULL ? $cas['prenom'] : '';
+				$res['type']=$cas['type'];
+				$res['creationdate']=$cas['creationdate'];
+				$res['modificationdate']=$cas['modificationdate'];
+				$res['createdby']=$cas['createdby'];
+				$res['modifiedby']=$cas['modifiedby'];
+			}
 			return $res;
 		}
 		public static function get_contact_casquette($id_cas)
@@ -564,6 +566,39 @@
 			}
 			return array_unique($children);
 		}
+		public function vide_tag($params,$id) {
+			$db= new DB();
+			$query = "SELECT * FROM tags";
+			$tags=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				if(!array_key_exists($row['id_parent'],$tags)) $tags[$row['id_parent']]=array();
+				$tags[$row['id_parent']][]=$row['id'];
+			}
+			$t=Contacts::do_vide_tag($params,$tags,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_vide_tag($params,$tags,$id) {
+			$id_tag=$params->tag->id;
+			$test=true;
+			foreach($tags as $id_parent=>$children) {
+				if ($id_parent==$id_tag) {
+					foreach($children as $id_ct){
+						$test=false;
+						$ct=(object) array('tag'=> (object) array('id'=>$id_ct));
+						error_log('vide '.$id_ct."\n",3,"/tmp/fab.log");
+						Contacts::do_vide_tag($ct,$tags,$id);
+						error_log('suppr '.$id_ct."\n",3,"/tmp/fab.log");
+						Contacts::do_del_tag($ct,$id);
+					}
+				}
+			}
+			$tab=array();
+			$tab[]='contact/*';
+			$tab[]='casquettes';
+			$tab[]='tags';
+			return array('maj'=>$tab,'res'=>1);
+		}
 		public function del_tag($params,$id) {
 			$t=Contacts::do_del_tag($params,$id);
 			$this->WS->maj($t['maj']);
@@ -694,7 +729,7 @@
 			foreach($casres as $cr) {
 				$tab=array_merge($tab, $cr['maj']);
 			}
-			doublon_maj($id_contact);
+			doublon_maj(array($id_contact));
 			return array('maj'=>$tab,'res'=>1);
 		}
 		public static function touch_contact($id_contact,$id) {
@@ -1429,6 +1464,10 @@
 			$delete->execute(array($params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
 			$delete->execute(array($params->cas->id));
+			$delete = $db->database->prepare('DELETE FROM suivis WHERE id_thread IN (SELECT id FROM suivis_threads WHERE id_casquette=?) ');
+			$delete->execute(array($params->cas->id));
+			$delete = $db->database->prepare('DELETE FROM suivis_threads WHERE id_casquette=? ');
+			$delete->execute(array($params->cas->id));
 			$maj_tab=array();
 			foreach($cas['suivis'] as $id_thread=>$thread){
 				$p=new stdClass;
@@ -1455,14 +1494,20 @@
 			$cass=Contacts::get_casquettes(array('query'=>'::panier::','page'=>1,'nb'=>10,'all'=>1),0,$id);
 			$db->database->beginTransaction();
 			$panier=array();
+			$emails=array();
+			$ids_contacts=array();
 			foreach($cass['collection'] as $cas){
+				$emails=array_merge($emails,$cas['emails']);
+				$ids_contacts[]=$cas['id_contact'];
 				$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
 				$insert->execute(array( $cas['id'],'casquette',json_encode($cas),millisecondes(),$id));
 				$delete = $db->database->prepare('DELETE FROM casquettes WHERE id=? ');
 				$delete->execute(array( $cas['id']));
 				$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
 				$delete->execute(array( $cas['id']));
-				$delete = $db->database->prepare('DELETE FROM suivis WHERE id_casquette=? ');
+				$delete = $db->database->prepare('DELETE FROM suivis WHERE id_thread IN (SELECT id FROM suivis_threads WHERE id_casquette=?) ');
+				$delete->execute(array( $cas['id']));
+				$delete = $db->database->prepare('DELETE FROM suivis_threads WHERE id_casquette=? ');
 				$delete->execute(array( $cas['id']));
 				$update = $db->database->prepare('UPDATE casquettes SET id_etab=0, modificationdate=?, modifiedby=? WHERE id_etab=?');
 				$update->execute(array(millisecondes(),$id, $cas['id']));
@@ -1472,9 +1517,13 @@
 			}
 			$delete = $db->database->exec('DELETE FROM contacts WHERE 0=(select count(*) from casquettes where id_contact=contacts.id)');
 			$db->database->commit();
+			$emails=array_values(array_unique($emails));
+			$ids_contacts=array_values(array_unique($ids_contacts));
+			check_doublon_emails($emails);
+			doublon_maj($ids_contacts);
 			$p= (object) array('nouveaux'=>$panier);
 			$t=User::do_del_panier($p,$id);
-			$tab=array("casquettes","contact/*","suivis","panier");
+			$tab=array("casquettes","contact/*","suivis","panier","tags");
 			return array('maj'=>array_merge($t['maj'],$tab), 'res'=>1);
 		}
 		public function un_error_email_panier($params,$id) {
@@ -1599,7 +1648,10 @@
 			return $t['res'];
 		}
 		public static function do_add_nb_csv($params,$id){
+			$t0=millisecondes();
 			$db= new DB();
+			$tags_new=array();
+			$tags_new_map=array();
 			$tags=$params->tags;
 			$map=$params->map;
 			$hash=$params->hash;
@@ -1615,31 +1667,84 @@
 			foreach($rows as $row) {
 				$note="";
 				$contact=array();
+				$contact['tags']=array();
 				$donnees=array();
 				$adresse=array();
-				foreach($map as $type=>$keys) {
+				foreach($map as $type_string=>$keys) {
+					$type_tab=explode('|',$type_string);
+					$type=$type_tab[0];
+					$p1='';
+					if (count($type_tab)>1) $p1=$type_tab[1];
+					$p2='';
+					if (count($type_tab)>2) $p2=$type_tab[2];
 					$i=0;
 					foreach($keys as $k=>$label) {
 						if ($row[$k]!='') {
 							if ($i==0) {
 								if ($type=='id') $contact['id']=$row[$k];
 								if ($type=='idstr') $contact['idstr']=$row[$k];
-								if ($type=='nom') $contact['nom']=$row[$k];
-								if ($type=='prenom') $contact['prenom']=$row[$k];
+								if ($type=='nom') $contact['nom']=trim($row[$k]);
+								if ($type=='prenom') $contact['prenom']=trim($row[$k]);
 								if ($type=='type') $contact['type']=$row[$k];
-								if ($type=='note') $note.="\n".$row[$k];
 								if ($type=='fonction') $donnees[]=array('type'=>'fonction','label'=>$label,'value'=>$row[$k]);
-								if ($type=='adresse') $adresse['adresse']=$row[$k];
-								if ($type=='cp') $adresse['cp']=$row[$k];
-								if ($type=='ville') $adresse['ville']=$row[$k];
-								if ($type=='pays') $adresse['pays']=$row[$k];
+								if ($type=='adresse') $adresse['adresse']=trim($row[$k]);
+								if ($type=='cp') $adresse['cp']=trim($row[$k]);
+								if ($type=='ville') $adresse['ville']=trim($row[$k]);
+								if ($type=='pays') $adresse['pays']=trim($row[$k]);
 							}
-							if ($type=='email') {
-								foreach(extractEmailsFromString($row[$k]) as $m) {
-									$donnees[]=array('type'=>'email','label'=>$label,'value'=>$m);
+							if ($type=='note') {
+								if (trim($row[$k])!='') $note.="\n".$row[$k];
+							}
+							if ($type=='tag') {
+								$t=explode(',',$row[$k]);
+								foreach ($t as $tv) {
+									if (trim($tv)!="") {
+										if ($p1!='') $tv=$p1.">".$tv;
+										$contact['tags_new'][]=$tv;
+										$contact['tags_new']=array_values(array_unique($contact['tags_new']));
+										$tags_new[]=$tv;
+										$tags_new=array_values(array_unique($tags_new));
+									}
 								}
 							}
-							if ($type=='tel') $donnees[]=array('type'=>'tel','label'=>$label,'value'=>$row[$k]);
+							if ($type=='email') {
+								$ti=0;
+								foreach(extractEmailsFromString($row[$k]) as $m) {
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$donnees[]=array('type'=>'email','label'=>$label.$cl,'value'=>$m);
+									$ti++;
+								}
+							}
+							if ($type=='tel') {
+								$tel_tab=explode('/',$row[$k]);
+								$ti=0;
+								foreach($tel_tab as $t) {
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$pattern = "/([^\(\)]*)(?:\((.*)\)){0,1}/";
+									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
+									$tv=$matches[1][0][0];
+									if (isset($matches[2][0][0])) $cl.=" ".$matches[2][0][0];
+									$donnees[]=array('type'=>'tel','label'=>$label.$cl,'value'=>$tv);
+									$ti++;
+								}
+
+							}
+							if ($type=='fax') {
+								$fax_tab=explode('/',$row[$k]);
+								$ti=0;
+								foreach($fax_tab as $t) {
+									if ($ti==0) $cl='';
+									else $cl="/".$ti;
+									$pattern = "/([^\(\)]*)(?:\((.*)\)){0,1}/";
+									preg_match_all($pattern, $t, $matches, PREG_OFFSET_CAPTURE);
+									$tv=$matches[1][0][0];
+									if (isset($matches[2][0][0])) $cl.=" ".$matches[2][0][0];
+									$donnees[]=array('type'=>'fax','label'=>$label.$cl,'value'=>$tv);
+									$ti++;
+								}
+							}
 						}
 						$i++;
 					}
@@ -1647,17 +1752,37 @@
 				if ($note!='') {
 					$donnees[]=array('type'=>'note','label'=>'Note','value'=>trim($note));
 				}
-				if (array_key_exists('cp',$map) && $adresse['cp']!='') {
+				if (array_key_exists('cp',$map) && array_key_exists('cp',$adresse) && $adresse['cp']!='') {
 					$donnees[]=array('type'=>'adresse','label'=>'Adresse','value'=>$adresse);
 				}
 				if (!array_key_exists('type',$map)) {
 					$contact['type']=1;
+				}
+				foreach ($donnees as $key => $value) {
+					$donnees[$key]['date']=$t0;
+					$donnees[$key]['by']=$id;
 				}
 				$contact['donnees']=json_decode(json_encode($donnees));
 				$contacts[]=$contact;
 			}
 			$cass=array();
 			$db->database->beginTransaction();
+			//on crée les nouveaux tags
+			foreach($tags_new as $tag_string) {
+				$tag_tab=explode('>',$tag_string);
+				if (!array_key_exists($tag_tab[0],$tags_new_map)) {
+					$insert = $db->database->prepare('INSERT INTO tags (nom, color, id_parent, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?,?) ');
+					$insert->execute(array($tag_tab[0],'#000',$tags[0],millisecondes(),$id,millisecondes(),$id));
+					$id_tag = $db->database->lastInsertId();
+					$tags_new_map[$tag_tab[0]]=$id_tag;
+				}
+				if (count($tag_tab)>1) {
+					$insert = $db->database->prepare('INSERT INTO tags (nom, color, id_parent, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?,?) ');
+					$insert->execute(array($tag_tab[1],'#000',$tags_new_map[$tag_tab[0]],millisecondes(),$id,millisecondes(),$id));
+					$id_tag = $db->database->lastInsertId();
+					$tags_new_map[$tag_tab[1]]=$id_tag;
+				}
+			}
 			foreach($contacts as $index=>$contact) {
 				$nom=$contact['nom'];
 				$prenom = isset($contact['prenom']) ? $contact['prenom'] : '';
@@ -1677,6 +1802,21 @@
 				$contacts[$index]['id_cas']=$id_cas;
 				$insert = $db->database->prepare('INSERT INTO casquettes_fts (id,idx) VALUES (?,?)');
 				$insert->execute(array($id_cas,strtolower(normalizeChars($nom." ".$prenom)).idx($donnees)));
+				if (isset($contact['tags_new'])) {
+					//on associe les tags issus de l'import
+					foreach($contact['tags_new'] as $tag_string) {
+						$tag_tab=explode('>',$tag_string);
+						if (count($tag_tab)==1) {
+							$insert = $db->database->prepare('INSERT INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');
+							$insert->execute(array($tags_new_map[$tag_tab[0]],$id_cas,millisecondes()));
+						}
+						if (count($tag_tab)==2) {
+							$insert = $db->database->prepare('INSERT INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');
+							$insert->execute(array($tags_new_map[$tag_tab[1]],$id_cas,millisecondes()));
+						}
+					}
+				}
+
 				//on associe les tags
 				foreach($tags as $id_tag) {
 					$insert = $db->database->prepare('INSERT INTO tag_cas (id_tag,id_cas,date) VALUES (?,?,?)');
@@ -1688,14 +1828,15 @@
 				if (array_key_exists('idstr',$c)) {
 					foreach($contacts as $s) {
 						if (array_key_exists('id',$s) && $s['id']==$c['idstr'] && $s['type']==2) {
-							$update = $db->database->prepare('UPDATE casquettes SET id_etab=? WHERE id=?');
-							$update->execute(array($s['id_cas'],$c['id_cas']));
+							$update = $db->database->prepare('UPDATE casquettes SET nom=?, id_etab=? WHERE id=?');
+							$update->execute(array($s['nom'],$s['id_cas'],$c['id_cas']));
 						}
 					}
 				}
 			}
 			$db->database->commit();
 			if (count($cass)>0) ldap_update_array($cass);
+			doublon_maj(array());
 			Contacts::index_gps();
 			return array('maj'=>array('*'), 'res'=>1);
 		}

@@ -243,6 +243,10 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Contacts->del_tag($params,$u['id']);
 		}
+		public function videTag($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Contacts->vide_tag($params,$u['id']);
+		}
 		public function modSelection($params){
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Contacts->mod_selection($params,$u['id']);

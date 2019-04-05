@@ -5,7 +5,7 @@ function extractEmailsFromString($sChaine) {
 			return array_unique($aEmails[0]);
 		}
 	}
-	return null;
+	return array();
 }
 function Hex2RGB($color){
     $color = str_replace('#', '', $color);
@@ -17,7 +17,7 @@ function Hex2RGB($color){
     return $rgb;
 }
 function get_gps($adresse){
-	$pays=$adresse->pays;
+	$pays=isset($adresse->pays) ? $adresse->pays : "France";
 	$cp=10*(floor($adresse->cp/10));
 	//echo "\n".$adresse->cp." // ".$cp."\n";
 	$string = $adresse->ville;
@@ -57,6 +57,7 @@ function get_gps($adresse){
 		curl_setopt ($ch, CURLOPT_HEADER, 0);
 		$tab=json_decode(curl_exec ($ch));
 	}
+	//error_log(var_export($tab,true)."\n".$url."\n",3,"/tmp/fab.log");
 	if (count($tab)>0) return array('x'=>$tab[0]->lon,'y'=>$tab[0]->lat);
 	else return array('x'=>'1001','y'=>'1001');
 }
@@ -112,10 +113,10 @@ function cp($a){
 	$cp="";
 	foreach($a as $i){
 		if (isset($i->value) && $i->type=='adresse'){
-			if (strtolower($i->value->pays)=="france" || $i->value->pays=="") {
+			if (!isset($i->value->pays) || strtolower($i->value->pays)=="france" || $i->value->pays=="") {
 				if (isset($i->value->cp)) $cp=$i->value->cp;
 			}
-			if ($i->value->pays!="" && strtolower($i->value->pays)!="france") {
+			if (isset($i->value->pays) && $i->value->pays!="" && strtolower($i->value->pays)!="france") {
 				$cp="E";
 			}
 		}
@@ -632,8 +633,9 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		$command = "nohup /usr/bin/php exec.php doublon_emails $arg > /dev/null 2>&1 &";
 		exec($command);
 	}
-	function doublon_maj($id_contact) {
-		$command = "nohup /usr/bin/php exec.php doublon_maj $id_contact > /dev/null 2>&1 &";
+	function doublon_maj($ids_contacts) {
+		$arg=base64_encode(json_encode($ids_contacts));
+		$command = "nohup /usr/bin/php exec.php doublon_maj $arg > /dev/null 2>&1 &";
 		exec($command);
 	}
 	function conf(){

@@ -1,12 +1,13 @@
 <?php
-$id_contact=$argv[2];
+$tab=json_decode(base64_decode($argv[2]));
+$ids_contacts=implode(',',$tab);
 $db= new DB(true);
 $query = "SELECT
 	t1.id as id,
 	t1.nom as nom,
 	t1.prenom as prenom
 	FROM contacts as t1 WHERE t1.id IN (
-		SELECT id_contact from doublons_texte where id_doublon=(SELECT id_doublon FROM doublons_texte where id_contact=$id_contact)
+		SELECT id_contact from doublons_texte where id_doublon=(SELECT id_doublon FROM doublons_texte where id_contact IN ($ids_contacts))
 	)";
 $r0=array();
 $ids=array();
@@ -18,7 +19,7 @@ if (count($ids)>0) {
 	$del=Contacts::do_del_doublons_texte($ids);
 	WS_maj($del['maj']);
 }
-		
+
 $query = "SELECT
 	t1.id as id,
 	t1.nom as nom,
@@ -32,7 +33,7 @@ foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 $doublons[]=array();
 foreach($r0 as $r1) {
 	if (!in_array($r1['id'],$doublons) && $r1['nom'].$r1['prenom']!='') {
-		echo "                      \r".$r1['id'];	
+		echo "                      \r".$r1['id'];
 		$s1=str_replace('_',' ',filter2($r1['nom']." ".$r1['prenom']));
 		$t1=explode(' ',$s1);
 		$d1=array();
@@ -64,4 +65,3 @@ foreach($r0 as $r1) {
 		}
 	}
 }
-

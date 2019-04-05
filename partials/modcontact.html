@@ -13,6 +13,7 @@
 				Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.usersall[Data.modele[key].createdby].name}},
 				modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.usersall[Data.modele[key].modifiedby].name}}.
 			</span>
+			<span class="pull-right mini" ng-if="Data.modele[prevNextKey][3]">{{Data.modele[prevNextKey][2]}} de {{Data.modele[prevNextKey][3]}}</span>
 		</p>
 		<ul class="list-group">
 			<li class="list-group-item" ng-repeat="cas in Data.modele[key].casquettes">
@@ -34,26 +35,28 @@
 					</span>
 					</div>
 					<div class="inter col-xs-12" ng-if="cas.okL.length + cas.okB.length>0"></div>
-					<div ng-repeat-start="d in cas.donnees | notNote" class="col-xs-6" style="overflow:hidden;">
-						<div ng-if="d.type!='adresse'">
-							<span class="label-contact cursor" ng-class="{'erreur':d.type=='email_erreur'}" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
-							{{d.value}}
+					<div class="col-xs-12 row" ui-on-Drop="dropOnCas($event,$data,$channel,cas,$ctrl)" drop-channel="swapToCas" drop-validate="dropOnCasValidate(cas, $data)">
+						<div ng-repeat-start="d in cas.donnees | notNote" class="col-sm-6" style="overflow:hidden;">
+							<div ng-if="d.type!='adresse'" ui-draggable="true" drag="{idx:cas.donnees.indexOf(d)}" drag-channel="swapToEtab">
+								<span class="label-contact cursor" ng-class="{'erreur':d.type=='email_erreur'}" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+								{{d.value}}
+							</div>
+							<div ng-if="d.type=='adresse'">
+								<span class="label-contact cursor" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+								<span ng-bind-html="d.value.adresse | nl2br"></span><br />
+								{{d.value.cp}} {{d.value.ville}}<br />
+								{{d.value.pays}} <small ng-if="cas.gps_x<1000"><a target="_blank" href="http://www.openstreetmap.org/?mlat={{cas.gps_y}}&mlon={{cas.gps_x}}#map=12/{{cas.gps_y}}/{{cas.gps_x}}">voir sur la carte</a></small>
+							</div>
 						</div>
-						<div ng-if="d.type=='adresse'">
-							<span class="label-contact cursor" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
-							<span ng-bind-html="d.value.adresse | nl2br"></span><br />
-							{{d.value.cp}} {{d.value.ville}}<br />
-							{{d.value.pays}} <small ng-if="cas.gps_x<1000"><a target="_blank" href="http://www.openstreetmap.org/?mlat={{cas.gps_y}}&mlon={{cas.gps_x}}#map=12/{{cas.gps_y}}/{{cas.gps_x}}">voir sur la carte</a></small>
+						<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
+						<div ng-repeat="d in cas.donnees" class="col-xs-12" style="overflow:hidden;" ng-if="d.type=='note'">
+							<div>
+								<span class="label-contact cursor" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+								<div ng-bind-html="d.value | linky:'_blank':{rel: 'nofollow'}" class="nl2br"></div>
+							</div>
 						</div>
+						<div class="col-xs-12 clearfix inter"></div>
 					</div>
-					<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
-					<div ng-repeat="d in cas.donnees" class="col-xs-12" style="overflow:hidden;" ng-if="d.type=='note'">
-						<div>
-							<span class="label-contact cursor" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
-							<div ng-bind-html="d.value | linky:'_blank':{rel: 'nofollow'}" class="nl2br"></div>
-						</div>
-					</div>
-					<div class="col-xs-12 clearfix inter"></div>
 					<div class="col-xs-12 clearfix" ng-if="cas.type==1">
 						<span class="cursor pull-right mini">
 							<span ng-if="!cas.id_etab || cas.id_etab==0" ng-click="assEtablissement(cas)">associer à une structure</span>
@@ -61,14 +64,14 @@
 							<span ng-if="cas.id_etab>0" ng-confirm-click="desAssEtablissement(cas)" ng-confirm-message="Sûr ?"> | désassocier</span>
 						</span>
 					</div>
-					<div ng-if="cas.etab" class="list-group-item col-xs-12">
+					<div ng-if="cas.etab" class="list-group-item col-xs-12" ui-on-Drop="dropOnEtab($event,$data,$channel,cas,$ctrl)" drop-channel="swapToEtab" drop-validate="dropOnEtabValidate(cas, $data)">
 						<div class="col-xs-12">
 							<span class="structure"><a href="modcontact/{{cas.etab.id_contact}}">{{cas.etab.nom!='' ? cas.etab.nom : '(sans nom)'}}</a> <small>/ {{cas.etab.nom_cas}}</small></span>
 							<span class="mini"> ({{calendar(lastMod(cas.etab).date)}} par {{Data.modele.usersall[lastMod(cas.etab).by].name}})</span>
 						</div>
 						<div class="col-xs-12">
-							<div ng-repeat-start="d in cas.etab.donnees | notNote" class="col-xs-6" style="overflow:hidden;" >
-								<div ng-if="d.type!='adresse' && d.type!='note'">
+							<div ng-repeat-start="d in cas.etab.donnees | notNote" class="col-xs-6" style="overflow:hidden;">
+								<div ng-if="d.type!='adresse'" ui-draggable="true" drag="{idx:cas.etab.donnees.indexOf(d)}" drag-channel="swapToCas">
 									<span class="label-contact" ng-class="{'erreur':d.type=='email_erreur'}">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
 									{{d.value}}
 								</div>
@@ -135,14 +138,17 @@
 						<span class="label-contact">Envois ({{cas.envois.length}})</span>
 						<span class="cursor mini" ng-if="!ev[cas.id]" ng-click="ev[cas.id]=true">voir</span>
 						<span class="cursor mini" ng-if="ev[cas.id]" ng-click="ev[cas.id]=false">cacher</span>
-						<div ng-if="ev[cas.id]" ng-repeat="e in cas.envois">
-							<small>
-								<a href='modenvoi/{{e.id_envoi}}'>{{e.sujet}}</a> -
-								<a href="modnews/{{e.id_type}}" ng-if="e.type=='news'">Newsletter n°{{e.id_type}}</a>
-								<a href="mail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
-								>&nbsp;<span ng-repeat="m in e.emails">{{m}} </span>
-							</small>
-							<small class="mini">{{calendar(e.date)}}</small>
+						<div ng-if="ev[cas.id]">
+							<uib-pagination ng-init="pageCourante.envoiCas[cas.id]= pageCourante.envoiCas[cas.id] ? pageCourante.envoiCas[cas.id] : 1" ng-if="cas.envois.length>itemsParPage" boundary-links="true" total-items="cas.envois.length" ng-model="pageCourante.envoiCas[cas.id]" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+							<div ng-repeat="e in cas.envois | startFrom:(pageCourante.envoiCas[cas.id]-1)*itemsParPage | limitTo:itemsParPage">
+								<small>
+									<a href='modenvoi/{{e.id_envoi}}'>{{e.sujet}}</a> -
+									<a href="modnews/{{e.id_type}}" ng-if="e.type=='news'">Newsletter n°{{e.id_type}}</a>
+									<a href="mail/{{e.id_type}}" ng-if="e.type=='mail'">E-mail n°{{e.id_type}}</a>
+									>&nbsp;<span ng-repeat="m in e.emails">{{m}} </span>
+								</small>
+								<small class="mini">{{calendar(e.date)}}</small>
+							</div>
 						</div>
 					</div>
 					<div class="col-xs-12 inter clearfix"></div>
