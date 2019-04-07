@@ -63,18 +63,30 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
 					$casquette=$casquette[0];
 					if (in_array($id,$casquette['forms'])){
                         $instance=Forms::get_form_instance($form['id'],$casquette['id'],1);
-						$res="Vous pouvez remplir le formulaire en <a href='{$C->app->url->value}/form.php?h=".$instance['hash']."'>cliquant ici</a>";
+                        $message="Bonjour,
+
+        Voici le lien pour remplir le formulaire : ".$form['nom']." :
+
+        {$C->app->url->value}/form.php?h=".$instance['hash']."
+";
+                        mail_utf8($_POST['email'],"Votre lien pour le formulaire ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
+                        $res="Nous vous avons envoyé un lien par email. (pensez à vérifier vos spams)";
 					} else {
                         $params= new stdClass;
                         $params->id_cas=$casquette['id'];
                         $params->id_form=$form['id'];
                         error_log(var_export($params,true),3,"/tmp/fab.log");
-					    $res=Forms::do_add_form_cas($params,1);
-                        WS_maj($res['maj']);
-						error_log(var_export($res,true),3,"/tmp/fab.log");
-                        $instance=Forms::get_form_instance($form['id'],$casquette['id'],1);
-                        $res="Vous pouvez remplir le formulaire en <a href='{$C->app->url->value}/form.php?h=".$instance['hash']."'>cliquant ici</a>";
-                        error_log(var_export($instance,true),3,"/tmp/fab.log");
+					    $tab=Forms::do_add_form_cas($params,1);
+                        WS_maj($tab['maj']);
+						$instance=Forms::get_form_instance($form['id'],$casquette['id'],1);
+                        $message="Bonjour,
+
+        Voici le lien pour remplir le formulaire : ".$form['nom']." :
+
+        {$C->app->url->value}/form.php?h=".$instance['hash']."
+";
+                        mail_utf8($_POST['email'],"Votre lien pour le formulaire ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
+                        $res="Nous vous avons envoyé un lien par email. (pensez à vérifier vos spams)";
 					}
 				} else {
 					$cle=basename(tempnam('cle',''));
