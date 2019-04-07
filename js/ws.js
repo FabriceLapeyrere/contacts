@@ -165,11 +165,21 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 				if (types.indexOf(k)>=0) {
 					//console.log(isEqual(v.params,params[k]),v.params,params[k]);
 					if (isEqual(v.params,params[k])) {
-						Data.modele[k]=v;
+						if (!Data.modele[k]) Data.modele[k]=v;
+						else {
+							var diff= rfc6902.createPatch(Data.modeleSrv[k], v);
+							console.log(diff);
+							rfc6902.applyPatch(Data.modele[k],diff);
+						}
 						Data.modeleSrv[k]=angular.copy(v);
 					}
 				} else {
-					Data.modele[k]=v;
+					if (!Data.modele[k]) Data.modele[k]=v;
+					else {
+						var diff= rfc6902.createPatch(Data.modeleSrv[k], v);
+						console.log(diff);
+						rfc6902.applyPatch(Data.modele[k],diff);
+					}
 					Data.modeleSrv[k]=angular.copy(v);
 				}
 			});
