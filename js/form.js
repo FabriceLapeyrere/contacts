@@ -1,5 +1,6 @@
 var app= angular.module('form', ['ui.bootstrap', 'angularFileUpload','ngSanitize','ng.ckeditor','fakeWs']);
 app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce', 'Link', 'Data', function ($scope, $location, $timeout, $interval, $sce, Link, Data) {
+	$scope.now=new Date().getTime();
 	$scope.idform=document.getElementById("id-form").value;
 	$scope.idcas=document.getElementById("id-cas").value;
 	$scope.key="form_instance/"+$scope.idform+"/"+$scope.idcas;
