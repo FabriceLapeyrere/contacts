@@ -1464,6 +1464,10 @@
 			$delete->execute(array($params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
 			$delete->execute(array($params->cas->id));
+			$delete = $db->database->prepare('DELETE FROM form_casquette WHERE id_casquette=? ');
+			$delete->execute(array($params->cas->id));
+			$delete = $db->database->prepare('DELETE FROM forms_data WHERE type_lien=? AND id_lien=? ');
+			$delete->execute(array('casquette',$params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM suivis WHERE id_thread IN (SELECT id FROM suivis_threads WHERE id_casquette=?) ');
 			$delete->execute(array($params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM suivis_threads WHERE id_casquette=? ');

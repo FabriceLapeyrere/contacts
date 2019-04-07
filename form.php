@@ -66,10 +66,16 @@ if (
 <input type="hidden" id="id-form" value="<?=$id_form?>"/>
 <input type="hidden" id="id-cas" value="<?=$id_cas?>"/>
 <div id="form-container" ng-controller="showformCtl">
-    <ng-include src="'partials/form_public.html'"></ng-include>
+    <div  loading="key" data="Data">
+        <ng-include src="'partials/form_public.html'" ng-if="c=(Data.modele[key].hash && ( Data.modele[formkey].state=='open' || Data.modele[formkey].state=='scheduled' && Data.modele[formkey].from_date<now && Data.modele[formkey].to_date>now))"></ng-include>
+        <div id="form-container" ng-if="!c">
+            La page n'existe pas...
+        </div>
+    </div>
 </div>
 <div class='app-loader-container'><span ng-class="{'ok':uploading()}" class="glyphicon glyphicon-upload"></span> <span ng-class="{'ok':!Data.modeleFresh || !isAnswer()}" class="glyphicon glyphicon-refresh"></span></div>
 <div id="main-lock" ng-if="Data.offline">Connection en cours...</div>
+<script src="lib/rfc6902.min.js"></script>
 <script src="lib/angular-1.4.9.min.js"></script>
 <script src="lib/angular-animate.min.js"></script>
 <script src="lib/angular-touch.min.js"></script>

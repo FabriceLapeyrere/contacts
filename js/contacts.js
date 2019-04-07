@@ -1335,7 +1335,7 @@ app.controller('contactsCtl', ['$scope', '$http', '$location', '$timeout', '$int
 app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$routeParams', '$uibModal', '$window', 'Link', 'Data', 'hotkeys', function ($scope, $filter, $http, $location, $routeParams, $uibModal, $window, Link, Data, hotkeys) {
 	$scope.key='contact/'+$routeParams.id;
 	$scope.prevNextKey='contact_prev_next/'+$routeParams.id;
-	Link.context([{type:$scope.key},{type:'tags'},,{type:'forms'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
+	Link.context([{type:$scope.key},{type:'tags'},{type:'forms'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
 	$scope.$watch('Data.modele["contact_prev_next/'+$routeParams.id+'"]',function(n,o){
 		if (n) {
 			Link.context([{type:$scope.key},{type:'tags'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}},
