@@ -14,29 +14,36 @@ function ass_casquette($id_casquette,$id_contact,$id_categorie)
 	$p->cas->id_contact=$id_contact;
 	$p->tag=(object) null;
 	$p->tag->id=$id_categorie;
-	Contacts::do_add_cas_tag($p,1);
+	$tab=Contacts::do_add_cas_tag($p,1);
+    WS_maj($tab['maj']);
 	return array('ajout'=>'ok');
 }
 function aj_contact($params)
 {
+    $maj=array();
 	$c=(object) null;
 	$c->contact=(object) null;
 	$c->contact->nom=$params['nom'];
 	$c->contact->prenom=$params['prenom'];
 	$c->contact->type=1;
-	$id=Contacts::do_add_contact($c,1);
-	$contact=Contacts::get_contact($id,false,1);
+    $tab=Contacts::do_add_contact($c,1);
+    $maj=array_merge($maj,$tab['maj']);
+	$contact=Contacts::get_contact($tab['res'],false,1);
 	$p=(object) null;
 	foreach($contact['casquettes'] as $cas){
 		$p->cas= (object) $cas;
 		$p->cas->donnees=$params['donnees'];
 	}
-	Contacts::do_mod_casquette($p,1);
-	$p->tag=(object) null;	
+	$tab=Contacts::do_mod_casquette($p,1);
+	$maj=array_merge($maj,$tab['maj']);
+	$p->tag=(object) null;
 	foreach($params['categories'] as $id_tag){
 		$p->tag->id=$id_tag;
-		Contacts::do_add_cas_tag($p,1);
+		$tab=Contacts::do_add_cas_tag($p,1);
+        $maj=array_merge($maj,$tab['maj']);
 	}
+    $maj=array_values(array_unique($maj));
+    WS_maj($maj);
 }
 function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') {
   $header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
@@ -83,7 +90,7 @@ if (isset($_GET['cle'])) {
 		<p><?=$msg?></p>
         </div>
 </body>
-</html>	
+</html>
 <?
 			} else {
 				$message="Bonjour!!
@@ -94,11 +101,11 @@ email : {$params['donnees'][0]->value}
 
 ciao";
 				foreach(explode(",",$C->app->mails_notification->value) as $dest){
-					mail_utf8(trim($dest),"Inscription automatique à la newsletter $brand",$message,'From: '.$C->app->mails_notification_from->value);		
+					mail_utf8(trim($dest),"Inscription automatique à la newsletter $brand",$message,'From: '.$C->app->mails_notification_from->value);
 				}
 				aj_contact($params);
 				$fichier[]='done';
-				file_put_contents("data/cle/".$_GET['cle'],$fichier);		
+				file_put_contents("data/cle/".$_GET['cle'],$fichier);
 ?>
 <html>
 <head>
