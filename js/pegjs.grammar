@@ -18,6 +18,8 @@ primary
 integer "integer"
   = ':tag' id:[0-9]+ { return '::tag'+id.join("")+'::'; }
   / '!:tag' id:[0-9]+ { return 'pas dans ::tag'+id.join("")+'::'; }
+  / ':tag-etab' id:[0-9]+ { return 'est associé à un établissement qui est dans ::tag'+id.join("")+'::'; }
+  / '!:tag-etab' id:[0-9]+ { return 'n\'est pas associé à un établissement qui est dans ::tag'+id.join("")+'::'; }
   / ':tag_parent' id:[0-9]+ { return 'a le tag ::tag'+id.join("")+'::'; }
   / '!:tag_parent' id:[0-9]+ { return 'n\'a pas le tag ::tag'+id.join("")+'::'; }
   / ':etab' id:[0-9]+ { return 'dans la structure '+id.join(""); }
@@ -49,31 +51,31 @@ integer "integer"
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return 'dans aucun des departements suivants : ::dpts/'+list+'::';
 	}
-  / ':aucun_tag' { 
+  / ':aucun_tag' {
 	return 'n\'a aucun tag';
 	}
-  / '!:aucun_tag' { 
+  / '!:aucun_tag' {
 	return 'a au moins un tag';
 	}
-  / ':seulement_tags(' ids:[,0-9]+ ')' { 
+  / ':seulement_tags(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return 'a seulement ces tags : '+list;
 	}
-  / '!:seulement_tags(' ids:[,0-9]+ ')' { 
+  / '!:seulement_tags(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return 'n\'a pas seulement ces tags : '+list;
 	}
-  / ':contacts(' ids:[,0-9]+ ')' { 
+  / ':contacts(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return 'parmi ces contacts : '+list;
 	}
-  / '!:contacts(' ids:[,0-9]+ ')' { 
+  / '!:contacts(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
@@ -91,4 +93,3 @@ integer "integer"
   / '!:adresse' { return "n'a pas d'adresse"; }
   / '!' word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@]+ { return 'ne contient pas le texte : "'+ word.join("") +'"'; }
   / word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return 'contient le texte : &laquo;'+ word.join("") +'&raquo;'; }
-

@@ -18,6 +18,8 @@ primary
 integer "integer"
   = ':tag' id:[0-9]+ { return '::tag/'+id.join("")+'::'; }
   / '!:tag' id:[0-9]+ { return 'NOT (::tag/'+id.join("")+'::)'; }
+  / ':tag-etab' id:[0-9]+ { return '::tag-etab/'+id.join("")+'::'; }
+  / '!:tag-etab' id:[0-9]+ { return 'NOT (::tag-etab/'+id.join("")+'::)'; }
   / ':tag_parent' id:[0-9]+ { return '::tag-parent/'+id.join("")+'::'; }
   / '!:tag_parent' id:[0-9]+ { return 'NOT (::tag-parent/'+id.join("")+'::)'; }
   / ':etab' id:[0-9]+ { return '::etab/'+id.join("")+'::'; }
@@ -49,31 +51,31 @@ integer "integer"
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return 'NOT (::cps/'+list+'::)';
 	}
-  / ':aucun_tag' { 
+  / ':aucun_tag' {
 	return '::aucun_tag::';
 	}
-  / '!:aucun_tag' { 
+  / '!:aucun_tag' {
 	return 'NOT ::aucun_tag::';
 	}
-  / ':seulement_tags(' ids:[,0-9]+ ')' { 
+  / ':seulement_tags(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return '::seulement_tags/'+list+'::';
 	}
-  / '!:seulement_tags(' ids:[,0-9]+ ')' { 
+  / '!:seulement_tags(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return 'NOT ::seulement_tags/'+list+'::';
 	}
-  / ':contacts(' ids:[,0-9]+ ')' { 
+  / ':contacts(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
 	return '::contacts/'+list+'::';
 	}
-  / '!:contacts(' ids:[,0-9]+ ')' { 
+  / '!:contacts(' ids:[,0-9]+ ')' {
 	var list=ids.join("");
 	if(list[0]==',') list=list.substring(1);
 	if(list[list.length-1]==',') list=list.substring(0,list.length-1);
@@ -91,4 +93,3 @@ integer "integer"
   / '!:adresse' { return 'NOT ::adresse::'; }
   / '!' word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@]+ { return 'NOT (::text/'+ word.join("") +'::)'; }
   / word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return '::text/'+ word.join("") +'::'; }
-
