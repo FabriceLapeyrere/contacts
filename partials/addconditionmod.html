@@ -1,0 +1,16 @@
+<form role="form" name="frm.addCondition">
+<div class="modal-body">
+    <div ng-if="elts.length>0">
+        <label>Ajouter une condition sur : </label>
+    	<select class="form-control" ng-model="p.elt"  ng-options="elt as elt.label for elt in elts"></select>
+        <ng-include src="p.elt.url"></ng-include>
+    </div>
+    <div ng-if="elts.length==0">
+        Pas de condition possible...
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">Ajouter</button>
+    <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
+</div>
+</form>

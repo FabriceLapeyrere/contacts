@@ -1,2 +1,3 @@
-<label>{{elt.label}}</label>
-<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" ng-model="Data.modele[key].collection[elt.id].valeur"></ng-ckeditor>
+<label ng-bind-html="trust(label(p.elt.label))"></label>
+<div ng-if="isValid[p.elt.id]">{{isValid[p.elt.id]}}</div>
+<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" ng-model="p.collection[p.elt.id].valeur"></ng-ckeditor>

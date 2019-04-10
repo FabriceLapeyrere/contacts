@@ -1,0 +1,13 @@
+body {
+    background:#FFF;
+}
+.list-group-item {
+	border: none;
+}
+.traduction {
+    font-size:1em;
+    color:red;
+}
+.btn-primary .traduction {
+	color: #FFF;
+}

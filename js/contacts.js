@@ -224,7 +224,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		var res=false;
 		angular.forEach(a,function(e){
 			if(e.id==id) {
-				return e;
+				res=e;
 			}
 		});
 		return res;
@@ -335,7 +335,12 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 		return res;
 	};
 	$scope.isEqual=function(a,b){
-		return JSON.stringify(angular.copy(a), null, 4)==JSON.stringify(angular.copy(b), null, 4);
+		var diff= rfc6902.createPatch(a,b);
+		var d=[];
+		for(var i=0;i<diff.length;i++) {
+			if (diff[i].path.indexOf("$$")==-1 && diff[i].path.indexOf("uuid")==-1) d.push(diff[i]);
+		}
+		return d.length==0;
 	};
 	$scope.pristine=function(key){
 		return $scope.isEqual(Data.modele[key],Data.modeleSrv[key]);
@@ -1600,7 +1605,7 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		});
 		modal.result.then(function (form) {
 			cas.forms.push(form.id);
-			Link.ajax([{action:'addFormCas', params:{id_form:form.id, id_cas:cas.id}}],function(r){
+			Link.ajax([{action:'addFormInstanceCas', params:{id_form:form.id, id_cas:cas.id}}],function(r){
 				$scope.fillForm(form.id,cas);
 			});
 		});
@@ -1777,7 +1782,10 @@ app.controller('modmailCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
 			url: 'upload.php',
 		autoUpload:true,
-		formData:[{id:$routeParams.id},{type:'mail'}]
+		formData:[{id:$routeParams.id},{type:'mail'}],
+		onCompleteAll:function(){
+			$scope.uploaders[$scope.key].clearQueue();
+		}
 	});
 	$scope.delPj=function(pj){
 		Link.ajax([{action:'delMailPj', params:{id:$routeParams.id,	pj:pj}}]);
@@ -2103,7 +2111,10 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
 			url: 'upload.php',
 		autoUpload:true,
-		formData:[{id:$routeParams.id},{type:'news'}]
+		formData:[{id:$routeParams.id},{type:'news'}],
+		onCompleteAll:function(){
+			$scope.uploaders[$scope.key].clearQueue();
+		}
 	});
 	$scope.delPj=function(pj){
 		Link.ajax([{action:'delNewsPj', params:{id:$routeParams.id, pj:pj}}]);
@@ -2269,7 +2280,7 @@ app.controller('formsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link',
 		Link.ajax([{action:'delForm', params:{form:form}}]);
 	}
 }]);
-app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
+app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($window, $timeout, $scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
 	$scope.getPage=function(init){
 		var pagePr;
 		var pageRe;
@@ -2364,8 +2375,30 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 
 		modal.result.then(function (c) {
 			choix.nom=c.nom;
+			choix.valeur=c.valeur;
 			$scope.save();
 		});
+	};
+	$scope.addConditionMod=function(elt,elts){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/addconditionmod.html',
+			controller: 'addConditionModCtl',
+			resolve:{
+				elts: function () {
+					return elts;
+				},
+				id: function () {
+					return elt.id;
+				}
+			}
+		});
+		modal.result.then(function (p) {
+			elt.condition={id:p.elt.id,valeur:p.collection[p.elt.id].valeur};
+			$scope.save();
+		});
+	};
+	$scope.delCondition=function(elt){
+		delete elt.condition;
 	};
 	$scope.delChoix=function(elt,choix){
 		var i=$scope.index('id',elt.choix,choix.id);
@@ -2385,11 +2418,13 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 		if (!defaut) defaut='';
 		var elt={id:Math.random().toString(36).substr(2, 9),nom:nom,type:type,default:defaut};
 		p.elts.push(elt);
+		$timeout(function(){$window.scrollTo(0,document.body.scrollHeight);},500);
 		$scope.save();
 	};
 	$scope.delElt=function(p,elt){
 		var i=$scope.index('id',p.elts,elt.id);
 		p.elts.splice(i,1);
+		$scope.save();
 	};
 	$scope.drop = function(e,s,d,c,list){
 		if (c=="listorder") {
@@ -2449,32 +2484,61 @@ app.controller('modformCtl', ['$scope', '$http', '$location', '$routeParams', '$
 	});
 	$scope.getPage(1);
 }]);
-app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
+app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
 	$scope.idform=$routeParams.idform;
 	$scope.idcas=$routeParams.idcas;
 	$scope.formkey='form/'+$scope.idform;
-	$scope.key='form_instance/'+$scope.idform+'/'+$scope.idcas;
-	$scope.contactkey='';
+	$scope.key='form_instances_cas_form/'+$scope.idform+'/'+$scope.idcas;
+	$scope.contactkey= Data.modele[$scope.key] ? 'contact/'+Data.modele[$scope.key].id_contact : '';
 	Link.context([{type:$scope.formkey},{type:$scope.key}]);
-	$scope.check=function(elt){
+	$scope.label=function(label){
+		var tab=label.split('|');
+		var res=tab[0].trim();
+		for (var i=1;i<tab.length;i++){
+			res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
+		}
+		return res;
+	}
+	$scope.check=function(hash,elt){
 		if (elt.default===undefined) elt.default='';
-		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default};
+		if (!Data.modele[$scope.key].instances[hash].collection[elt.id]) Data.modele[$scope.key].instances[hash].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
 	}
 	$scope.checkAll=function(){
-		console.log('checkAll');
-		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
-			angular.forEach(p.elts,function(elt){
-				if (elt.type!='titre' && elt.type!='texte') $scope.check(elt);
+		console.log('checkAll',Data.modele[$scope.key]);
+		angular.forEach(Data.modele[$scope.key].instances,function(instance){
+			angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+				angular.forEach(p.elts,function(elt){
+					if (elt.type!='titre' && elt.type!='texte') $scope.check(instance.hash,elt);
+					if (elt.type=='upload') {
+						if (!$scope.uploaders[instance.hash+'-'+elt.id]) {
+							$scope.uploaders[instance.hash+'-'+elt.id] = new FileUploader({
+								url: 'upload.php',
+								autoUpload:true,
+								formData:[{hash:instance.hash,id:elt.id},{type:'form_upload'}],
+								onCompleteAll:function(){
+									$scope.uploaders[instance.hash+'-'+elt.id].clearQueue();
+								}
+							});
+						}
+					}
+				});
 			});
 		});
+		console.log('checkAll end',Data.modele[$scope.key]);
 		if ($scope.contactkey=='') {
 			$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
 			Link.context([{type:$scope.formkey},{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
 		}
+
+		angular.forEach(Data.modele[$scope.key].instances,function(instance){
+			$scope.save(instance);
+		});
 	};
-	$scope.save=function(){
-		$scope.checkAll();
-		Link.ajax([{action:'modFormInstance',params:{id_form:$scope.idform,id_cas:$scope.idcas,instance:Data.modele[$scope.key]}}]);
+	$scope.delFile=function(hash,id_elt,f){
+		Link.ajax([{action:'delFormFile', params:{hash:hash,id_elt:id_elt,file:f.nom}}]);
+	};
+	$scope.save=function(instance){
+		Link.ajax([{action:'modFormInstance',params:{instance:instance}}]);
 	};
 	$scope.editorOptions = {
 		height:"200px",
@@ -2496,6 +2560,27 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 			{ name: 'about', groups: [ 'about' ] }
 		],
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
+	};
+	$scope.isValid={};
+	$scope.testValid=function(instance){
+		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+			angular.forEach(p.elts,function(elt){
+				if (elt.type=='texte_long' && elt.maxLength) {
+					var StrippedString = instance.collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
+					var tab=StrippedString.split(' ');
+					var t=tab.length<=elt.maxLength;
+					var o="Texte trop long ("+tab.length+" mots pour "+elt.maxLength+" autorisés)";
+					if (!t){
+						if($scope.isValid[elt.id]!=o) $scope.isValid[elt.id]=o;
+					} else delete($scope.isValid[elt.id]);
+				}
+			});
+		});
+	};
+	$scope.canSave=function(instance){
+		$scope.testValid(instance);
+		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
+		return Object.keys($scope.isValid).length==0 && !$scope.isEqual(Data.modeleSrv[$scope.key].instances[instance.hash],instance);
 	};
 }]);
 //supports
@@ -2612,7 +2697,10 @@ app.controller('modtemplateCtl', ['$scope', '$http', '$location', '$routeParams'
 	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
 		url: 'upload.php',
 		autoUpload:true,
-		formData:[{id:$routeParams.id},{type:'template'}]
+		formData:[{id:$routeParams.id},{type:'template'}],
+		onCompleteAll:function(){
+			$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id].clearQueue();
+		}
 	});
 	$scope.delTpl=function(tpl){
 		Link.ajax([{action:'delTpl', params:{id:$routeParams.id,tpl:tpl}}]);
@@ -3636,6 +3724,28 @@ app.controller('addChoixModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'c
 	$scope.ok = function () {
 		if ($scope.frm.addChoix.$valid){
 			$uibModalInstance.close($scope.choix);
+		}
+	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+}]);
+app.controller('addConditionModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'elts', 'id', function ($scope, $uibModalInstance, $uibModal, elts, id) {
+	$scope.elts=[];
+	$scope.p={elt:{},collection:{},hash:''};
+	elts.forEach(function(e){
+		if(e.id!=id && (e.type=='checkbox' || e.type=='multiples')) {
+			a=angular.copy(e);
+			a.url='partials/inc/showformelts/'+a.type+'.html';
+			$scope.p.collection[a.id]={valeur:a.default};
+			$scope.elts.push(a);
+		}
+	});
+	$scope.p.elt=$scope.elts[0];
+	$scope.frm={};
+	$scope.ok = function () {
+		if ($scope.frm.addCondition.$valid){
+			$uibModalInstance.close($scope.p);
 		}
 	};
 	$scope.cancel = function () {

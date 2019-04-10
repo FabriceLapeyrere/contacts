@@ -9,11 +9,11 @@
 						<span ng-show="cas.prenom">{{cas.prenom}} </span>{{cas.nom}} <span class="mini" ng-if="!(cas.nom || cas.prenom)">(sans nom)</span>
 					</span>
 					</a> <span ng-class="{'individu':cas.type==1, 'structure':cas.type==2}" class="mini" ng-if="cas.nom_cas!='Siège social' && cas.nom_cas!='Siège' && cas.nom_cas!='Perso' && cas.nom_cas!=cas.nom_etab">/ {{cas.nom_cas}}</span> <span class="mini" ng-if="cas.fonction"> {{cas.fonction}}</span> &nbsp;
-					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'liste'}:true)" ng-show="parent.okL.length>0">
-						<span class="cursor" ng-repeat="tag in (parent.okL=(descendants(parent) | inCas:cas))" ng-include="'partials/inc/tag_liste.html'" ng-click="CasTagClick($event,tag,cas)"></span>
-					</span>	
-					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'boutons'}:true)" ng-show="parent.okB.length>0">
-						<span class="cursor" ng-repeat="tag in (parent.okB=(descendants(parent) | inCas:cas | orderBy:'nom'))" ng-include="'partials/inc/tag_boutons.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'liste'}:true)" ng-show="parent.$$okL.length>0">
+						<span class="cursor" ng-repeat="tag in (parent.$$okL=(descendants(parent) | inCas:cas))" ng-include="'partials/inc/tag_liste.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+					</span>
+					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'boutons'}:true)" ng-show="parent.$$okB.length>0">
+						<span class="cursor" ng-repeat="tag in (parent.$$okB=(descendants(parent) | inCas:cas | orderBy:'nom'))" ng-include="'partials/inc/tag_boutons.html'" ng-click="CasTagClick($event,tag,cas)"></span>
 					</span>
 				</div>
 				<div class="col-xs-6 col-md-4">
@@ -61,6 +61,5 @@
 				<div class="col-sm-12">
 					<span class="cursor" ng-include="'partials/inc/tag.html'" ng-repeat="id in (parNomTag(cas.tags) | normaux:Data.modele.tags)" ng-click="CasTagClick($event,Data.modele.tags[id],cas)"></span>
 				</div>
-				
-			</div>
 
+			</div>

@@ -167,21 +167,33 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 					if (isEqual(v.params,params[k])) {
 						if (!Data.modele[k]) Data.modele[k]=v;
 						else {
-							var diff= rfc6902.createPatch(Data.modeleSrv[k], v);
+							var diff= rfc6902.createPatch(Data.modele[k], v);
+							var d=[];
 							console.log(diff);
-							rfc6902.applyPatch(Data.modele[k],diff);
+							for(var i=0;i<diff.length;i++) {
+								if (diff[i].path.indexOf("$$")==-1) d.push(diff[i]);
+							}
+							console.log(d);
+							rfc6902.applyPatch(Data.modele[k],d);
 						}
 						Data.modeleSrv[k]=angular.copy(v);
 					}
 				} else {
 					if (!Data.modele[k]) Data.modele[k]=v;
 					else {
-						var diff= rfc6902.createPatch(Data.modeleSrv[k], v);
+						var diff= rfc6902.createPatch(Data.modele[k], v);
+						var d=[];
 						console.log(diff);
+						for(var i=0;i<diff.length;i++) {
+							if (diff[i].path.indexOf("$$")==-1) d.push(diff[i]);
+						}
+						console.log(d);
 						rfc6902.applyPatch(Data.modele[k],diff);
 					}
 					Data.modeleSrv[k]=angular.copy(v);
 				}
+				console.log('broadcast','modele-update-'+k);
+				$rootScope.$broadcast('modele-update-'+k);
 			});
 		}
 		$rootScope.$broadcast('data-update');

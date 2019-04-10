@@ -1,2 +1,2 @@
-<label>{{elt.label}}</label>
-<input placeholder="{{elt.label}}" ng-model="Data.modele[key].collection[elt.id].valeur" class="form-control" type="text"/>
+<label ng-bind-html="trust(label(p.elt.label))"></label>
+<input placeholder="{{p.elt.label}}" ng-model="p.collection[p.elt.id].valeur" class="form-control" type="text"/>

@@ -440,13 +440,17 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->del_form($params,$u['id']);
 		}
-		public function addFormCas($params){
+		public function addFormInstanceCas($params){
 			$u=$this->WS->getSession($this->from,'user');
-			return $this->Forms->add_form_cas($params,$u['id']);
+			return $this->Forms->add_form_instance_cas($params,$u['id']);
 		}
-		public function delFormCas($params){
+		public function delFormInstanceCas($params){
 			$u=$this->WS->getSession($this->from,'user');
-			return $this->Forms->del_form_cas($params,$u['id']);
+			return $this->Forms->del_form_instance_cas($params,$u['id']);
+		}
+		public function delFormFile($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->del_form_file($params,$u['id']);
 		}
 		public function assFormCasquettes($params){
 			$u=$this->WS->getSession($this->from,'user');

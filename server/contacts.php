@@ -79,7 +79,7 @@
 			if ($full) {
 				$cas['suivis']=(object)Suivis::get_suivis_casquette($id_cas,$id);
 				$cas['envois']=Mailing::get_envois_casquette($id_cas,$id);
-				$cas['forms']=Forms::get_forms_casquette($id_cas,$id);
+				$cas['forms']=Forms::get_form_instances_cas($id_cas,$id);
 			}
 			return $cas;
 		}
@@ -459,7 +459,7 @@
 						$valeur= "t2.id IN (SELECT id_lien FROM forms_data as tform WHERE tform.id_form=$id_form AND tform.type_lien='casquette' AND tform.id_schema='$id_schema' AND tform.valeur='".str_replace("'","''",$valeur)."')";
 						break;
 					case 'form':
-						$valeur= "t2.id IN (SELECT id_casquette FROM form_casquette as tform WHERE tform.id_form=$param)";
+						$valeur= "t2.id IN (SELECT id_lien FROM form_instances as tform WHERE tform.id_form=$param AND type_lien='casquette')";
 						break;
 					case 'clic-envoi':
 						$valeur= "t2.id IN (SELECT id_cas FROM r WHERE id_envoi=$param)";

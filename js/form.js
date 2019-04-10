@@ -64,7 +64,12 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 		return res;
 	};
 	$scope.isEqual=function(a,b){
-		return JSON.stringify(angular.copy(a), null, 4)==JSON.stringify(angular.copy(b), null, 4);
+		var diff= rfc6902.createPatch(a,b);
+		var d=[];
+		for(var i=0;i<diff.length;i++) {
+			if (diff[i].path.indexOf("$$")==-1) d.push(diff[i]);
+		}
+		return d.length==0;
 	};
 	$scope.pristine=function(key){
 		return $scope.isEqual(Data.modele[key],Data.modeleSrv[key]);
@@ -100,9 +105,7 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 			action:'public-login',
 			params: {}
 		}];
-		Link.ajax(data,function(r){
-			Link.context([{type:$scope.key},{type:$scope.formkey}],[$scope.key]);
-		});
+		Link.ajax(data);
 	});
 	$scope.$on('data-update', function(event, args) {
 		$scope.$apply();
@@ -113,32 +116,57 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 		$scope.editorOk=true;
 	});
 }]);
-app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$uibModal', 'Link', 'Data', function ($scope, $http, $location, $interval, $uibModal, Link, Data) {
-	Link.context([{type:$scope.formkey},{type:$scope.key}]);
+app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $interval, $uibModal, FileUploader, Link, Data) {
 	$scope.check=function(elt){
 		if (elt.default===undefined) elt.default='';
-		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default};
+		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
+	}
+	$scope.label=function(label){
+		var tab=label.split('|');
+		var res=tab[0].trim();
+		for (var i=1;i<tab.length;i++){
+			res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
+		}
+		return res;
 	}
 	$scope.checkAll=function(){
-		console.log('checkAll');
-		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
-			angular.forEach(p.elts,function(elt){
-				if (elt.type!='titre' && elt.type!='texte') $scope.check(elt);
+		if (Data.modele[$scope.formkey] && Data.modele[$scope.key]) {
+			console.log('checkAll',Data.modele[$scope.key]);
+			angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+				angular.forEach(p.elts,function(elt){
+					if (elt.type!='titre' && elt.type!='texte') $scope.check(elt);
+					if (elt.type=='upload') {
+						if (!$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id]) {
+							$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id] = new FileUploader({
+								url: 'upload.php',
+								autoUpload:true,
+								formData:[{hash:Data.modele[$scope.key].hash,id:elt.id},{type:'form_upload'}],
+								onCompleteAll:function(){
+									$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id].clearQueue();
+								}
+							});
+						}
+					}
+				});
 			});
-		});
-		if ($scope.contactkey=='') {
-			$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
-			Link.context([{type:$scope.formkey},{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
+			console.log('checkAll end',Data.modele[$scope.key]);
+			if ($scope.contactkey=='') {
+				$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
+				Link.context([{type:$scope.formkey},{type:$scope.key},{type:$scope.contactkey}]);
+			}
+			$scope.save();
 		}
 	};
+	$scope.delFile=function(hash,id_elt,f){
+		Link.ajax([{action:'delFormFile', params:{hash:hash,id_elt:id_elt,file:f.nom}}]);
+	};
 	$scope.save=function(){
-		$scope.checkAll();
 		Link.ajax([{action:'modFormInstance',params:{id_form:$scope.idform,id_cas:$scope.idcas,instance:Data.modele[$scope.key]}}]);
 	};
 	$scope.editorOptions = {
 		height:"200px",
 		language: 'fr',
-		skin:"moono",
+		skin:"minimalist",
 		toolbarGroups:[
 			{ name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
 			{ name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
@@ -156,4 +184,26 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$ui
 		],
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
+	$scope.isValid={};
+	$scope.testValid=function(){
+		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+			angular.forEach(p.elts,function(elt){
+				if (elt.type=='texte_long' && elt.maxLength) {
+					var StrippedString = Data.modele[$scope.key].collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
+					var tab=StrippedString.split(' ');
+					var t=tab.length<=elt.maxLength;
+					var o="Texte trop long ("+tab.length+" mots pour "+elt.maxLength+" autorisés)";
+					if (!t){
+						if($scope.isValid[elt.id]!=o) $scope.isValid[elt.id]=o;
+					} else delete($scope.isValid[elt.id]);
+				}
+			});
+		});
+	};
+	$scope.canSave=function(){
+		$scope.testValid();
+		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
+		return Object.keys($scope.isValid).length==0 && $scope.dirty($scope.key);
+	};
+	Link.context([{type:$scope.formkey},{type:$scope.key}]);
 }]);

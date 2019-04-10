@@ -458,28 +458,28 @@
 				),
 				array(
 					'type'=>'table',
-					'nom'=>'form_casquette',
+					'nom'=>'form_instances',
 					'champs'=>array(
 						array('nom'=>'id_form','type'=>'INTEGER','defaut'=>'','options'=>''),
-						array('nom'=>'id_casquette','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'id_lien','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'type_lien','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'hash','type'=>'string','defaut'=>'','options'=>''),
 					)
 				),
 				array(
 					'type'=>'unique index',
-					'nom'=>'form_casquette_idx',
-					'on'=>'form_casquette',
-					'champs'=>array('id_form', 'id_casquette')
+					'nom'=>'form_instances_idx',
+					'on'=>'form_instances',
+					'champs'=>array('hash')
 				),
 				array(
 					'type'=>'table',
 					'nom'=>'forms_data',
 					'champs'=>array(
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
-						array('nom'=>'id_form','type'=>'TEXT','defaut'=>'','options'=>''),
-						array('nom'=>'id_lien','type'=>'TEXT','defaut'=>'','options'=>''),
-						array('nom'=>'type_lien','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'hash','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'id_schema','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'type','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'valeur','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'creationdate','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'createdby','type'=>'INTEGER','defaut'=>'','options'=>''),

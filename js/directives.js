@@ -105,6 +105,11 @@ app.directive('loading', function($timeout) {
 		scope:{data:'=', loading:'=', action:'&'},
 		link: function(scope, element, attrs) {
 			var keys=scope.loading ? scope.loading.split(',') : [];
+			scope.first={};
+			angular.forEach(keys, function(k,i){
+				keys[i]=k.trim();
+				scope.first[k.trim()]=true;
+			})
 			element.children('.cache').removeClass("cache");
 			scope.wait=false;
 			scope.$watchCollection('data',function(){
@@ -112,8 +117,17 @@ app.directive('loading', function($timeout) {
 				angular.forEach(keys, function(k){
 					if(scope.data.modele[k]===undefined) scope.wait=true;
 				})
-				if (!scope.wait) scope.action();
 			})
+			angular.forEach(keys, function(k){
+				console.log(scope.loading,keys,'register','modele-update-'+k);
+				scope.$on('modele-update-'+k, function(event, data){
+					if (scope.first[k]) {
+						console.log('action');
+						scope.action();
+						scope.first[k]=false;
+					}
+				});
+			});
 		}
 	};
 });

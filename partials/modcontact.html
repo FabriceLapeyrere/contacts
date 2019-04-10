@@ -27,14 +27,14 @@
 					</span>
 					<p>{{cas.nom_cas}}  <span class="mini">#{{cas.id}}</span></p>
 					<div class="col-xs-12">
-					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'liste'}:true)" ng-show="cas.okL.length>0">
-						<span class="cursor" ng-repeat="tag in (cas.okL=(descendants(parent) | inCas:cas))" ng-include="'partials/inc/tag_liste.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'liste'}:true)" ng-show="cas.$$okL.length>0">
+						<span class="cursor" ng-repeat="tag in (cas.$$okL=(descendants(parent) | inCas:cas))" ng-include="'partials/inc/tag_liste.html'" ng-click="CasTagClick($event,tag,cas)"></span>
 					</span>
-					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'boutons'}:true)" ng-show="cas.okB.length>0">
-						<span class="cursor" ng-repeat="tag in (cas.okB=(descendants(parent) | inCas:cas | orderBy:'nom'))" ng-include="'partials/inc/tag_boutons.html'" ng-click="CasTagClick($event,tag,cas)"></span>
+					<span ng-repeat="parent in (Data.modele.tags | toArray | filter:{type:'boutons'}:true)" ng-show="cas.$$okB.length>0">
+						<span class="cursor" ng-repeat="tag in (cas.$$okB=(descendants(parent) | inCas:cas | orderBy:'nom'))" ng-include="'partials/inc/tag_boutons.html'" ng-click="CasTagClick($event,tag,cas)"></span>
 					</span>
 					</div>
-					<div class="inter col-xs-12" ng-if="cas.okL.length + cas.okB.length>0"></div>
+					<div class="inter col-xs-12" ng-if="cas.$$okL.length + cas.$$okB.length>0"></div>
 					<div class="col-xs-12 row" ui-on-Drop="dropOnCas($event,$data,$channel,cas,$ctrl)" drop-channel="swapToCas" drop-validate="dropOnCasValidate(cas, $data)">
 						<div ng-repeat-start="d in cas.donnees | notNote" class="col-sm-6" style="overflow:hidden;">
 							<div ng-if="d.type!='adresse'" ui-draggable="true" drag="{idx:cas.donnees.indexOf(d)}" drag-channel="swapToEtab">
@@ -128,7 +128,7 @@
 						<span class="label-contact">Formulaires</span>
 						<div>
 							<span ng-repeat="f in cas.forms | toArray | orderBy:'nom'">
-						        <a href="showform/{{f}}/{{cas.id}}"><span class="btn btn-primary">{{Data.modele.forms[f].nom}}
+						        <a href="showform/{{f.id_form}}/{{cas.id}}"><span class="btn btn-primary">{{Data.modele.forms[f.id_form].nom}}
 								</span></a>
 								<span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delFormCas(f,cas)" ng-confirm-message="Sûr?"></span>
 						    </span>

@@ -21,7 +21,8 @@
 					<input placeholder="Nom" ng-model="Data.modele[key].nom" class="form-control" type="text"/>
 				</p>
 				<p>
-				<label>État</label>
+					<label>État</label>
+				</p>
 				<div class="btn-group">
 			        <label class="btn btn-primary" ng-model="Data.modele[key].state" uib-btn-radio="'open'">Ouvert</label>
 			        <label class="btn btn-primary" ng-model="Data.modele[key].state" uib-btn-radio="'closed'">Fermé</label>
@@ -37,8 +38,10 @@
 						<input type="text" class="form-control" uib-datepicker-popup="dd/MM/yyyy" ng-model="Data.modele[key].to_date" ng-change="checkDates()" ng-required="true" is-open="popup2.opened" ng-click="popup2.opened=true"/>
 					</div>
 				</div>
-			    </p>
+				<p>&nbsp;</p>
+				<p>
 				<label>Descriptif</label>
+				</p>
 				<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
 				<p>&nbsp;</p>
 			</uib-tab>
@@ -51,13 +54,7 @@
 						<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delPage(p)" ng-confirm-message="Sûr?"></span>
 					</div>
 					<p style="padding-top:15px;">
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'texte_court','Texte court')"><span class="glyphicon glyphicon-plus"> </span> Texte court</span>
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'texte_long','Texte long')"><span class="glyphicon glyphicon-plus"> </span> Texte long</span>
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'date','Date')"><span class="glyphicon glyphicon-plus"> </span> Date</span>
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'multiples','Choix multiples')"><span class="glyphicon glyphicon-plus"> </span> Choix multiples</span>
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'checkbox','Case à cocher','0')"><span class="glyphicon glyphicon-plus"> </span> Case à cocher</span>
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'titre','Titre')"><span class="glyphicon glyphicon-plus"> </span> Titre</span>
-						<span class="btn btn-xs btn-default cursor" ng-click="addElt(p,'texte','Texte informatif')"><span class="glyphicon glyphicon-plus"> </span> Texte informatif</span>
+					<ng-include src="'partials/inc/formeltbtns.html'"></ng-include>
 					</p>
 					<div class="list-group">
 						<div ng-repeat="elt in p.elts" class="list-group-item pad-bottom"
@@ -75,9 +72,15 @@
 
 							</div>
 							<ng-include src="'partials/inc/formelts/'+elt.type+'.html'"></ng-include>
+							<p><span ng-if="!elt.condition" class="pull-right cursor mini" ng-click="addConditionMod(elt,p.elts)">
+								<span>ajouter une condition</span>
+							</span><span ng-if="elt.condition" class="pull-right cursor mini" ng-click="delCondition(elt)">
+								<span>Supprimer la condition ({{byId(p.elts,elt.condition.id).label}} = {{elt.condition.valeur}})</span>
+							</span></p>
 							<div class='bas-droite'><span class="mini">#{{currentIndex($index,pageIndex)}}</span></div>
 						</div>
 					</div>
+					<p><ng-include src="'partials/inc/formeltbtns.html'"></ng-include></p>
 				</div>
 			</uib-tab>
 			<uib-tab heading="Contacts">
@@ -96,6 +99,11 @@
 			</uib-tab>
 
 		<uib-tabset>
+	</div>
+	<div class="col-xs-12">
+	    <p>
+			<button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
+		</p>
 	</div>
     </locked>
 </form>

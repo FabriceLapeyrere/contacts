@@ -41,6 +41,44 @@ if ( !empty( $_FILES ) ) {
 
 		echo $json;
 	}
+	if ($type=='form_upload') {
+		$hash = $_POST[ 'hash' ];
+		$id_elt = $_POST[ 'id' ];
+		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
+		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
+
+		$uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $hash. DIRECTORY_SEPARATOR . $id_elt;
+		$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . filter($path_parts['filename']).".".$path_parts['extension'];
+		if (!file_exists($uploadDir)){
+			mkdir($uploadDir, 0777, true);
+		}
+		$i=1;
+		$path=$uploadPath;
+		while (file_exists($path)){
+			$path=$uploadPath."_copie_$i";
+			$i++;
+		}
+		if (move_uploaded_file( $tempPath, $path )) {
+			//Publipostage::touch_template($id,$my_session->user->id);
+			//WS_maj(array("template/$id"));
+			$params=new stdClass;
+			$params->hash=$hash;
+			$params->id_elt=$id_elt;
+			$params->file=$path;
+			$tab=Forms::do_add_form_file($params,$my_session->user->id);
+			WS_maj($tab['maj']);
+			$answer = array(
+				'answer' => 'File transfer completed'
+			);
+		} else {
+			$answer = array(
+				'answer' => 'Erreur...'
+			);
+		}
+		$json = json_encode( $answer );
+
+		echo $json;
+	}
 	if ($type=='news' || $type=='mail') {
 		$id = $_POST[ 'id' ];
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];

@@ -11,6 +11,6 @@
         drag="{idx:$index+1,listid:elt.id}"
         drag-channel="listorder"
         drop-validate="validate($data,elt.id)">
-        {{choix.nom}} <span class="glyphicon glyphicon-pencil cursor" style="font-size:0.7em;" ng-click="modChoixMod(choix)"></span> <span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delChoix(elt,choix)" ng-confirm-message="Sûr?"></span>
+        {{choix.nom}} ({{choix.valeur}}) <span class="glyphicon glyphicon-pencil cursor" style="font-size:0.7em;" ng-click="modChoixMod(choix)"></span> <span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delChoix(elt,choix)" ng-confirm-message="Sûr?"></span>
     </label>
 </div>

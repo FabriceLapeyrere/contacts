@@ -1,0 +1,21 @@
+<label ng-bind-html="trust(label(p.elt.label))"></label>
+<ul class="list-group">
+    <li ng-if="p.collection[p.elt.id].valeur.length==0" class="list-group-item">Aucun fichier</li>
+    <li class="list-group-item" ng-repeat="f in p.collection[p.elt.id].valeur"><a href="{{f.url}}" target="_blank">{{f.nom}}</a>
+        <button ng-confirm-click="delFile(p.hash,p.elt.id,f)" ng-confirm-message="Sûr ?" class='btn btn-default btn-xs pull-right'>x</button>
+        <div class="clearfix"></div>
+    </li>
+</ul>
+<div ng-show="uploaders[p.hash+'-'+p.elt.id].queue.length>0 && uploaders[p.hash+'-'+p.elt.id].progress<100">
+    <div>
+        <div class="progress" style="">
+            <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploaders[p.hash+'-'+p.elt.id].progress + '%' }"></div>
+        </div>
+    </div>
+</div>
+<div ng-show="uploaders[p.hash+'-'+p.elt.id].isHTML5">
+    <div class="well my-drop-zone" nv-file-over="" uploader="uploaders[p.hash+'-'+p.elt.id]" nv-file-drop="">
+        Déposer les fichiers ici
+    </div>
+</div>
+<input type="file" nv-file-select uploader="uploaders[p.hash+'-'+p.elt.id]" multiple/>
