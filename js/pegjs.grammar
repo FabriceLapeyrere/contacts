@@ -18,6 +18,8 @@ primary
 integer "integer"
   = ':tag' id:[0-9]+ { return '::tag'+id.join("")+'::'; }
   / '!:tag' id:[0-9]+ { return 'pas dans ::tag'+id.join("")+'::'; }
+  / ':tag-etab' id:[0-9]+ { return 'est associé à un établissement qui est dans ::tag'+id.join("")+'::'; }
+  / '!:tag-etab' id:[0-9]+ { return 'n\'est pas associé à un établissement qui est dans ::tag'+id.join("")+'::'; }
   / ':tag_parent' id:[0-9]+ { return 'a le tag ::tag'+id.join("")+'::'; }
   / '!:tag_parent' id:[0-9]+ { return 'n\'a pas le tag ::tag'+id.join("")+'::'; }
   / ':etab' id:[0-9]+ { return 'dans la structure '+id.join(""); }

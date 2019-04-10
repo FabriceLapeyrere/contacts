@@ -18,6 +18,8 @@ primary
 integer "integer"
   = ':tag' id:[0-9]+ { return '::tag/'+id.join("")+'::'; }
   / '!:tag' id:[0-9]+ { return 'NOT (::tag/'+id.join("")+'::)'; }
+  / ':tag-etab' id:[0-9]+ { return '::tag-etab/'+id.join("")+'::'; }
+  / '!:tag-etab' id:[0-9]+ { return 'NOT (::tag-etab/'+id.join("")+'::)'; }
   / ':tag_parent' id:[0-9]+ { return '::tag-parent/'+id.join("")+'::'; }
   / '!:tag_parent' id:[0-9]+ { return 'NOT (::tag-parent/'+id.join("")+'::)'; }
   / ':etab' id:[0-9]+ { return '::etab/'+id.join("")+'::'; }

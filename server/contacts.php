@@ -437,6 +437,10 @@
 					case 'text':
 						$valeur="t2.id IN (SELECT id from casquettes_fts WHERE idx MATCH '".str_replace("'","''",normalizeChars($param))."')";
 						break;
+					case 'tag-etab':
+						$children=Contacts::get_whole_tag($param,$tags);
+						$valeur= "t2.id_etab IN (SELECT id_cas FROM tag_cas WHERE id_tag IN (".implode(', ',$children)."))";
+						break;
 					case 'tag':
 						$children=Contacts::get_whole_tag($param,$tags);
 						$valeur= "t2.id IN (SELECT id_cas FROM tag_cas WHERE id_tag IN (".implode(', ',$children)."))";
