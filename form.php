@@ -9,7 +9,7 @@ include 'conf/session.php';
 $conf=conf();
 $hash=$_REQUEST['h'];
 $db= new DB();
-$query = "SELECT * FROM form_casquette WHERE hash='$hash'";
+$query = "SELECT * FROM form_instances WHERE hash='$hash' and type_lien='casquette'";
 foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
     $id_form=$row['id_form'];
     $id_cas=$row['id_casquette'];
@@ -64,6 +64,7 @@ if (
 </head>
 <body>
 <input type="hidden" id="ws-port" value="<?=$conf->ws_port?>"/>
+<input type="hidden" id="hash" value="<?=$hash?>"/>
 <input type="hidden" id="id-form" value="<?=$id_form?>"/>
 <input type="hidden" id="id-cas" value="<?=$id_cas?>"/>
 <div id="form-container" ng-controller="showformCtl">

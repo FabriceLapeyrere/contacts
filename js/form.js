@@ -3,7 +3,7 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 	$scope.now=new Date().getTime();
 	$scope.idform=document.getElementById("id-form").value;
 	$scope.idcas=document.getElementById("id-cas").value;
-	$scope.key="form_instance/"+$scope.idform+"/"+$scope.idcas;
+	$scope.hash=document.getElementById("hash").value;
 	$scope.formkey="form/"+$scope.idform;
 	$scope.contactkey="";
 	Data.accept_anonymous=true;
@@ -117,10 +117,8 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 	});
 }]);
 app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $interval, $uibModal, FileUploader, Link, Data) {
-	$scope.check=function(elt){
-		if (elt.default===undefined) elt.default='';
-		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
-	}
+	$scope.key='form_instance/'+$scope.hash;
+	$scope.contactkey= Data.modele[$scope.key] ? 'contact/'+Data.modele[$scope.key].id_contact : '';
 	$scope.label=function(label){
 		var tab=label.split('|');
 		var res=tab[0].trim();
@@ -129,39 +127,41 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$ui
 		}
 		return res;
 	}
+	$scope.check=function(hash,elt){
+		if (elt.default===undefined) elt.default='';
+		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
+	}
 	$scope.checkAll=function(){
-		if (Data.modele[$scope.formkey] && Data.modele[$scope.key]) {
-			console.log('checkAll',Data.modele[$scope.key]);
-			angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
-				angular.forEach(p.elts,function(elt){
-					if (elt.type!='titre' && elt.type!='texte') $scope.check(elt);
-					if (elt.type=='upload') {
-						if (!$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id]) {
-							$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id] = new FileUploader({
-								url: 'upload.php',
-								autoUpload:true,
-								formData:[{hash:Data.modele[$scope.key].hash,id:elt.id},{type:'form_upload'}],
-								onCompleteAll:function(){
-									$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id].clearQueue();
-								}
-							});
-						}
+		console.log('checkAll',Data.modele[$scope.key]);
+		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
+			angular.forEach(p.elts,function(elt){
+				if (elt.type!='titre' && elt.type!='texte') $scope.check(Data.modele[$scope.key].hash,elt);
+				if (elt.type=='upload') {
+					if (!$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id]) {
+						$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id] = new FileUploader({
+							url: 'upload.php',
+							autoUpload:true,
+							formData:[{hash:Data.modele[$scope.key].hash,id:elt.id},{type:'form_upload'}],
+							onCompleteAll:function(){
+								$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id].clearQueue();
+							}
+						});
 					}
-				});
+				}
 			});
-			console.log('checkAll end',Data.modele[$scope.key]);
-			if ($scope.contactkey=='') {
-				$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
-				Link.context([{type:$scope.formkey},{type:$scope.key},{type:$scope.contactkey}]);
-			}
-			$scope.save();
+		});
+		console.log('checkAll end',Data.modele[$scope.key]);
+		if ($scope.contactkey=='') {
+			$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
+			Link.context([{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
 		}
+		$scope.save();
 	};
 	$scope.delFile=function(hash,id_elt,f){
 		Link.ajax([{action:'delFormFile', params:{hash:hash,id_elt:id_elt,file:f.nom}}]);
 	};
 	$scope.save=function(){
-		Link.ajax([{action:'modFormInstance',params:{id_form:$scope.idform,id_cas:$scope.idcas,instance:Data.modele[$scope.key]}}]);
+		Link.ajax([{action:'modFormInstance',params:{instance:Data.modele[$scope.key]}}]);
 	};
 	$scope.editorOptions = {
 		height:"200px",
@@ -186,7 +186,7 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$ui
 	};
 	$scope.isValid={};
 	$scope.testValid=function(){
-		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
 			angular.forEach(p.elts,function(elt){
 				if (elt.type=='texte_long' && elt.maxLength) {
 					var StrippedString = Data.modele[$scope.key].collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");

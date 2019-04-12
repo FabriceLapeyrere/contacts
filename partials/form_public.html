@@ -1,5 +1,6 @@
 <div class="col-xs-12 col-md-8 col-md-offset-2" loading="key+', '+formkey" data="Data" action="checkAll()">
-     <div ng-if="c=(Data.modele[key].hash && ( Data.modele[formkey].state=='open' || Data.modele[formkey].state=='scheduled' && Data.modele[formkey].from_date<now && Data.modele[formkey].to_date>now))">
+    <div ng-init="instance=Data.modele[key];"></div>
+	<div ng-if="c=(instance.hash && ( Data.modele[formkey].state=='open' || Data.modele[formkey].state=='scheduled' && Data.modele[formkey].from_date<now && Data.modele[formkey].to_date>now))">
         <div loading="contactkey" data="Data">
             <p>&nbsp;</p>
             <p><strong>{{Data.modele[formkey].nom}}</strong>
@@ -21,8 +22,8 @@
                     <div>
                         <p>&nbsp;</p>
                         <div class="list-group" >
-                            <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || Data.modele[key].collection[elt.condition.id].valeur==elt.condition.valeur">
-                                <ng-include ng-init="p={elt:elt,collection:Data.modele[key].collection,hash:Data.modele[key].hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
+                            <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur==elt.condition.valeur">
+                                <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
                             </div>
                         </div>
                     </div>
@@ -31,8 +32,8 @@
         </div>
         <div ng-if="Data.modele[formkey].schema.pages.length==1">
             <div class="list-group" ng-repeat="page in Data.modele[formkey].schema.pages">
-                <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || Data.modele[key].collection[elt.condition.id].valeur==elt.condition.valeur">
-                    <ng-include ng-init="p={elt:elt,collection:Data.modele[key].collection,hash:Data.modele[key].hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
+                <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur==elt.condition.valeur">
+                    <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
                 </div>
             </div>
         </div>
