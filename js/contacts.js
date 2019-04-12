@@ -2012,11 +2012,13 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 	$scope.drop = function(e,s,d,c){
 		if (c=="order") {
 			var src=angular.copy(Data.modele[$scope.key].blocs[s-1]);
-			Data.modele[$scope.key].blocs.splice(d,0,src);
-			if (s-1>d)
+			if (s-1>d) {
+				Data.modele[$scope.key].blocs.splice(d,0,src);
 				Data.modele[$scope.key].blocs.splice(s,1);
-			else
+			} else {
+				Data.modele[$scope.key].blocs.splice(d+1,0,src);
 				Data.modele[$scope.key].blocs.splice(s-1,1)
+			}
 			$scope.save();
 		}
 		if (c=="bloc") {
@@ -3303,12 +3305,13 @@ app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bl
 	};
 	$scope.drop = function(e,s,d,c,list){
 		if (c=="listorder") {
-			console.log(s.idx,d);
-			list.splice(d,0,angular.copy(list[s.idx-1]));
-			if (s.idx-1>d)
+			if (s.idx-1<d) {
+				list.splice(d+1,0,angular.copy(list[s.idx-1]));
+				list.splice(s.idx-1,1);
+			} else {
+				list.splice(d,0,angular.copy(list[s.idx-1]));
 				list.splice(s.idx,1);
-			else
-				list.splice(s.idx-1,1)
+			}
 		}
 	};
 	$scope.validate=function(a,b,c){
