@@ -1,55 +1,47 @@
 <div loading="key" data="Data" action="checkAll()">
-	<div ng-init="instances=(Data.modele[key].instances | toArray)"></div>
-	<div class="col-xs-12" ng-if="instances.length==0">
+	<div ng-init="instance=Data.modele[key];"></div>
+	<div class="col-xs-12" ng-if="!instance.hash">
 		Ce formulaire n'existe pas.
 	</div>
-	<div ng-if="instances.length>0" class="col-xs-12 col-sm-6">
-        <uib-tabset>
-            <uib-tab ng-repeat="instance in instances">
-		        <uib-tab-heading>
-                    Instance {{$index+1}}
+	<div ng-if="instance.hash" class="col-xs-12 col-sm-6">
+        <div>
+        	<p>&nbsp;</p>
+            <p>
+                <button class="btn btn-primary" ng-click="save()" ng-disabled="ko=!canSave()">Enregistrer</button>
+            </p>
+            <p>
+                URL : {{Data.modele.config.config.app.url.value}}/form.php?h={{instance.hash}}
+            </p>
+        </div>
+    	<uib-tabset>
+            <uib-tab ng-repeat="page in instance.form.schema.pages">
+                <uib-tab-heading>
+                    Page {{$index+1}}
                 </uib-tab-heading>
                 <div>
-		        	<p>&nbsp;</p>
-                    <p>
-		                <button class="btn btn-primary" ng-click="save(instance)" ng-disabled="ko=!canSave(instance)">Enregistrer</button>
-		            </p>
-		            <p>
-		                URL : {{Data.modele.config.config.app.url.value}}/form.php?h={{instance.hash}}
-		            </p>
-		        </div>
-		    	<uib-tabset>
-		            <uib-tab ng-repeat="page in Data.modele[formkey].schema.pages">
-		                <uib-tab-heading>
-		                    Page {{$index+1}}
-		                </uib-tab-heading>
-		                <div>
-		                    <p>&nbsp;</p>
-		                    <div class="list-group">
-		                        <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur==elt.condition.valeur">
-		                            <span class="mini" ng-if="instance.collection[elt.id].modificationdate">({{calendar(instance.collection[elt.id].modificationdate)}} par {{Data.modele.usersall[instance.collection[elt.id].modifiedby].name}})<br /></span>
-		                            <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
-		                        </div>
-		                    </div>
-		                </div>
-		            </uib-tab>
-		        </uib-tabset>
-				<div>
-		            <p>
-		                <button class="btn btn-primary" ng-click="save(instance)" ng-disabled="ko=!canSave(instance)">Enregistrer</button>
-		            </p>
-		        </div>
-    		</uib-tab>
+                    <p>&nbsp;</p>
+                    <div class="list-group">
+                        <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur==elt.condition.valeur">
+                            <span class="mini" ng-if="instance.collection[elt.id].modificationdate">({{calendar(instance.collection[elt.id].modificationdate)}} par {{Data.modele.usersall[instance.collection[elt.id].modifiedby].name}})<br /></span>
+                            <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
+                        </div>
+                    </div>
+                </div>
+            </uib-tab>
         </uib-tabset>
-
+		<div>
+            <p>
+                <button class="btn btn-primary" ng-click="save()" ng-disabled="ko=!canSave()">Enregistrer</button>
+            </p>
+        </div>
     </div>
-    <div ng-if="instances.length>0" class="col-xs-12 col-sm-6">
+    <div ng-if="instance.hash && instance.type_lien=='casquette'" class="col-xs-12 col-sm-6">
         <div loading="formkey" data="Data">
-            <h3>Formulaire : <a href="modform/{{Data.modele[formkey].id}}">{{Data.modele[formkey].nom}}</a></h3>
+            <h3>Formulaire : <a href="modform/{{instance.form.id}}">{{instance.form.nom}}</a></h3>
         </div>
         <div loading="contactkey" data="Data">
-            <h3 class="cursor" ng-class="{'individu':Data.modele[contactkey].casquettes[idcas].type==1, 'structure':Data.modele[contactkey].casquettes[idcas].type==2}"><a href="modcontact/{{Data.modele[contactkey].casquettes[idcas].id_contact}}">{{Data.modele[contactkey].casquettes[idcas].prenom}} {{Data.modele[contactkey].casquettes[idcas].nom}}</a></h3>
-            <div ng-repeat="cas in [Data.modele[contactkey].casquettes[idcas]]" ng-include="'partials/inc/casquetteInfos.html'"></div>
+            <h3 class="cursor" ng-class="{'individu':Data.modele[contactkey].casquettes[instance.id_lien].type==1, 'structure':Data.modele[contactkey].casquettes[instance.id_lien].type==2}"><a href="modcontact/{{Data.modele[contactkey].casquettes[instance.id_lien].id_contact}}">{{Data.modele[contactkey].casquettes[instance.id_lien].prenom}} {{Data.modele[contactkey].casquettes[instance.id_lien].nom}}</a></h3>
+            <div ng-init="cas=Data.modele[contactkey].casquettes[instance.id_lien]" ng-include="'partials/inc/casquetteInfos.html'"></div>
         </div>
     </div>
 </div>

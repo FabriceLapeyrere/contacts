@@ -19,7 +19,7 @@ app.config(['$routeProvider', function($routeProvider) {
 	//forms
 	$routeProvider.when('/modform/:id', {templateUrl: 'partials/modform.html', controller: 'modformCtl'});
 	$routeProvider.when('/forms', {templateUrl: 'partials/forms.html', controller: 'formsCtl'});
-	$routeProvider.when('/showform/:idform/:idcas', {templateUrl: 'partials/showform.html', controller: 'showformCtl'});
+	$routeProvider.when('/showform/:hash', {templateUrl: 'partials/showform.html', controller: 'showformCtl'});
 	$routeProvider.when('/fillform/:idform/:idcas', {templateUrl: 'partials/fillform.html', controller: 'fillformCtl'});
 	//mailing
 	$routeProvider.when('/modmail/:id', {templateUrl: 'partials/modmail.html', controller: 'modmailCtl'});
@@ -2295,7 +2295,7 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 		pageTout=Data.pageForms[$routeParams.id].tout;
 		pageEncours=Data.pageForms[$routeParams.id].encours;
 		pageOk=Data.pageForms[$routeParams.id].ok;
-		Link.context([{type:$scope.key},{type:'form_casquettes/'+$routeParams.id, params:{pageTout:pageTout, pageEncours:pageEncours, pageOk:pageOk, nb:$scope.itemsParPage}}]);
+		Link.context([{type:$scope.key},{type:'form_instances_form/'+$routeParams.id, params:{pageTout:pageTout, pageEncours:pageEncours, pageOk:pageOk, nb:$scope.itemsParPage}}]);
 	};
 	$scope.$watch('Data.pageForms["'+$routeParams.id+'"].tout',function(n,o){
 		if (n!=o) {
@@ -2485,12 +2485,10 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 	$scope.getPage(1);
 }]);
 app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
-	$scope.idform=$routeParams.idform;
-	$scope.idcas=$routeParams.idcas;
-	$scope.formkey='form/'+$scope.idform;
-	$scope.key='form_instances_cas_form/'+$scope.idform+'/'+$scope.idcas;
+	$scope.hash=$routeParams.hash;
+	$scope.key='form_instance/'+$scope.hash;
 	$scope.contactkey= Data.modele[$scope.key] ? 'contact/'+Data.modele[$scope.key].id_contact : '';
-	Link.context([{type:$scope.formkey},{type:$scope.key}]);
+	Link.context([{type:$scope.key}]);
 	$scope.label=function(label){
 		var tab=label.split('|');
 		var res=tab[0].trim();
@@ -2501,44 +2499,39 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 	}
 	$scope.check=function(hash,elt){
 		if (elt.default===undefined) elt.default='';
-		if (!Data.modele[$scope.key].instances[hash].collection[elt.id]) Data.modele[$scope.key].instances[hash].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
+		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
 	}
 	$scope.checkAll=function(){
 		console.log('checkAll',Data.modele[$scope.key]);
-		angular.forEach(Data.modele[$scope.key].instances,function(instance){
-			angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
-				angular.forEach(p.elts,function(elt){
-					if (elt.type!='titre' && elt.type!='texte') $scope.check(instance.hash,elt);
-					if (elt.type=='upload') {
-						if (!$scope.uploaders[instance.hash+'-'+elt.id]) {
-							$scope.uploaders[instance.hash+'-'+elt.id] = new FileUploader({
-								url: 'upload.php',
-								autoUpload:true,
-								formData:[{hash:instance.hash,id:elt.id},{type:'form_upload'}],
-								onCompleteAll:function(){
-									$scope.uploaders[instance.hash+'-'+elt.id].clearQueue();
-								}
-							});
-						}
+		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
+			angular.forEach(p.elts,function(elt){
+				if (elt.type!='titre' && elt.type!='texte') $scope.check(Data.modele[$scope.key].hash,elt);
+				if (elt.type=='upload') {
+					if (!$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id]) {
+						$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id] = new FileUploader({
+							url: 'upload.php',
+							autoUpload:true,
+							formData:[{hash:Data.modele[$scope.key].hash,id:elt.id},{type:'form_upload'}],
+							onCompleteAll:function(){
+								$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id].clearQueue();
+							}
+						});
 					}
-				});
+				}
 			});
 		});
 		console.log('checkAll end',Data.modele[$scope.key]);
 		if ($scope.contactkey=='') {
 			$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
-			Link.context([{type:$scope.formkey},{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
+			Link.context([{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
 		}
-
-		angular.forEach(Data.modele[$scope.key].instances,function(instance){
-			$scope.save(instance);
-		});
+		$scope.save();
 	};
 	$scope.delFile=function(hash,id_elt,f){
 		Link.ajax([{action:'delFormFile', params:{hash:hash,id_elt:id_elt,file:f.nom}}]);
 	};
-	$scope.save=function(instance){
-		Link.ajax([{action:'modFormInstance',params:{instance:instance}}]);
+	$scope.save=function(){
+		Link.ajax([{action:'modFormInstance',params:{instance:Data.modele[$scope.key]}}]);
 	};
 	$scope.editorOptions = {
 		height:"200px",
@@ -2562,11 +2555,11 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
 	$scope.isValid={};
-	$scope.testValid=function(instance){
-		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+	$scope.testValid=function(){
+		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
 			angular.forEach(p.elts,function(elt){
 				if (elt.type=='texte_long' && elt.maxLength) {
-					var StrippedString = instance.collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
+					var StrippedString = Data.modele[$scope.key].collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
 					var tab=StrippedString.split(' ');
 					var t=tab.length<=elt.maxLength;
 					var o="Texte trop long ("+tab.length+" mots pour "+elt.maxLength+" autorisés)";
@@ -2577,10 +2570,10 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 			});
 		});
 	};
-	$scope.canSave=function(instance){
-		$scope.testValid(instance);
+	$scope.canSave=function(){
+		$scope.testValid();
 		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
-		return Object.keys($scope.isValid).length==0 && !$scope.isEqual(Data.modeleSrv[$scope.key].instances[instance.hash],instance);
+		return Object.keys($scope.isValid).length==0 && $scope.dirty($scope.key);
 	};
 }]);
 //supports

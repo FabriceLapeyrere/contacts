@@ -32,7 +32,7 @@
 		}
 		public static function get_form_instance($hash,$id) {
 			$db= new DB();
-			$query = "SELECT t1.hash as main_hash, t1.id_form as main_id_form, t1.id_lien as main_id_lien, t1.type_lien as main_type_lien, t2.* FROM form_instances as t1 left join forms_data as t2 on t1.hash=t2.hash where t1.hash='$hash'";
+			$query = "SELECT t1.hash as main_hash, t1.id_form as main_id_form, t1.id_lien as main_id_lien, t1.type_lien as main_type_lien, t2.*, t3.id_contact as id_contact FROM form_instances as t1 left join forms_data as t2 on t1.hash=t2.hash left join casquettes as t3 on t1.type_lien='casquette' AND t1.id_lien=t3.id where t1.hash='$hash'";
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$res=array('collection'=>array());
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
@@ -44,26 +44,10 @@
 				$res['id_form']=$row['main_id_form'];
 				$res['id_lien']=$row['main_id_lien'];
 				$res['type_lien']=$row['main_type_lien'];
-			};
-			$res['collection']=(object)$res['collection'];
-			return $res;
-		}
-		public static function get_form_instances_cas_form($id_form,$id_cas,$id) {
-			$db= new DB();
-			$query = "SELECT t1.hash as main_hash, t2.id_contact, t3.* FROM form_instances as t1 inner join casquettes as t2 on t1.id_lien=t2.id left join forms_data as t3 on t1.hash=t3.hash where t1.id_form=$id_form AND t1.type_lien='casquette' AND t1.id_lien=$id_cas";
-			$finfo = finfo_open(FILEINFO_MIME_TYPE);
-			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				if (!isset($res['instances'][$row['main_hash']])) $res['instances'][$row['main_hash']]=array('collection'=>array());
-				if ($row['type']!=''){
-					 if ($row['type']=='upload') $row['valeur']=json_decode($row['valeur']);
-					 $res['instances'][$row['main_hash']]['collection'][$row['id_schema']]=$row;
-				}
-				$res['instances'][$row['main_hash']]['hash']=$row['main_hash'];
 				$res['id_contact']=$row['id_contact'];
 			};
-			foreach ($res['instances'] as $key => $value) {
-				$res['instances'][$key]['collection']=(object)$res['instances'][$key]['collection'];
-			}
+			$res['collection']=(object)$res['collection'];
+			$res['form']=Forms::get_form($res['id_form']);
 			return $res;
 		}
 		public function mod_form_instance($params,$id) {
@@ -121,7 +105,7 @@
 			}
 			$db->database->commit();
 			$maj=array("casquettes");
-			if ($db_instance['type_lien']=='casquette') $maj[]="form_instances_cas_form/".$db_instance['id_form']."/".$db_instance['id_lien'];
+			$maj[]="form_instance/".$params->instance->hash;
 			return array('maj'=>$maj,'res'=>1);
 		}
 		public static function do_add_form_file($params,$id) {
@@ -158,7 +142,7 @@
 				);
 			}
 			$maj=array("casquettes");
-			if ($res['type_lien']=='casquette') $maj[]="form_instances_cas/".$res['id_form']."/".$res['id_cas'];
+			$maj[]="form_instance/".$params->instance->hash;
 			return array('maj'=>$maj,'res'=>1);
 		}
 		public function del_form_file($params,$id) {
@@ -215,6 +199,29 @@
 				$forms[]=$row;
 			}
 			return $forms;
+		}
+		public static function get_form_instances_form($id_form, $params, $id) {
+			$db= new DB();
+			$page=$params->pageTout;
+			$first=($params->pageTout-1)*$params->nb;
+			$nb=$params->nb;
+			$query = "SELECT count(*) as nb FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC;";
+			$total=0;
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$total=$row['nb'];
+			}
+			$query = "SELECT t1.id_form, t1.hash, t1.type_lien, t1.id_lien, t3.nom, t3.prenom, t3.type FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC LIMIT $first, $nb;";
+			$forms=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$forms[]=$row;
+			}
+			$res=array('collection'=>$forms,'total'=>$total);
+			return array(
+				'params'=>$params,
+				'tout'=>$res,
+				'encours'=>$res,
+				'ok'=>$res
+			);
 		}
 		public function add_form($params,$id) {
 			$t=Forms::do_add_form($params,$id);
