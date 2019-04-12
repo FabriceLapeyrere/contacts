@@ -5,10 +5,11 @@
     <button class="btn btn-warning" ng-click="cancel()">Annuler</button>
 </div>
 <div class="modal-body">
-    <div ng-repeat="donnee in bloc.donnees">
+    <div ng-repeat="donnee in bloc.donnees" class="col-xs-12" ng-style="{width: widthDonnee(donnee)}">
         <ng-include ng-if="donnee.type!='liste'" src="'partials/inc/mod_bloc_form.html'"></ng-include>
         <div ng-if="donnee.type=='liste'" ng-include="'partials/inc/mod_bloc_liste.html'"></div>
     </div>
+    <div class="clearfix"></div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="ok()">Enregistrer</button>

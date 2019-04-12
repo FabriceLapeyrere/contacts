@@ -1,4 +1,5 @@
-<label>{{donnee.label}}</label><input ng-if="donnee.type == 'text' " class="form-control autoFocus" type="text" ng-model="donnee.valeur"/>
+<label>{{donnee.label}}</label>
+<input ng-if="donnee.type == 'text' " class="form-control autoFocus" type="text" ng-model="donnee.valeur"/>
 <input ng-if="donnee.type == 'nb' " class="form-control autoFocus" type="number" ng-model="donnee.valeur"/>
 <input ng-if="donnee.type == 'couleur' " class="form-control autoFocus" type="color" ng-model="donnee.valeur"/>
 <input ng-if="donnee.type == 'texte_court'" class="form-control autoFocus" type="texte" ng-model="donnee.valeur"/>

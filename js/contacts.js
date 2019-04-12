@@ -3668,6 +3668,10 @@ app.controller('modBlocModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'bl
 		],
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
+	$scope.widthDonnee=function(d){
+		if (d.type=='texte_court' &&  d.tab[3]) return d.tab[3]+'%';
+		else return '100%';
+	}
 	$scope.addSchema=function(d){
 		var s=angular.copy(d.schema);
 		d.valeur.push(s);

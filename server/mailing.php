@@ -305,11 +305,13 @@
 				$d->type=$tab[0];
 				$d->valeur=null;
 				$d->label=$tab[1];
+				$d->tab=$tab;
 				$d->code=$code;
 				$donnees_modele[]=$d;
 				foreach($donnees as $k=>$donnee){
 					if (isset($donnee->nom) && $donnee->nom==$nom && $donnee->type==$type) {
 						$donnees[$k]->code=$code;
+						$donnees[$k]->tab=$tab;
 						$valeur=$donnee->valeur;
 						$index=$k;
 					}
