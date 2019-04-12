@@ -29,7 +29,6 @@
 				<div class="yui3-cssreset yui3-cssbase bloc-item" ng-dblclick="modBlocMod(bloc)" ng-class="{'minis':mini.bool}" ng-bind-html="trust(bloc.html)"></div>
 				</locked>
 			</div>
-			<div class="news-last" ui-on-Drop="drop($event,$data,Data.modele[key].blocs.length,$channel)" drop-channel="bloc,order"></div>
 		</div>
 	</div>
 	<div class="col-xs-12 col-md-4 col-lg-3 hidden-xs hidden-sm fixed">
@@ -70,7 +69,7 @@
 							</div>
 						</div>
 					</div>
-		
+
 			<div ng-show="uploaders[key].isHTML5">
 				<div class="well my-drop-zone" nv-file-over="" uploader="uploaders[key]" nv-file-drop="">
 					Déposer les fichiers ici
