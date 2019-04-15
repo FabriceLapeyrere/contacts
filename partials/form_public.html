@@ -1,28 +1,30 @@
-<div class="col-xs-12 col-md-8 col-md-offset-2" loading="key+', '+formkey" data="Data" action="checkAll()">
-    <div ng-init="instance=Data.modele[key];"></div>
-	<div ng-if="c=(instance.hash && ( Data.modele[formkey].state=='open' || Data.modele[formkey].state=='scheduled' && Data.modele[formkey].from_date<now && Data.modele[formkey].to_date>now))">
-        <div loading="contactkey" data="Data">
+<div class="col-xs-12 col-md-8 col-md-offset-2" loading="key+', '+formkey" data="Data" action="checkAll();instance=Data.modele[key];form=Data.modele[formkey];">
+    <div ng-if="c=(instance.hash && ( form.state=='open' || form.state=='scheduled' && form.from_date<now && form.to_date>now))">
+        <div>
             <p>&nbsp;</p>
-            <p><strong>{{Data.modele[formkey].nom}}</strong>
-            (<span class="cursor">{{Data.modele[contactkey].casquettes[idcas].prenom}} {{Data.modele[contactkey].casquettes[idcas].nom}}</span>)</p>
+            <p>
+                <strong>{{form.nom}}</strong>
+                (<span class="cursor">{{prenom}} {{nom}}</span>)
+                <a href="{{Data.modele.config.config.app.url.value}}/form/{{hash}}" ng-repeat-start="hash in autresinstances">{{Data.modele['form_instance/'+hash].collection[form.schema.champ_titre].valeur}}</a><span ng-repeat-end>&nbsp;&nbsp;&nbsp;</span>
+            </p>
             <hr />
         </div>
-        <div ng-bind-html="trust(Data.modele[formkey].schema.descriptif)"></div>
+        <div ng-bind-html="trust(form.schema.descriptif)"></div>
         <div>
             <p>
                 <button class="btn btn-primary" ng-click="save()" ng-disabled="ko=!canSave()">Enregistrer</button>
             </p>
         </div>
-        <div ng-if="Data.modele[formkey].schema.pages.length>1">
+        <div ng-if="form.schema.pages.length>1">
             <uib-tabset>
-                <uib-tab ng-repeat="page in Data.modele[formkey].schema.pages">
+                <uib-tab ng-repeat="page in form.schema.pages">
                     <uib-tab-heading>
                         Page {{$index+1}}
                     </uib-tab-heading>
                     <div>
                         <p>&nbsp;</p>
                         <div class="list-group" >
-                            <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur==elt.condition.valeur">
+                            <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur.split(',').indexOf(elt.condition.valeur)>=0">
                                 <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
                             </div>
                         </div>
@@ -30,9 +32,9 @@
                 </uib-tab>
             <uib-tabset>
         </div>
-        <div ng-if="Data.modele[formkey].schema.pages.length==1">
-            <div class="list-group" ng-repeat="page in Data.modele[formkey].schema.pages">
-                <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur==elt.condition.valeur">
+        <div ng-if="form.schema.pages.length==1">
+            <div class="list-group" ng-repeat="page in form.schema.pages">
+                <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur.split(',').indexOf(elt.condition.valeur)>=0">
                     <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
                 </div>
             </div>

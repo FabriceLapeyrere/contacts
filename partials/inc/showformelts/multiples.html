@@ -1,5 +1,5 @@
 <label ng-bind-html="trust(label(p.elt.label))"></label>
 <div>
     <label class="btn  btn-margin"
-        ng-repeat="choix in p.elt.choix" ng-class="{'btn-default':choix.valeur!=p.collection[p.elt.id].valeur,'btn-primary':choix.valeur==p.collection[p.elt.id].valeur}" ng-click="p.collection[p.elt.id].valeur=choix.valeur;" ng-bind-html="trust(label(choix.nom))"></label>
+        ng-repeat="choix in p.elt.choix" ng-class="{'btn-default':p.collection[p.elt.id].valeur.split(',').indexOf(choix.valeur)<0,'btn-primary':p.collection[p.elt.id].valeur.split(',').indexOf(choix.valeur)>=0}" ng-click="setMultiple(p,choix)" ng-bind-html="trust(label(choix.nom))"></label>
 </div>

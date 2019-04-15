@@ -44,6 +44,9 @@
 				</p>
 				<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
 				<p>&nbsp;</p>
+				<label>Champ titre</label>
+				<select class="form-control" ng-options="e.id as e.label for e in Data.modele[key].schema.pages[0].elts | filter:{type:'texte_court'}" ng-model="Data.modele[key].schema.champ_titre"></select>
+				<p>&nbsp;</p>
 			</uib-tab>
 			<uib-tab ng-repeat="p in Data.modele[key].schema.pages" ng-init="pageIndex=$index">
 				<uib-tab-heading>

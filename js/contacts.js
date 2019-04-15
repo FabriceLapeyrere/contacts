@@ -2391,6 +2391,9 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 				},
 				id: function () {
 					return elt.id;
+				},
+				trust: function () {
+					return $scope.trust;
 				}
 			}
 		});
@@ -3730,7 +3733,8 @@ app.controller('addChoixModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'c
 		$uibModalInstance.dismiss();
 	};
 }]);
-app.controller('addConditionModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'elts', 'id', function ($scope, $uibModalInstance, $uibModal, elts, id) {
+app.controller('addConditionModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'elts', 'id', 'trust', function ($scope, $uibModalInstance, $uibModal, elts, id, trust) {
+	$scope.trust=trust;
 	$scope.elts=[];
 	$scope.p={elt:{},collection:{},hash:''};
 	elts.forEach(function(e){
@@ -3743,6 +3747,18 @@ app.controller('addConditionModCtl', ['$scope', '$uibModalInstance', '$uibModal'
 	});
 	$scope.p.elt=$scope.elts[0];
 	$scope.frm={};
+	$scope.setMultiple=function(p,choix){
+		if (p.collection[p.elt.id].valeur!=choix.valeur) p.collection[p.elt.id].valeur=choix.valeur;
+		else p.collection[p.elt.id].valeur='';
+	}
+	$scope.label=function(label){
+		var tab=label.split('|');
+		var res=tab[0].trim();
+		for (var i=1;i<tab.length;i++){
+			res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
+		}
+		return res;
+	}
 	$scope.ok = function () {
 		if ($scope.frm.addCondition.$valid){
 			$uibModalInstance.close($scope.p);

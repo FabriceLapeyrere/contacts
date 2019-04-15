@@ -12,11 +12,21 @@ $db= new DB();
 $query = "SELECT * FROM form_instances WHERE hash='$hash' and type_lien='casquette'";
 foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
     $id_form=$row['id_form'];
-    $id_cas=$row['id_casquette'];
+    $id_cas=$row['id_lien'];
+}
+$autres_instances=array();
+$query = "SELECT hash FROM form_instances WHERE id_form=$id_form and type_lien='casquette' and id_lien=$id_cas";
+foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+    $autres_instances[]=$row['hash'];
 }
 $query = "SELECT * FROM forms WHERE id=$id_form";
 foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
     $form=$row;
+}
+$contact=array();
+$query = "SELECT id, nom, prenom FROM contacts WHERE id=(SELECT id_contact FROM casquettes WHERE id=$id_cas)";
+foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+    $contact=$row;
 }
 $t=millisecondes();
 if (
@@ -67,9 +77,11 @@ if (
 <input type="hidden" id="hash" value="<?=$hash?>"/>
 <input type="hidden" id="id-form" value="<?=$id_form?>"/>
 <input type="hidden" id="id-cas" value="<?=$id_cas?>"/>
-<div id="form-container" ng-controller="showformCtl">
-    <ng-include src="'partials/form_public.html'"></ng-include>
-</div>
+<input type="hidden" id="id-contact" value="<?=$contact['id']?>"/>
+<input type="hidden" id="nom" value="<?=$contact['nom']?>"/>
+<input type="hidden" id="prenom" value="<?=$contact['prenom']?>"/>
+<input type="hidden" id="autres-instances" value="<?=implode(',',$autres_instances)?>"/>
+<div id="form-container" ng-view></div>
 <div class='app-loader-container'><span ng-class="{'ok':uploading()}" class="glyphicon glyphicon-upload"></span> <span ng-class="{'ok':!Data.modeleFresh || !isAnswer()}" class="glyphicon glyphicon-refresh"></span></div>
 <div id="main-lock" ng-if="Data.offline">Connection en cours...</div>
 <script src="lib/rfc6902.min.js"></script>

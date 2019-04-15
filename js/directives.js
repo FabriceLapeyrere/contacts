@@ -118,15 +118,31 @@ app.directive('loading', function($timeout) {
 					if(scope.data.modele[k]===undefined) scope.wait=true;
 				})
 			})
+			scope.testAction=function(k){
+				var test=false;
+				if (scope.first[k]) {
+					var test=true;
+					angular.forEach(keys, function(k){
+						if(scope.data.modele[k]===undefined) test=false;
+					});
+				}
+				return test;
+			}
 			angular.forEach(keys, function(k){
-				console.log(scope.loading,keys,'register','modele-update-'+k);
-				scope.$on('modele-update-'+k, function(event, data){
-					if (scope.first[k]) {
-						console.log('action');
-						scope.action();
-						scope.first[k]=false;
-					}
-				});
+				if (scope.testAction(k)) {
+					console.log('action');
+					scope.action();
+					scope.first[k]=false;
+				} else {
+					console.log(scope.loading,scope.first[k],keys,'register','modele-update-'+k);
+					scope.$on('modele-update-'+k, function(event, data){
+						if (scope.testAction(k)) {
+							console.log('action');
+							scope.action();
+							scope.first[k]=false;
+						}
+					});
+				}
 			});
 		}
 	};

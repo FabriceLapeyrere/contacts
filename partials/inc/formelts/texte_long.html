@@ -1,4 +1,6 @@
 <label>Label</label>
 <input placeholder="Label" ng-model="elt.label" class="form-control" type="text"/>
 <label>Longueur maximale</label>
-<input placeholder="Longeur maximale" ng-model="elt.maxLength" class="form-control" type="number"/>
+<input ng-model="elt.maxLength" class="form-control" type="number" ng-init="elt.maxLength = elt.maxLength || 1000"/>
+<label>Hauteur de la zone de texte</label>
+<input ng-model="elt.height" class="form-control" type="number" ng-init="elt.height = elt.height || 150"/>

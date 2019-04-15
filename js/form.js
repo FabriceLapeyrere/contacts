@@ -1,11 +1,20 @@
-var app= angular.module('form', ['ui.bootstrap', 'angularFileUpload','ngSanitize','ng.ckeditor','fakeWs']);
+var app= angular.module('form', ['ngRoute','ui.bootstrap', 'angularFileUpload','ngSanitize','ng.ckeditor','fakeWs']);
+app.config(['$routeProvider', function($routeProvider) {
+	angular.lowercase = angular.$$lowercase;
+	$routeProvider.when('/form/:hash', {templateUrl: 'partials/form_public.html', controller: 'showformCtl'});
+	$routeProvider.otherwise({redirectTo: '/form'});
+}]);
+app.config(['$locationProvider', function($locationProvider) {
+	$locationProvider.html5Mode(true);
+}]);
 app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce', 'Link', 'Data', function ($scope, $location, $timeout, $interval, $sce, Link, Data) {
 	$scope.now=new Date().getTime();
 	$scope.idform=document.getElementById("id-form").value;
-	$scope.idcas=document.getElementById("id-cas").value;
+	$scope.nom=document.getElementById("nom").value;
+	$scope.prenom=document.getElementById("prenom").value;
+	$scope.autresinstances=document.getElementById("autres-instances").value.split(',');
 	$scope.hash=document.getElementById("hash").value;
 	$scope.formkey="form/"+$scope.idform;
-	$scope.contactkey="";
 	Data.accept_anonymous=true;
 	$scope.help=function(id){
 		$uibModal.open({
@@ -116,9 +125,9 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 		$scope.editorOk=true;
 	});
 }]);
-app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $interval, $uibModal, FileUploader, Link, Data) {
-	$scope.key='form_instance/'+$scope.hash;
-	$scope.contactkey= Data.modele[$scope.key] ? 'contact/'+Data.modele[$scope.key].id_contact : '';
+app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($routeParams, $scope, $http, $location, $interval, $uibModal, FileUploader, Link, Data) {
+	$scope.currenthash=$routeParams.hash;
+	$scope.key='form_instance/'+$routeParams.hash;
 	$scope.label=function(label){
 		var tab=label.split('|');
 		var res=tab[0].trim();
@@ -151,10 +160,6 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$ui
 			});
 		});
 		console.log('checkAll end',Data.modele[$scope.key]);
-		if ($scope.contactkey=='') {
-			$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
-			Link.context([{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
-		}
 		$scope.save();
 	};
 	$scope.delFile=function(hash,id_elt,f){
@@ -200,10 +205,29 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$interval', '$ui
 			});
 		});
 	};
+	$scope.setMultiple=function(p,choix){
+		var tab=p.collection[p.elt.id].valeur.split(',');
+		var i=tab.indexOf(choix.valeur);
+		if (tab[0]=='') tab.splice(0,1);
+		console.log(p.collection[p.elt.id].valeur,tab,p.elt.nbMax);
+		if (i<0) {
+			if (tab.length<p.elt.nbMax) tab.push(choix.valeur);
+			else {
+				tab.splice(tab.length-1,1);
+				tab.push(choix.valeur);
+			}
+		}
+		else tab.splice(i,1);
+		p.collection[p.elt.id].valeur=tab.join();
+	}
 	$scope.canSave=function(){
 		$scope.testValid();
 		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
 		return Object.keys($scope.isValid).length==0 && $scope.dirty($scope.key);
 	};
-	Link.context([{type:$scope.formkey},{type:$scope.key}]);
+	$scope.contexts=[{type:$scope.formkey},{type:'form_instance/'+$scope.hash}];
+	angular.forEach($scope.autresinstances,function(hash){
+		$scope.contexts.push({type:'form_instance/'+hash});
+	});
+	Link.context($scope.contexts);
 }]);

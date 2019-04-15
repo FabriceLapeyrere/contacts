@@ -1,5 +1,7 @@
 <label>Label</label>
 <input placeholder="Label" ng-model="elt.label" class="form-control" type="text"/>
+<label>Nombre maximal de choix autorisés</label>
+<input ng-model="elt.nbMax" class="form-control" type="number" ng-init="elt.nbMax = elt.nbMax || 1"/>
 <p style="padding-top:15px;">
     <span class="btn btn-xs btn-default cursor" ng-click="addChoixMod(elt)"><span class="glyphicon glyphicon-plus"> </span> Choix</span>
 </p>
