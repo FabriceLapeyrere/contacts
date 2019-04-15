@@ -128,9 +128,9 @@
 						<span class="label-contact">Formulaires</span>
 						<div>
 							<span ng-repeat="f in cas.forms | toArray | orderBy:'nom'">
-						        <a href="showform/{{f.hash}}"><span class="btn btn-primary">{{Data.modele.forms[f.id_form].nom}}
+						        <a href="showform/{{f.hash}}"><span class="btn btn-primary">{{Data.modele.forms[f.id_form].nom}} ({{Data.modele['form_instance/'+f.hash].collection[Data.modele['forms'][f.id_form].schema.champ_titre].valeur}})
 								</span></a>
-								<span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delFormCas(f,cas)" ng-confirm-message="Sûr?"></span>
+								<span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delFormInstance(f.hash)" ng-confirm-message="Sûr?"></span>
 						    </span>
 						</div>
 					</div>

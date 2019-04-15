@@ -2,6 +2,7 @@ var app= angular.module('form', ['ngRoute','ui.bootstrap', 'angularFileUpload','
 app.config(['$routeProvider', function($routeProvider) {
 	angular.lowercase = angular.$$lowercase;
 	$routeProvider.when('/form/:hash', {templateUrl: 'partials/form_public.html', controller: 'showformCtl'});
+	$routeProvider.when('/form', {templateUrl: 'partials/form_public_empty.html'});
 	$routeProvider.otherwise({redirectTo: '/form'});
 }]);
 app.config(['$locationProvider', function($locationProvider) {
@@ -10,9 +11,9 @@ app.config(['$locationProvider', function($locationProvider) {
 app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce', 'Link', 'Data', function ($scope, $location, $timeout, $interval, $sce, Link, Data) {
 	$scope.now=new Date().getTime();
 	$scope.idform=document.getElementById("id-form").value;
+	$scope.idcas=document.getElementById("id-cas").value;
 	$scope.nom=document.getElementById("nom").value;
 	$scope.prenom=document.getElementById("prenom").value;
-	$scope.autresinstances=document.getElementById("autres-instances").value.split(',');
 	$scope.hash=document.getElementById("hash").value;
 	$scope.formkey="form/"+$scope.idform;
 	Data.accept_anonymous=true;
@@ -76,15 +77,21 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 		var diff= rfc6902.createPatch(a,b);
 		var d=[];
 		for(var i=0;i<diff.length;i++) {
-			if (diff[i].path.indexOf("$$")==-1) d.push(diff[i]);
+			if (diff[i].path.indexOf("$$")==-1 && diff[i].path.indexOf("uuid")==-1) d.push(diff[i]);
 		}
 		return d.length==0;
 	};
 	$scope.pristine=function(key){
 		return $scope.isEqual(Data.modele[key],Data.modeleSrv[key]);
 	}
+	$scope.pristineKey=function(key,k){
+		return $scope.isEqual(Data.modele[key][k],Data.modeleSrv[key][k]);
+	}
 	$scope.dirty=function(key){
 		return !$scope.pristine(key);
+	}
+	$scope.dirtyKey=function(key,k){
+		return !$scope.pristineKey(key,k);
 	}
 	$scope.min=function(a,b){
 		return Math.min(a,b);
@@ -127,46 +134,68 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 }]);
 app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($routeParams, $scope, $http, $location, $interval, $uibModal, FileUploader, Link, Data) {
 	$scope.currenthash=$routeParams.hash;
-	$scope.key='form_instance/'+$routeParams.hash;
+	$scope.checkOk={};
+	$scope.key='form_instances_cas_form/'+$scope.idcas+"/"+$scope.idform;
 	$scope.label=function(label){
-		var tab=label.split('|');
-		var res=tab[0].trim();
-		for (var i=1;i<tab.length;i++){
-			res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
-		}
-		return res;
+		if (label) {
+			var tab=label.split('|');
+			var res=tab[0].trim();
+			for (var i=1;i<tab.length;i++){
+				res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
+			}
+			return res;
+		} else return '';
 	}
 	$scope.check=function(hash,elt){
 		if (elt.default===undefined) elt.default='';
-		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
+		if (!Data.modele[$scope.key][$scope.currenthash].collection[elt.id]) Data.modele[$scope.key][$scope.currenthash].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
+		//console.log($scope.currenthash,elt.id,Data.modele[$scope.key][$scope.currenthash].collection[elt.id]);
 	}
 	$scope.checkAll=function(){
-		console.log('checkAll',Data.modele[$scope.key]);
-		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
+		//console.log('checkAll',Data.modele[$scope.key][$scope.currenthash]);
+		var nb=Object.keys(Data.modele[$scope.key][$scope.currenthash].collection).length;
+		angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
 			angular.forEach(p.elts,function(elt){
-				if (elt.type!='titre' && elt.type!='texte') $scope.check(Data.modele[$scope.key].hash,elt);
+				if (elt.type!='titre' && elt.type!='texte') $scope.check($scope.currenthash,elt);
 				if (elt.type=='upload') {
-					if (!$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id]) {
-						$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id] = new FileUploader({
+					if (!$scope.uploaders[$scope.currenthash+'-'+elt.id]) {
+						$scope.uploaders[$scope.currenthash+'-'+elt.id] = new FileUploader({
 							url: 'upload.php',
 							autoUpload:true,
-							formData:[{hash:Data.modele[$scope.key].hash,id:elt.id},{type:'form_upload'}],
+							formData:[{hash:$scope.currenthash,id:elt.id},{type:'form_upload'}],
 							onCompleteAll:function(){
-								$scope.uploaders[Data.modele[$scope.key].hash+'-'+elt.id].clearQueue();
+								$scope.uploaders[$scope.currenthash+'-'+elt.id].clearQueue();
 							}
 						});
 					}
 				}
 			});
 		});
-		console.log('checkAll end',Data.modele[$scope.key]);
-		$scope.save();
+		//console.log('checkAll end',Data.modele[$scope.key][$scope.currenthash]);
+		if (Object.keys(Data.modele[$scope.key][$scope.currenthash].collection).length>nb) {
+			console.log('Let\'s save');
+			$scope.save($scope.currenthash);
+		}
+		else console.log('save not needed');
+		$scope.checkOk[hash]=true;
 	};
+	$scope.$on('modele-update-'+$scope.formkey,function(){
+		if (Data.modele[$scope.key]) $scope.checkAll();
+	});
+	$scope.delFormInstance=function(hash){
+		var tab=Object.keys(Data.modele[$scope.key]);
+		var idx=tab.indexOf(hash);
+		tab.splice(idx,1);
+		Link.ajax([{action:'delFormInstance', params:{hash:hash}}],function(){
+			if (tab.length>0) $location.path("form/"+tab[0]);
+			else window.location("/form/");
+		});
+	}
 	$scope.delFile=function(hash,id_elt,f){
 		Link.ajax([{action:'delFormFile', params:{hash:hash,id_elt:id_elt,file:f.nom}}]);
 	};
-	$scope.save=function(){
-		Link.ajax([{action:'modFormInstance',params:{instance:Data.modele[$scope.key]}}]);
+	$scope.save=function(hash){
+		Link.ajax([{action:'modFormInstance',params:{instance:Data.modele[$scope.key][hash]}}]);
 	};
 	$scope.editorOptions = {
 		height:"200px",
@@ -190,20 +219,23 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
 	$scope.isValid={};
-	$scope.testValid=function(){
-		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
-			angular.forEach(p.elts,function(elt){
-				if (elt.type=='texte_long' && elt.maxLength) {
-					var StrippedString = Data.modele[$scope.key].collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
-					var tab=StrippedString.split(' ');
-					var t=tab.length<=elt.maxLength;
-					var o="Texte trop long ("+tab.length+" mots pour "+elt.maxLength+" autorisés)";
-					if (!t){
-						if($scope.isValid[elt.id]!=o) $scope.isValid[elt.id]=o;
-					} else delete($scope.isValid[elt.id]);
-				}
+	$scope.testValid=function(hash){
+		if (!$scope.isValid[hash]) $scope.isValid[hash]= {};
+		if (Data.modele[$scope.key][hash] && $scope.checkOk[hash]) {
+			angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+				angular.forEach(p.elts,function(elt){
+					if (elt.type=='texte_long' && elt.maxLength) {
+						var StrippedString = Data.modele[$scope.key][hash].collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
+						var tab=StrippedString.split(' ');
+						var t=tab.length<=elt.maxLength;
+						var o="Texte trop long ("+tab.length+" mots pour "+elt.maxLength+" autorisés)";
+						if (!t){
+							if($scope.isValid[hash][elt.id]!=o) $scope.isValid[hash][elt.id]=o;
+						} else delete($scope.isValid[hash][elt.id]);
+					}
+				});
 			});
-		});
+		}
 	};
 	$scope.setMultiple=function(p,choix){
 		var tab=p.collection[p.elt.id].valeur.split(',');
@@ -220,12 +252,18 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 		else tab.splice(i,1);
 		p.collection[p.elt.id].valeur=tab.join();
 	}
-	$scope.canSave=function(){
-		$scope.testValid();
+	$scope.canSave=function(hash){
+		$scope.testValid(hash);
 		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
-		return Object.keys($scope.isValid).length==0 && $scope.dirty($scope.key);
+		return Object.keys($scope.isValid[hash]).length==0 && $scope.dirtyKey($scope.key,hash);
 	};
-	$scope.contexts=[{type:$scope.formkey},{type:'form_instance/'+$scope.hash}];
+	$scope.addInstance=function(){
+		console.log('addInstance');
+		Link.ajax([{action:'addFormInstanceCas', params:{id_form:$scope.idform, id_cas:$scope.idcas}}],function(r){
+			$location.path('/form/'+r.res[0]);
+		});
+	};
+	$scope.contexts=[{type:$scope.formkey},{type:'form_instances_cas_form/'+$scope.idcas+"/"+$scope.idform}];
 	angular.forEach($scope.autresinstances,function(hash){
 		$scope.contexts.push({type:'form_instance/'+hash});
 	});

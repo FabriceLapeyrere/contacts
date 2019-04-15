@@ -1341,14 +1341,44 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 	$scope.key='contact/'+$routeParams.id;
 	$scope.prevNextKey='contact_prev_next/'+$routeParams.id;
 	Link.context([{type:$scope.key},{type:'tags'},{type:'forms'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}}]);
-	$scope.$watch('Data.modele["contact_prev_next/'+$routeParams.id+'"]',function(n,o){
-		if (n) {
-			Link.context([{type:$scope.key},{type:'tags'},{type:'contact_prev_next/'+$routeParams.id,params:{query:$scope.parsed.back(Data.mainQuery)}},
-				{type:'contact/'+n[0]},
-				{type:'contact/'+n[1]}
-			]);
+	$scope.loadPrevNext=function(){
+		if (Data.modele[$scope.prevNextKey]) {
+			var contexts=angular.copy(Data.contexts);
+			var nb=contexts.length;
+			var tab=['contact/'+Data.modele[$scope.prevNextKey][0],'contact/'+Data.modele[$scope.prevNextKey][1]];
+			angular.forEach(tab, function(t){
+				var test=true;
+				angular.forEach(contexts,function(c){
+					if (c.type==t) test=false;
+				});
+				if (test) contexts.push({type:t});
+			});
+			if (contexts.length>nb) Link.context(contexts);
 		}
-	});
+	}
+	$scope.$on('modele-update-'+$scope.prevNextKey,$scope.loadPrevNext);
+	$scope.loadPrevNext();
+	$scope.loadInstances=function(){
+		var contexts=angular.copy(Data.contexts);
+		var nb=contexts.length;
+		if (Data.modele[$scope.key]) {
+			angular.forEach(Data.modele[$scope.key].casquettes,function(cas){
+				if (cas.forms) {
+					angular.forEach(cas.forms,function(f){
+						var instanceKey='form_instance/'+f.hash;
+						var test=true;
+						angular.forEach(contexts,function(c){
+							if (c.type==instanceKey) test=false;
+						});
+						if (test) contexts.push({type:instanceKey});
+					});
+				}
+			});
+		}
+		if (contexts.length>nb) Link.context(contexts);
+	};
+	$scope.$on('modele-update-'+$scope.key,$scope.loadInstances);
+	$scope.loadInstances();
 	$scope.sv={};
 	$scope.ev={};
 	$scope.svDesc={};
@@ -1605,17 +1635,12 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 		});
 		modal.result.then(function (form) {
 			cas.forms.push(form.id);
-			Link.ajax([{action:'addFormInstanceCas', params:{id_form:form.id, id_cas:cas.id}}],function(r){
-				$scope.fillForm(form.id,cas);
-			});
+			Link.ajax([{action:'addFormInstanceCas', params:{id_form:form.id, id_cas:cas.id}}]);
 		});
 	}
-	$scope.delFormCas=function(f,cas){
-		Link.ajax([{action:'delFormCas', params:{id_form:f, id_cas:cas.id}}]);
+	$scope.delFormInstance=function(hash){
+		Link.ajax([{action:'delFormInstance', params:{hash:hash}}]);
 	}
-	$scope.fillForm=function(id_form,cas){
-		console.log(id_form,cas.id);
-	};
 	$scope.dropOnEtabValidate=function(cas,data){
 		var idx=data.idx;
 		var d=cas.donnees[idx];
@@ -2345,6 +2370,24 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 		],
 		removeButtons:"Source,Save,NewPage,Preview,Print,Templates,Cut,Undo,Redo,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Scayt,Form,HiddenField,Checkbox,TextField,Textarea,Select,Button,ImageButton,Radio,Strike,Subscript,Superscript,NumberedList,Outdent,Indent,BulletedList,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Anchor,Image,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,BGColor,ShowBlocks,About"
 	};
+	$scope.modNomPage=function(p){
+		var modal = $uibModal.open({
+			templateUrl: 'partials/modnompagemod.html',
+			controller: 'modNomPageModCtl',
+			resolve:{
+				p: function () {
+					return p;
+				},
+				bouton: function () {
+					return 'Modifier';
+				}
+			}
+		});
+		modal.result.then(function (nomPage) {
+			p.nom=nomPage;
+			$scope.save();
+		});
+	}
 	$scope.addChoixMod=function(elt){
 		$scope.addChoix={id:Math.random().toString(36).substr(2, 9)};
 		var modal = $uibModal.open({
@@ -2418,6 +2461,7 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 	$scope.delPage=function(p){
 		var i=$scope.index('id',Data.modele[$scope.key].schema.pages,p.id);
 		Data.modele[$scope.key].schema.pages.splice(i,1);
+		$scope.save();
 	};
 	$scope.addElt=function(p,type,nom,defaut){
 		if (!defaut) defaut='';
@@ -2431,8 +2475,8 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 		p.elts.splice(i,1);
 		$scope.save();
 	};
-	$scope.drop = function(e,s,d,c,list){
-		if (c=="listorder") {
+	$scope.dropOnElt = function(e,s,d,c,list){
+		if (c=="elt") {
 			if (s.idx-1<d) {
 				list.splice(d+1,0,angular.copy(list[s.idx-1]));
 				list.splice(s.idx-1,1);
@@ -2443,8 +2487,20 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 			$scope.save();
 		}
 	};
+	$scope.dropOnPage = function(e,s,d,c,list){
+		if (c=="elt") {
+			var listOrig=$scope.elByIndex('id',Data.modele[$scope.key].schema.pages,s.listid).elts;
+			var e=angular.copy(listOrig[s.idx-1]);
+			list.push(e);
+			listOrig.splice(s.idx-1,1);
+			$scope.save();
+		}
+	};
 	$scope.validate=function(d,id){
 		return d.listid==id;
+	}
+	$scope.validatePage=function(d,id){
+		return d.listid!=id;
 	}
 	$scope.associer=function(){
 		var contexts=Data.contexts;
@@ -2495,12 +2551,14 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 	$scope.contactkey= Data.modele[$scope.key] ? 'contact/'+Data.modele[$scope.key].id_contact : '';
 	Link.context([{type:$scope.key}]);
 	$scope.label=function(label){
-		var tab=label.split('|');
-		var res=tab[0].trim();
-		for (var i=1;i<tab.length;i++){
-			res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
-		}
-		return res;
+		if (label){
+			var tab=label.split('|');
+			var res=tab[0].trim();
+			for (var i=1;i<tab.length;i++){
+				res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
+			}
+			return res;
+		} else return '';
 	}
 	$scope.check=function(hash,elt){
 		if (elt.default===undefined) elt.default='';
@@ -2508,6 +2566,7 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 	}
 	$scope.checkAll=function(){
 		console.log('checkAll',Data.modele[$scope.key]);
+		var nb=Object.keys(Data.modele[$scope.key].collection).length;
 		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
 			angular.forEach(p.elts,function(elt){
 				if (elt.type!='titre' && elt.type!='texte') $scope.check(Data.modele[$scope.key].hash,elt);
@@ -2530,7 +2589,7 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 			$scope.contactkey='contact/'+Data.modele[$scope.key].id_contact;
 			Link.context([{type:$scope.key},{type:$scope.contactkey},{type:'tags'}]);
 		}
-		$scope.save();
+		if (Object.keys(Data.modele[$scope.key].collection).length>nb) $scope.save();
 	};
 	$scope.delFile=function(hash,id_elt,f){
 		Link.ajax([{action:'delFormFile', params:{hash:hash,id_elt:id_elt,file:f.nom}}]);
@@ -2575,6 +2634,21 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 			});
 		});
 	};
+	$scope.setMultiple=function(p,choix){
+		var tab=p.collection[p.elt.id].valeur.split(',');
+		var i=tab.indexOf(choix.valeur);
+		if (tab[0]=='') tab.splice(0,1);
+		console.log(p.collection[p.elt.id].valeur,tab,p.elt.nbMax);
+		if (i<0) {
+			if (tab.length<p.elt.nbMax) tab.push(choix.valeur);
+			else {
+				tab.splice(tab.length-1,1);
+				tab.push(choix.valeur);
+			}
+		}
+		else tab.splice(i,1);
+		p.collection[p.elt.id].valeur=tab.join();
+	}
 	$scope.canSave=function(){
 		$scope.testValid();
 		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
@@ -3578,6 +3652,19 @@ app.controller('modNomCatModCtl', ['$scope', '$uibModalInstance', '$uibModal', '
 	$scope.ok = function () {
 		if ($scope.form.nomCat.$valid){
 			$uibModalInstance.close($scope.nomCat);
+		}
+	};
+	$scope.cancel = function () {
+		$uibModalInstance.dismiss();
+	};
+}]);
+app.controller('modNomPageModCtl', ['$scope', '$uibModalInstance', '$uibModal', 'p', 'bouton', function ($scope, $uibModalInstance, $uibModal, p, bouton) {
+	$scope.p=angular.copy(p);
+	$scope.bouton=bouton;
+	$scope.form={};
+	$scope.ok = function () {
+		if ($scope.form.nomPage.$valid){
+			$uibModalInstance.close($scope.p.nom);
 		}
 	};
 	$scope.cancel = function () {

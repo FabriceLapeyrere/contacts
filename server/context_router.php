@@ -186,6 +186,9 @@
 					case "form_instances_form":
 						$res=Forms::get_form_instances_form($tab[1],$params,$u['id']);
 						break;
+					case "form_instances_cas_form":
+						$res=Forms::get_form_instances_cas_form($tab[1],$tab[2],$u['id']);
+						break;
 					case "form_instance":
 						$res=Forms::get_form_instance($tab[1],$u['id']);
 						break;

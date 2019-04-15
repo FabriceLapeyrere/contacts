@@ -30,7 +30,7 @@
 				}
 			}
 		}
-		public static function get_form_instance($hash,$id) {
+		public static function get_form_instance($hash,$id,$form=true) {
 			$db= new DB();
 			$query = "SELECT t1.hash as main_hash, t1.id_form as main_id_form, t1.id_lien as main_id_lien, t1.type_lien as main_type_lien, t2.*, t3.id_contact as id_contact FROM form_instances as t1 left join forms_data as t2 on t1.hash=t2.hash left join casquettes as t3 on t1.type_lien='casquette' AND t1.id_lien=t3.id where t1.hash='$hash'";
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -47,7 +47,7 @@
 				$res['id_contact']=$row['id_contact'];
 			};
 			$res['collection']=(object)$res['collection'];
-			$res['form']=Forms::get_form($res['id_form']);
+			if ($form) $res['form']=Forms::get_form($res['id_form'],$id);
 			return $res;
 		}
 		public function mod_form_instance($params,$id) {
@@ -106,6 +106,9 @@
 			$db->database->commit();
 			$maj=array("casquettes");
 			$maj[]="form_instance/".$params->instance->hash;
+			if ($db_instance['type_lien']=='casquette') {
+				$maj[]="form_instances_cas_form/".$db_instance['id_lien']."/".$db_instance['id_form'];
+			}
 			return array('maj'=>$maj,'res'=>1);
 		}
 		public static function do_add_form_file($params,$id) {
@@ -143,6 +146,9 @@
 			}
 			$maj=array("casquettes");
 			$maj[]="form_instance/".$params->instance->hash;
+			if ($res['type_lien']=='casquette') {
+				$maj[]="form_instances_cas_form/".$res['id_lien']."/".$res['id_form'];
+			}
 			return array('maj'=>$maj,'res'=>1);
 		}
 		public function del_form_file($params,$id) {
@@ -178,7 +184,7 @@
 				);
 			}
 			$maj=array("casquettes");
-			if ($res['type_lien']=='casquette') $maj[]="form_instances_cas/".$res['id_form']."/".$res['id_cas'];
+			$maj[]="form_instance/".$hash;
 			return array('maj'=>$maj,'res'=>1);
 		}
 		public static function get_forms() {
@@ -199,6 +205,19 @@
 				$forms[]=$row;
 			}
 			return $forms;
+		}
+		public static function get_form_instances_cas_form($id_cas, $id_form, $id) {
+			$db= new DB();
+			$query = "SELECT hash FROM form_instances WHERE type_lien='casquette' AND id_lien=$id_cas AND id_form=$id_form ORDER BY id_form ASC;";
+			$instances=array();
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$instances[]=$row['hash'];
+			}
+			$res=array();
+			foreach ($instances as $i) {
+				$res[$i]=Forms::get_form_instance($i,$id,false);
+			}
+			return $res;
 		}
 		public static function get_form_instances_form($id_form, $params, $id) {
 			$db= new DB();
@@ -280,7 +299,7 @@
 		public static function do_del_form($params,$id) {
 			$db= new DB();
 			$id_form=$params->form->id;
-			$form=Forms::get_form($id_form);
+			$form=Forms::get_form($id_form,$id);
 			$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
 			$insert->execute(array($id,'form',json_encode($form),millisecondes(),$id));
 			$delete = $db->database->prepare('DELETE FROM forms WHERE id=?');
@@ -298,7 +317,7 @@
 			$hash=md5(rand(0,10000)."-".millisecondes()."-".$params->id_cas."-".$params->id_form);
 			$insert= $db->database->prepare('INSERT INTO form_instances (id_form,type_lien,id_lien,hash) VALUES (?,?,?,?)');
 			$insert->execute(array($params->id_form,'casquette',$params->id_cas,$hash));
-			return array('maj'=>array("form_instances_cas/".$params->id_form."/".$params->id_cas,"contact/".$cas['id_contact'],"form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>1);
+			return array('maj'=>array("form_instances_cas_form/".$params->id_cas."/".$params->id_form,"contact/".$cas['id_contact'],"form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>$hash);
 		}
 		public function del_form_instance($params,$id) {
 			$t=Forms::do_del_form_instance($params,$id);
@@ -306,16 +325,30 @@
 			return $t['res'];
 		}
 		public static function do_del_form_instance($params,$id) {
+			$hash=$params->hash;
 			$db= new DB();
-			$cas=Contacts::get_casquette($params->id_cas,false,$id);
-			$instance=Forms::get_form_instance($params->hash,$id);
+			$query = "SELECT id_lien, id_form from form_instances WHERE type_lien='casquette' AND hash='$hash'";
+			$id_cas=0;
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$id_cas=$row['id_lien'];
+				$id_form=$row['id_form'];
+			}
+			if ($id_cas>0) {
+				$cas=Contacts::get_casquette($id_cas,false,$id);
+			}
+			$instance=Forms::get_form_instance($hash,$id);
 			$insert = $db->database->prepare('INSERT INTO trash (id_item, type, json, date , by) VALUES (?,?,?,?,?) ');
-			$insert->execute(array($params->hash,'form_instance',json_encode($instance),millisecondes(),$id));
+			$insert->execute(array($hash,'form_instance',json_encode($instance),millisecondes(),$id));
 			$delete= $db->database->prepare('DELETE FROM form_instances WHERE hash=?');
-			$delete->execute(array($params->hash));
+			$delete->execute(array($hash));
 			$delete= $db->database->prepare('DELETE FROM forms_data WHERE hash=?');
-			$delete->execute(array($params->hash));
-			return array('maj'=>array("form_instances_cas/".$params->id_form."/".$params->id_cas,"contact/".$cas['id_contact'],"form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>1);
+			$delete->execute(array($hash));
+			$tab=array("form_casquettes/".$id_form);
+			if ($id_cas>0) {
+				$tab[]="contact/".$cas['id_contact'];
+				$tab[]="form_instances_cas_form/".$id_cas."/".$id_form;
+			}
+			return array('maj'=>$tab,'res'=>1);
 		}
 		public function associer($params,$id) {
 			$t=Forms::do_associer($params,$id);
@@ -335,7 +368,7 @@
 				$insert->execute(array($params->form->id,'casquette',$c['id'],$hash,$c['id'],'casquette'));
 			}
 			$db->database->commit();
-			return array('maj'=>array("contact/*","form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>1);
+			return array('maj'=>array("contact/*","form/".$params->id_form,"form_casquettes/".$params->id_form,"form_instances_cas_form/*"),'res'=>1);
 		}
 	}
 ?>

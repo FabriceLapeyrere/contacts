@@ -222,7 +222,7 @@ class WS implements MessageComponentInterface {
 				$res=array($type,'newss');
 				break;
             case 'form':
-				$res=array($type,'forms');
+				$res=array($type,'forms','form_instance/*');
 				break;
 			case 'imap':
 				$res=array($type);

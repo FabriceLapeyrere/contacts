@@ -47,10 +47,15 @@
 				<label>Champ titre</label>
 				<select class="form-control" ng-options="e.id as e.label for e in Data.modele[key].schema.pages[0].elts | filter:{type:'texte_court'}" ng-model="Data.modele[key].schema.champ_titre"></select>
 				<p>&nbsp;</p>
+				<label>Texte du bouton qui permet d'ajouter une instance</label>
+				<input class="form-control" placeholder="Texte bouton" type="texte" ng-model="Data.modele[key].schema.texte_new_instance"/>
+				<p>&nbsp;</p>
 			</uib-tab>
 			<uib-tab ng-repeat="p in Data.modele[key].schema.pages" ng-init="pageIndex=$index">
 				<uib-tab-heading>
-					Page {{$index+1}}
+					<span ui-on-drop="dropOnPage($event,$data,$index,$channel,p.elts)"
+							drop-channel="elt"
+							drop-validate="validatePage($data,p.id)">{{p.nom || 'Page '+($index+1)}}</span> <span class="glyphicon glyphicon-pencil cursor" style="font-size:0.7em;" ng-click="modNomPage(p)"></span>
 				</uib-tab-heading>
 				<div style="position:relative;">
 					<div class="mini-menu">
@@ -61,8 +66,8 @@
 					</p>
 					<div class="list-group">
 						<div ng-repeat="elt in p.elts" class="list-group-item pad-bottom"
-							ui-on-drop="drop($event,$data,$index,$channel,p.elts)"
-							drop-channel="listorder"
+							ui-on-drop="dropOnElt($event,$data,$index,$channel,p.elts)"
+							drop-channel="elt"
 							drop-validate="validate($data,p.id)">
 							<div class="mini-menu">
 								<span class="glyphicon glyphicon-trash cursor" ng-confirm-click="delElt(p,elt)" ng-confirm-message="Sûr?"></span>
@@ -70,7 +75,7 @@
 							<div class="small gris"
 								ui-draggable="true"
 								drag="{idx:$index+1,listid:p.id}"
-								drag-channel="listorder">
+								drag-channel="elt">
 								<span class="glyphicon glyphicon-option-vertical"></span> {{elt.nom}}
 
 							</div>

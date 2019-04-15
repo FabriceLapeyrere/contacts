@@ -127,7 +127,33 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 		Data.offline=true;
 		Data.canLink=false;
 	});
-
+	link.updateModele=function(k,v){
+		var diffSrv= rfc6902.createPatch(Data.modeleSrv[k], v);
+		var diff= rfc6902.createPatch(Data.modele[k], v);
+		var d=[];
+		var dSrv=[];
+		var dC=[];
+		for(var i=0;i<diffSrv.length;i++) {
+			if (diffSrv[i].path.indexOf("$$")==-1 && diffSrv[i].path.indexOf("uuid")==-1) {
+				dSrv.push(diffSrv[i]);
+			}
+		}
+		for(var i=0;i<diff.length;i++) {
+			if (diff[i].path.indexOf("$$")==-1 && diff[i].path.indexOf("uuid")==-1) {
+				dC.push(diff[i]);
+			}
+		}
+		for(var i=0;i<dC.length;i++) {
+			var test=false;
+			for(var j=0;j<dSrv.length;j++) {
+				if (dSrv[j].path.indexOf(dirname(dC[i].path))>=0) test=true;
+			}
+			if (test) d.push(dC[i]);
+		}
+		console.log(dSrv,dC);
+		console.log(d);
+		rfc6902.applyPatch(Data.modele[k],d);
+	}
 	link.ws.onmessage(function(r) {
 		if (r.data.user && (r.data.user.id>0 || Data.accept_anonymous && r.data.user.id==-2)) {
 			Data.user=r.data.user;
@@ -167,28 +193,14 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 					if (isEqual(v.params,params[k])) {
 						if (!Data.modele[k]) Data.modele[k]=v;
 						else {
-							var diff= rfc6902.createPatch(Data.modele[k], v);
-							var d=[];
-							console.log(diff);
-							for(var i=0;i<diff.length;i++) {
-								if (diff[i].path.indexOf("$$")==-1) d.push(diff[i]);
-							}
-							console.log(d);
-							rfc6902.applyPatch(Data.modele[k],d);
+							link.updateModele(k,v);
 						}
 						Data.modeleSrv[k]=angular.copy(v);
 					}
 				} else {
 					if (!Data.modele[k]) Data.modele[k]=v;
 					else {
-						var diff= rfc6902.createPatch(Data.modele[k], v);
-						var d=[];
-						console.log(diff);
-						for(var i=0;i<diff.length;i++) {
-							if (diff[i].path.indexOf("$$")==-1) d.push(diff[i]);
-						}
-						console.log(d);
-						rfc6902.applyPatch(Data.modele[k],diff);
+						link.updateModele(k,v);
 					}
 					Data.modeleSrv[k]=angular.copy(v);
 				}
