@@ -317,7 +317,7 @@
 			$hash=md5(rand(0,10000)."-".millisecondes()."-".$params->id_cas."-".$params->id_form);
 			$insert= $db->database->prepare('INSERT INTO form_instances (id_form,type_lien,id_lien,hash) VALUES (?,?,?,?)');
 			$insert->execute(array($params->id_form,'casquette',$params->id_cas,$hash));
-			return array('maj'=>array("form_instances_cas_form/".$params->id_cas."/".$params->id_form,"contact/".$cas['id_contact'],"form/".$params->id_form,"form_casquettes/".$params->id_form),'res'=>$hash);
+			return array('maj'=>array("form_instances_cas_form/".$params->id_cas."/".$params->id_form,"contact/".$cas['id_contact'],"form/".$params->id_form,"form_instances_form/".$params->id_form),'res'=>$hash);
 		}
 		public function del_form_instance($params,$id) {
 			$t=Forms::do_del_form_instance($params,$id);
@@ -343,7 +343,7 @@
 			$delete->execute(array($hash));
 			$delete= $db->database->prepare('DELETE FROM forms_data WHERE hash=?');
 			$delete->execute(array($hash));
-			$tab=array("form_casquettes/".$id_form);
+			$tab=array("form_instances_form/".$id_form);
 			if ($id_cas>0) {
 				$tab[]="contact/".$cas['id_contact'];
 				$tab[]="form_instances_cas_form/".$id_cas."/".$id_form;

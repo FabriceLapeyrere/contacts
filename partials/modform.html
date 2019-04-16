@@ -39,9 +39,7 @@
 					</div>
 				</div>
 				<p>&nbsp;</p>
-				<p>
-				<label>Descriptif</label>
-				</p>
+				<label>Descriptif</label><br />
 				<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.descriptif"></ng-ckeditor>
 				<p>&nbsp;</p>
 				<label>Champ titre</label>
@@ -49,6 +47,21 @@
 				<p>&nbsp;</p>
 				<label>Texte du bouton qui permet d'ajouter une instance</label>
 				<input class="form-control" placeholder="Texte bouton" type="texte" ng-model="Data.modele[key].schema.texte_new_instance"/>
+				<p>&nbsp;</p>
+				<label>Texte du bouton qui permet de supprimer une instance</label>
+				<input class="form-control" placeholder="Texte bouton" type="texte" ng-model="Data.modele[key].schema.texte_del_instance"/>
+				<p>&nbsp;</p>
+				<label>Contenu du mail de confirmation</label><br />
+				<textarea class="form-control" style="height:200px;" ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.mail_body_confirm"></textarea>
+				<p>&nbsp;</p>
+				<label>Contenu du mail d'inscription</label><br />
+				<textarea class="form-control" style="height:200px;" ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.mail_body"></textarea>
+				<p>&nbsp;</p>
+				<label>Texte de la page d'inscription</label><br />
+				<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.home_body"></ng-ckeditor>
+				<p>&nbsp;</p>
+				<label>Texte du bouton d'inscription</label>
+				<input class="form-control" placeholder="Texte bouton" type="texte" ng-model="Data.modele[key].schema.home_btn"/>
 				<p>&nbsp;</p>
 			</uib-tab>
 			<uib-tab ng-repeat="p in Data.modele[key].schema.pages" ng-init="pageIndex=$index">
@@ -91,7 +104,7 @@
 					<p><ng-include src="'partials/inc/formeltbtns.html'"></ng-include></p>
 				</div>
 			</uib-tab>
-			<uib-tab heading="Contacts">
+			<uib-tab heading="Instances">
 				<div ng-show="Data.modele['form_instances_form/'+id_form].tout.collection.length>0">
 					<h1>Tout</h1>
 					<uib-pagination ng-if="Data.modele['form_instances_form/'+id_form].tout.total>itemsParPage" boundary-links="true" total-items="Data.modele['form_instances_form/'+id_form].tout.total" ng-model="Data.pageForms[id_form].tout" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>

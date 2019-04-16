@@ -1468,8 +1468,8 @@
 			$delete->execute(array($params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM tag_cas WHERE id_cas=? ');
 			$delete->execute(array($params->cas->id));
-			$delete = $db->database->prepare('DELETE FROM form_casquette WHERE id_casquette=? ');
-			$delete->execute(array($params->cas->id));
+			$delete = $db->database->prepare('DELETE FROM form_instances WHERE type_lien=? and id_lien=? ');
+			$delete->execute(array('casquette',$params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM forms_data WHERE type_lien=? AND id_lien=? ');
 			$delete->execute(array('casquette',$params->cas->id));
 			$delete = $db->database->prepare('DELETE FROM suivis WHERE id_thread IN (SELECT id FROM suivis_threads WHERE id_casquette=?) ');
@@ -1482,6 +1482,11 @@
 				$p->id=$id_thread;
 				$st=Suivis::do_del_suivis_thread($p,$id);
 				$maj_tab[]=$st['maj'];
+			}
+			foreach($cas['forms'] as $i){
+				$maj_tab[]="form_instance/".$i['hash'];
+				$maj_tab[]="form_instances_form/".$i['id_form'];
+				$maj_tab[]="form_instances_cas_form/".$params->cas->id."/".$i['id_form'];
 			}
 			$update = $db->database->prepare('UPDATE casquettes SET id_etab=0, modificationdate=?, modifiedby=? WHERE id_etab=?');
 			$update->execute(array(millisecondes(),$id,$params->cas->id));

@@ -14,6 +14,10 @@ foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
     $id_form=$row['id_form'];
     $id_cas=$row['id_lien'];
 }
+$header="";
+if (file_exists('data/formulaires/'.$id_form.'/public/header.html')) $header='data/formulaires/'.$id_form.'/public/header.html';
+$css="";
+if (file_exists('data/formulaires/'.$id_form.'/public/styles.css')) $css='data/formulaires/'.$id_form.'/public/styles.css';
 $query = "SELECT * FROM forms WHERE id=$id_form";
 foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
     $form=$row;
@@ -66,6 +70,9 @@ if (
 <link href="lib/css/bootstrap-switch.css" media="all" type="text/css" rel="stylesheet">
 <link href="css/contacts.css" media="all" type="text/css" rel="stylesheet">
 <link href="css/publicform.css" media="all" type="text/css" rel="stylesheet">
+<?php
+    if ($css!='') echo "<link href=\"".$css."\" media=\"all\" type=\"text/css\" rel=\"stylesheet\">";
+?>
 </head>
 <body>
 <input type="hidden" id="ws-port" value="<?=$conf->ws_port?>"/>
@@ -75,6 +82,7 @@ if (
 <input type="hidden" id="id-contact" value="<?=$contact['id']?>"/>
 <input type="hidden" id="nom" value="<?=$contact['nom']?>"/>
 <input type="hidden" id="prenom" value="<?=$contact['prenom']?>"/>
+<input type="hidden" id="public-header" value="<?=$header?>"/>
 <div id="form-container" ng-view></div>
 <div class='app-loader-container'><span ng-class="{'ok':uploading()}" class="glyphicon glyphicon-upload"></span> <span ng-class="{'ok':!Data.modeleFresh || !isAnswer()}" class="glyphicon glyphicon-refresh"></span></div>
 <div id="main-lock" ng-if="Data.offline">Connection en cours...</div>

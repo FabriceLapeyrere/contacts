@@ -15,6 +15,7 @@
             </p>
             <hr />
         </div>
+        <ng-include ng-if="public_header!=''" src="public_header"></ng-include>
         <div ng-bind-html="trust(form.schema.descriptif)"></div>
         <div>
             <p>

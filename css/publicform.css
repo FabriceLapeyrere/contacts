@@ -5,8 +5,8 @@ body {
 	border: none;
 }
 .traduction {
-    font-size:1em;
-    color:red;
+    font-size:0.8em;
+    color:#666;
 }
 .btn-primary .traduction {
 	color: #FFF;

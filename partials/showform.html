@@ -10,7 +10,7 @@
                 <button class="btn btn-primary" ng-click="save()" ng-disabled="ko=!canSave()">Enregistrer</button>
             </p>
             <p>
-                URL : {{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}
+                <a href="{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}" target="_blank">{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}</a>
             </p>
         </div>
     	<uib-tabset>

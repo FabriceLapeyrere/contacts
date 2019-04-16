@@ -33,7 +33,7 @@ function casquette($email)
 	}
 	$casquette=array();
 	if ($id>0) {
-		$casquette[]=Contacts::get_casquette($id,false,1);
+		$casquette[]=Contacts::get_casquette($id,true,1);
 	}
 	return $casquette;
 }
@@ -51,6 +51,14 @@ function ass_casquette($id_casquette,$id_contact,$id_categorie)
 }
 $t=millisecondes();
 $form=Forms::get_form($_REQUEST['id'],1);
+$btn="inscrivez-vous au formulaire";
+if (isset($form['schema']->home_btn) && $form['schema']->home_btn!="") $btn=$form['schema']->home_btn;
+$text="";
+if (isset($form['schema']->home_body) && $form['schema']->home_body!="") $text=$form['schema']->home_body;
+$mail_body="";
+if (isset($form['schema']->mail_body) && $form['schema']->mail_body!="") $mail_body=$form['schema']->mail_body;
+$mail_body_confirm="";
+if (isset($form['schema']->mail_body_confirm) && $form['schema']->mail_body_confirm!="") $mail_body_confirm=$form['schema']->mail_body_confirm;
 if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<$t && $form['to_date']>$t) {
     if (!file_exists('data/cle')) mkdir('./data/cle', 0777, true);
 	$res="";
@@ -61,31 +69,41 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
 				$casquette=casquette($_POST['email']);
 				if (count($casquette)>0){
 					$casquette=$casquette[0];
-					if (in_array($id,$casquette['forms'])){
-                        $instance=Forms::get_form_instance($form['id'],$casquette['id'],1);
+                    $hash="";
+                    foreach ($casquette['forms'] as $f) {
+                        if ($f['id_form']==$_REQUEST['id']) $hash=$f['hash'];
+                    }
+					if ($hash!=""){
+                        $instance=Forms::get_form_instance($hash,1);
                         $message="Bonjour,
 
         Voici le lien pour remplir le formulaire : ".$form['nom']." :
 
-        {$C->app->url->value}/form.php?h=".$instance['hash']."
+        {$C->app->url->value}/form/".$instance['hash']."
 ";
-                        mail_utf8($_POST['email'],"Votre lien pour le formulaire ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
+                        if ($mail_body!='') {
+                            $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
+                        }
+                        mail_utf8($_POST['email'],"Votre lien / ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
                         $res="Nous vous avons envoyé un lien par email. (pensez à vérifier vos spams)";
 					} else {
                         $params= new stdClass;
                         $params->id_cas=$casquette['id'];
                         $params->id_form=$form['id'];
                         error_log(var_export($params,true),3,"/tmp/fab.log");
-					    $tab=Forms::do_add_form_cas($params,1);
+					    $tab=Forms::do_add_form_instance_cas($params,1);
                         WS_maj($tab['maj']);
-						$instance=Forms::get_form_instance($form['id'],$casquette['id'],1);
+						$instance=Forms::get_form_instance($tab['res'],1);
                         $message="Bonjour,
 
         Voici le lien pour remplir le formulaire : ".$form['nom']." :
 
-        {$C->app->url->value}/form.php?h=".$instance['hash']."
+        {$C->app->url->value}/form/".$instance['hash']."
 ";
-                        mail_utf8($_POST['email'],"Votre lien pour le formulaire ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
+                        if ($mail_body!='') {
+                            $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
+                        }
+                        mail_utf8($_POST['email'],"Votre lien / ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
                         $res="Nous vous avons envoyé un lien par email. (pensez à vérifier vos spams)";
 					}
 				} else {
@@ -101,7 +119,10 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
 
 {$C->app->url->value}/confirmation_form.php?cle=$cle ";
 
-					mail_utf8($_POST['email'],"Formulaire ".$form['nom'].", confirmation",$message,"From: {$C->app->mails_notification_from->value}");
+					if ($mail_body_confirm!='') {
+                        $message=str_replace('##URL##',"{$C->app->url->value}/confirmation_form.php?cle=$cle",$mail_body_confirm);
+                    }
+                    mail_utf8($_POST['email'],$form['nom'].", confirmation",$message,"From: {$C->app->mails_notification_from->value}");
 
 					$res="Nous vous avons envoyé un e-mail de confirmation. (pensez à vérifier vos spams)";
 				}
@@ -111,21 +132,31 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
 	}
 ?><html>
 <head>
-<title>Inscription au formulaire: <?=$form['nom']?></title>
+<title><?=$form['nom']?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 <link href="lib/css/bootstrap.min.css" media="all" type="text/css" rel="stylesheet">
+<?php
+if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/styles.css')) echo "<link href=\"data/formulaires/".$_REQUEST['id']."/styles.css\" media=\"all\" type=\"text/css\" rel=\"stylesheet\">";
+?>
 </head>
-<body style="background-color:#FFF;color:#000;">
+<body>
 <?if ($res==""){?>
 	<form id="formulaire" class="col-xs-12 col-md-6 col-md-offset-3 " method="post" action="formulaire.php">
-		<h3>Inscription au formulaire : <?=$form['nom']?></h3>
-		<input type="hidden" value="<?=$_REQUEST['id']?>" name="id">
-	    <div class="col-xs-12 col-md-4 form-group"><input type="text" value="" name="prenom" placeholder="prénom" class="form-control input-sm"></div>
-	    <div class="col-xs-12 col-md-4 form-group"> <input type="text" value="" name="nom" placeholder="nom" class="form-control input-sm"></div>
-	    <div class="col-xs-12 col-md-4 form-group"><input type="email" value="" name="email" placeholder="e-mail" class="form-control input-sm"></div>
-            <input class="col-xs-12 btn btn-primary btn-xs" type="submit" value="inscrivez-vous au formulaire" name="envoyer"/>
+		<h3 class="titre"><?=$form['nom']?></h3>
+        <?php
+        if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/header.html')) echo file_get_contents('./data/formulaires/'.$_REQUEST['id'].'/header.html')."\n";
+        ?>
+        <div><?=$text?></div>
+        <div class="row">
+    		<input type="hidden" value="<?=$_REQUEST['id']?>" name="id">
+    	    <div class="col-xs-12 col-md-4 form-group"><input type="text" value="" name="prenom" placeholder="prénom" class="form-control input-sm"></div>
+    	    <div class="col-xs-12 col-md-4 form-group"> <input type="text" value="" name="nom" placeholder="nom" class="form-control input-sm"></div>
+    	    <div class="col-xs-12 col-md-4 form-group"><input type="email" value="" name="email" placeholder="e-mail" class="form-control input-sm"></div>
         </div>
+        <input class="col-xs-12 btn btn-primary" type="submit" value="<?=$btn?>" name="envoyer"/>
+            </div>
+
 <?}?>
         <div id="reponse" class="col-xs-12 col-md-6 col-md-offset-3"><?=$res?></div>
 </body>

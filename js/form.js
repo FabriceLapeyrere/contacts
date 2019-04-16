@@ -15,6 +15,7 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 	$scope.nom=document.getElementById("nom").value;
 	$scope.prenom=document.getElementById("prenom").value;
 	$scope.hash=document.getElementById("hash").value;
+	$scope.public_header=document.getElementById("public-header").value;
 	$scope.formkey="form/"+$scope.idform;
 	Data.accept_anonymous=true;
 	$scope.help=function(id){
