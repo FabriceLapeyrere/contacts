@@ -16,6 +16,8 @@ foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 }
 $header="";
 if (file_exists('data/formulaires/'.$id_form.'/public/header.html')) $header='data/formulaires/'.$id_form.'/public/header.html';
+$footer="";
+if (file_exists('data/formulaires/'.$id_form.'/public/footer.html')) $footer='data/formulaires/'.$id_form.'/public/footer.html';
 $css="";
 if (file_exists('data/formulaires/'.$id_form.'/public/styles.css')) $css='data/formulaires/'.$id_form.'/public/styles.css';
 $query = "SELECT * FROM forms WHERE id=$id_form";
@@ -83,11 +85,12 @@ if (
 <input type="hidden" id="nom" value="<?=$contact['nom']?>"/>
 <input type="hidden" id="prenom" value="<?=$contact['prenom']?>"/>
 <input type="hidden" id="public-header" value="<?=$header?>"/>
+<input type="hidden" id="public-footer" value="<?=$footer?>"/>
 <div id="form-container" ng-view></div>
 <div class='app-loader-container'><span ng-class="{'ok':uploading()}" class="glyphicon glyphicon-upload"></span> <span ng-class="{'ok':!Data.modeleFresh || !isAnswer()}" class="glyphicon glyphicon-refresh"></span></div>
 <div id="main-lock" ng-if="Data.offline">Connection en cours...</div>
 <script src="lib/rfc6902.min.js"></script>
-<script src="lib/angular-1.4.9.min.js"></script>
+<script src="lib/angular-1.7.8.min.js"></script>
 <script src="lib/angular-animate.min.js"></script>
 <script src="lib/angular-touch.min.js"></script>
 <script src="lib/angular-locale_fr-fr.js"></script>

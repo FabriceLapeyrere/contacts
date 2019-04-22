@@ -10,6 +10,14 @@ function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') 
   $header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
   mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
 }
+function label($l) {
+    $tab=explode('|',$l);
+	$res=trim($tab[0]);
+	foreach ($tab as $k=>$t) {
+        if ($k>0) $res=$res.' <span class="traduction">/ '.trim($t).'</span>';
+	}
+	return $res;
+}
 function test_email($email)
 {
 	if( preg_match("~^[_\.0-9a-z-]+@([0-9a-z-]+\.)+[a-z]{2,4}$~",$email) )
@@ -59,11 +67,24 @@ $mail_body="";
 if (isset($form['schema']->mail_body) && $form['schema']->mail_body!="") $mail_body=$form['schema']->mail_body;
 $mail_body_confirm="";
 if (isset($form['schema']->mail_body_confirm) && $form['schema']->mail_body_confirm!="") $mail_body_confirm=$form['schema']->mail_body_confirm;
+
+$msg_email_missing="Veuillez saisir une adresse e-mail";
+if (isset($form['schema']->msg_email_missing) && $form['schema']->msg_email_missing!="") $msg_email_missing=label($form['schema']->msg_email_missing);
+$msg_email_invalid="L'adresse e-mail n'est pas valide !";
+if (isset($form['schema']->msg_email_invalid) && $form['schema']->msg_email_invalid!="") $msg_email_invalid=label($form['schema']->msg_email_invalid);
+$msg_link_sent="Nous vous avons envoyé un lien par email. (pensez à vérifier vos spams)";
+if (isset($form['schema']->msg_link_sent) && $form['schema']->msg_link_sent!="") $msg_link_sent=label($form['schema']->msg_link_sent);
+$msg_confirm_sent="Nous vous avons envoyé un e-mail de confirmation. (pensez à vérifier vos spams)";
+if (isset($form['schema']->msg_confirm_sent) && $form['schema']->msg_confirm_sent!="") $msg_confirm_sent=label($form['schema']->msg_confirm_sent);
+
+$email="";
+if (isset($_REQUEST['email'])) $email=$_REQUEST['email'];
+
 if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<$t && $form['to_date']>$t) {
     if (!file_exists('data/cle')) mkdir('./data/cle', 0777, true);
 	$res="";
 	if (isset($_POST) && count($_POST)>0) {
-		if ($_POST['email']=="") $res="Veuillez saisir une adresse e-mail";
+		if ($_POST['email']=="") $res=$msg_email_missing;
 		else {
 			if (test_email($_POST['email'])) {
 				$casquette=casquette($_POST['email']);
@@ -85,7 +106,7 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
                             $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
                         }
                         mail_utf8($_POST['email'],"Votre lien / ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
-                        $res="Nous vous avons envoyé un lien par email. (pensez à vérifier vos spams)";
+                        $res=$msg_link_sent;
 					} else {
                         $params= new stdClass;
                         $params->id_cas=$casquette['id'];
@@ -104,7 +125,7 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
                             $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
                         }
                         mail_utf8($_POST['email'],"Votre lien / ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
-                        $res="Nous vous avons envoyé un lien par email. (pensez à vérifier vos spams)";
+                        $res=$msg_link_sent;
 					}
 				} else {
 					$cle=basename(tempnam('cle',''));
@@ -124,10 +145,10 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
                     }
                     mail_utf8($_POST['email'],$form['nom'].", confirmation",$message,"From: {$C->app->mails_notification_from->value}");
 
-					$res="Nous vous avons envoyé un e-mail de confirmation. (pensez à vérifier vos spams)";
+					$res=$msg_confirm_sent;
 				}
 			}
-			else $res="L'adresse e-mail n'est pas valide !";
+			else $res=$msg_email_invalid;
 		}
 	}
 ?><html>
@@ -141,24 +162,29 @@ if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/styles.css')) echo "<link
 ?>
 </head>
 <body>
-<?if ($res==""){?>
-	<form id="formulaire" class="col-xs-12 col-md-6 col-md-offset-3 " method="post" action="formulaire.php">
-		<h3 class="titre"><?=$form['nom']?></h3>
-        <?php
+	<form id="formulaire" class="col-xs-12 col-md-6 col-md-offset-3" method="post" action="formulaire.php?id=<?=$_REQUEST['id']?>">
+		<?php
         if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/header.html')) echo file_get_contents('./data/formulaires/'.$_REQUEST['id'].'/header.html')."\n";
         ?>
-        <div><?=$text?></div>
+        <div class="text-container"><?=$text?></div>
         <div class="row">
     		<input type="hidden" value="<?=$_REQUEST['id']?>" name="id">
     	    <div class="col-xs-12 col-md-4 form-group"><input type="text" value="" name="prenom" placeholder="prénom" class="form-control input-sm"></div>
     	    <div class="col-xs-12 col-md-4 form-group"> <input type="text" value="" name="nom" placeholder="nom" class="form-control input-sm"></div>
-    	    <div class="col-xs-12 col-md-4 form-group"><input type="email" value="" name="email" placeholder="e-mail" class="form-control input-sm"></div>
+    	    <div class="col-xs-12 col-md-4 form-group"><input type="email" name="email" placeholder="e-mail" class="form-control input-sm" value="<?=$email?>"></div>
         </div>
         <input class="col-xs-12 btn btn-primary" type="submit" value="<?=$btn?>" name="envoyer"/>
-            </div>
+        </div>
+    </form>
 
-<?}?>
+<?if ($res!=""){?>
         <div id="reponse" class="col-xs-12 col-md-6 col-md-offset-3"><?=$res?></div>
+<?}?>
+    <div class="col-xs-12 col-md-6 col-md-offset-3">
+		<?php
+        if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/footer.html')) echo file_get_contents('./data/formulaires/'.$_REQUEST['id'].'/footer.html')."\n";
+        ?>
+    </div>
 </body>
 </html>
 <? } else { ?>

@@ -191,10 +191,7 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 				if (types.indexOf(k)>=0) {
 					//console.log(isEqual(v.params,params[k]),v.params,params[k]);
 					if (isEqual(v.params,params[k])) {
-						if (!Data.modele[k]) Data.modele[k]=v;
-						else {
-							link.updateModele(k,v);
-						}
+						Data.modele[k]=v;
 						Data.modeleSrv[k]=angular.copy(v);
 					}
 				} else {

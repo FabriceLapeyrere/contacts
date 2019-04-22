@@ -1,0 +1,6 @@
+<label ng-bind-html="trust(label(p.elt.label))"></label>
+<div>
+    <span ng-repeat="choix in p.elt.choix" ng-if="p.collection[p.elt.id].valeur.split(',').indexOf(choix.valeur)>=0">
+        <span ng-bind-html="trust(label(choix.nom))"  class="label label-primary"></span>
+    </span>
+</div>

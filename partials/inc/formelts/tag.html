@@ -1,0 +1,22 @@
+<label>Label</label>
+<input placeholder="Label" ng-model="elt.label" class="form-control" type="text"/>
+<label>N° du tag</label>
+<input placeholder="N° du tag" ng-model="elt.idTag" class="form-control" type="number"/>
+<div class="row" style="padding-top:5px;">
+    <div class="col-xs-4">
+        <label>Valeur si vrai</label>
+        <input placeholder="Valeur si vrai" ng-model="elt.trueValue" class="form-control" type="text"/>
+    </div>
+    <div class="col-xs-4">
+        <label>Valeur si faux</label>
+        <input placeholder="Valeur si faux" ng-model="elt.falseValue" class="form-control" type="text"/>
+    </div>
+    <div class="col-xs-4">
+        <label>Valeur par défaut</label><br />
+        <span ng-model="elt.default" uib-btn-checkbox btn-checkbox-true="'1'" btn-checkbox-false="'0'">
+            <span ng-if="elt.default=='1'" class="btn-group"><span class="btn btn-primary">{{elt.trueValue || '1'}}</span><span  class="btn btn-default">{{elt.falseValue || '0'}}</span></span>
+            <span ng-if="elt.default=='0'" class="btn-group"><span class="btn btn-default">{{elt.trueValue || '1'}}</span><span  class="btn btn-primary">{{elt.falseValue || '0'}}</span></span>
+        </span>
+    </div>
+    <div class="clearfix"></div>
+</div>

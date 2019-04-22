@@ -2549,17 +2549,17 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 	$scope.getPage(1);
 }]);
 app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'FileUploader', 'Link', 'Data', function ($scope, $http, $location, $routeParams, $interval, $uibModal, FileUploader, Link, Data) {
+	$scope.form={};
+	$scope.instance={};
 	$scope.hash=$routeParams.hash;
 	$scope.key='form_instance/'+$scope.hash;
 	$scope.contactkey= Data.modele[$scope.key] ? 'contact/'+Data.modele[$scope.key].id_contact : '';
+	$scope.formkey= Data.modele[$scope.key] ? 'form/'+Data.modele[$scope.key].id_form : '';
 	Link.context([{type:$scope.key}]);
 	$scope.label=function(label){
 		if (label){
 			var tab=label.split('|');
 			var res=tab[0].trim();
-			for (var i=1;i<tab.length;i++){
-				res+=' <span class="traduction">/ '+tab[i].trim()+'</span>';
-			}
 			return res;
 		} else return '';
 	}
@@ -2569,6 +2569,12 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 	}
 	$scope.checkAll=function(){
 		console.log('checkAll',Data.modele[$scope.key]);
+		$scope.formkey='form/'+Data.modele[$scope.key].id_form;
+		if (!Data.modele[$scope.formkey]) {
+			var contexts=Data.contexts;
+			contexts.push({type:$scope.formkey});
+			Link.context(contexts);
+		}
 		var nb=Object.keys(Data.modele[$scope.key].collection).length;
 		angular.forEach(Data.modele[$scope.key].form.schema.pages,function(p){
 			angular.forEach(p.elts,function(elt){
@@ -2656,6 +2662,9 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 		$scope.testValid();
 		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
 		return Object.keys($scope.isValid).length==0 && $scope.dirty($scope.key);
+	};
+	$scope.open=function(){
+		Link.ajax([{action:'openFormInstance', params:{hash:$scope.hash}}]);
 	};
 }]);
 //supports

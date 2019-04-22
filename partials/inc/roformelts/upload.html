@@ -1,0 +1,7 @@
+<label ng-bind-html="trust(label(p.elt.label))"></label>
+<ul class="list-group">
+    <li ng-if="p.collection[p.elt.id].valeur.length==0" class="list-group-item">Aucun fichier</li>
+    <li class="list-group-item" ng-repeat="f in p.collection[p.elt.id].valeur"><a href="{{f.url}}" target="_blank">{{f.nom}}</a>
+        <div class="clearfix"></div>
+    </li>
+</ul>

@@ -330,3 +330,7 @@ pre {
 .pad-bottom {
 	padding-bottom:30px;
 }
+pre.form-ro {
+    font-family:inherit;
+    background:#fff;
+}

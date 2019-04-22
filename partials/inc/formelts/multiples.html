@@ -16,3 +16,9 @@
         {{choix.nom}} ({{choix.valeur}}) <span class="glyphicon glyphicon-pencil cursor" style="font-size:0.7em;" ng-click="modChoixMod(choix)"></span> <span class="glyphicon glyphicon-trash cursor" style="font-size:0.7em;" ng-confirm-click="delChoix(elt,choix)" ng-confirm-message="Sûr?"></span>
     </label>
 </div>
+<p>&nbsp;</p>
+<label>Obligatoire ?</label>
+<span ng-model="elt.mandatory" ng-init="elt.mandatory=elt.mandatory || '1'" uib-btn-checkbox btn-checkbox-true="'1'" btn-checkbox-false="'0'">
+    <span ng-if="elt.mandatory=='1'" class="btn-group"><span class="btn btn-primary">oui</span><span  class="btn btn-default">non</span></span>
+    <span ng-if="elt.mandatory=='0'" class="btn-group"><span class="btn btn-default">oui</span><span  class="btn btn-primary">non</span></span>
+</span>

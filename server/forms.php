@@ -32,7 +32,7 @@
 		}
 		public static function get_form_instance($hash,$id,$form=true) {
 			$db= new DB();
-			$query = "SELECT t1.hash as main_hash, t1.id_form as main_id_form, t1.id_lien as main_id_lien, t1.type_lien as main_type_lien, t2.*, t3.id_contact as id_contact FROM form_instances as t1 left join forms_data as t2 on t1.hash=t2.hash left join casquettes as t3 on t1.type_lien='casquette' AND t1.id_lien=t3.id where t1.hash='$hash'";
+			$query = "SELECT t1.hash as main_hash, t1.id_form as main_id_form, t1.id_lien as main_id_lien, t1.type_lien as main_type_lien, t1.state as state, t2.*, t3.id_contact as id_contact FROM form_instances as t1 left join forms_data as t2 on t1.hash=t2.hash left join casquettes as t3 on t1.type_lien='casquette' AND t1.id_lien=t3.id where t1.hash='$hash'";
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$res=array('collection'=>array());
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
@@ -45,10 +45,57 @@
 				$res['id_lien']=$row['main_id_lien'];
 				$res['type_lien']=$row['main_type_lien'];
 				$res['id_contact']=$row['id_contact'];
+				$res['state']=$row['state'];
 			};
 			$res['collection']=(object)$res['collection'];
 			if ($form) $res['form']=Forms::get_form($res['id_form'],$id);
 			return $res;
+		}
+		public function close_form_instance($params,$id) {
+			$t=Forms::do_close_form_instance($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_close_form_instance($params,$id) {
+			$hash=$params->hash;
+			$db= new DB();
+			$update= $db->database->prepare('UPDATE form_instances SET state=? WHERE hash=?');
+			$update->execute(array(
+				'closed',
+				$hash
+				)
+			);
+			$db_instance=Forms::get_form_instance($hash,$id);
+			$maj=array("casquettes");
+			$maj[]="form_instance/".$hash;
+			$maj[]="form_instances_form/".$db_instance['id_form'];
+			if ($db_instance['type_lien']=='casquette') {
+				$maj[]="form_instances_cas_form/".$db_instance['id_lien']."/".$db_instance['id_form'];
+			}
+			return array('maj'=>$maj,'res'=>1);
+		}
+		public function open_form_instance($params,$id) {
+			$t=Forms::do_open_form_instance($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_open_form_instance($params,$id) {
+			$hash=$params->hash;
+			$db= new DB();
+			$update= $db->database->prepare('UPDATE form_instances SET state=? WHERE hash=?');
+			$update->execute(array(
+				'open',
+				$hash,
+				)
+			);
+			$db_instance=Forms::get_form_instance($hash,$id);
+			$maj=array("casquettes");
+			$maj[]="form_instance/".$hash;
+			$maj[]="form_instances_form/".$db_instance['id_form'];
+			if ($db_instance['type_lien']=='casquette') {
+				$maj[]="form_instances_cas_form/".$db_instance['id_lien']."/".$db_instance['id_form'];
+			}
+			return array('maj'=>$maj,'res'=>1);
 		}
 		public function mod_form_instance($params,$id) {
 			$t=Forms::do_mod_form_instance($params,$id);
@@ -73,7 +120,32 @@
 			}
 			//error_log(var_export($new,true),3,"/tmp/fab.log");
 			//error_log(var_export($mod,true),3,"/tmp/fab.log");
-
+			$maj=array();
+			if ($db_instance['type_lien']=='casquette'){
+				foreach($params->instance->collection as $k=>$e) {
+					if ($e->type=='tag'){
+						$id_tag=0;
+						foreach ($db_instance['form']['schema']->pages as $page) {
+							foreach ($page->elts as $elt) {
+								if ($elt->id==$k) $id_tag=$elt->idTag;
+							}
+						}
+						$p= new stdClass;
+						$p->tag=new stdClass;
+						$p->tag->id=$id_tag;
+						$p->cas=new stdClass;
+						$p->cas->id=$db_instance['id_lien'];
+						$p->cas->id_contact=$db_instance['id_contact'];
+						if ($e->valeur==1) {
+							$c=Contacts::do_add_cas_tag($p,$id);
+							$maj=array_merge($maj,$c['maj']);
+						} else {
+							$c=Contacts::do_del_cas_tag($p,$id);
+							$maj=array_merge($maj,$c['maj']);
+						}
+					}
+				}
+			}
 			$db= new DB();
 			$db->database->beginTransaction();
 			foreach($new as $n) {
@@ -106,6 +178,7 @@
 			$db->database->commit();
 			$maj=array("casquettes");
 			$maj[]="form_instance/".$params->instance->hash;
+			$maj[]="form_instances_form/".$db_instance['id_form'];
 			if ($db_instance['type_lien']=='casquette') {
 				$maj[]="form_instances_cas_form/".$db_instance['id_lien']."/".$db_instance['id_form'];
 			}
@@ -185,6 +258,7 @@
 			}
 			$maj=array("casquettes");
 			$maj[]="form_instance/".$hash;
+			if ($res['type_lien']=='casquette') $maj[]="form_instances_cas_form/".$res['id_lien']."/".$res['id_form'];
 			return array('maj'=>$maj,'res'=>1);
 		}
 		public static function get_forms() {

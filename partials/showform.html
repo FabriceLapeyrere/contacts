@@ -1,5 +1,6 @@
 <div loading="key" data="Data" action="checkAll()">
-	<div ng-init="instance=Data.modele[key];"></div>
+<div loading="formkey" data="Data">
+	<div ng-init="instance=Data.modele[key];form=Data.modele[formkey];"></div>
 	<div class="col-xs-12" ng-if="!instance.hash">
 		Ce formulaire n'existe pas.
 	</div>
@@ -7,23 +8,23 @@
         <div>
         	<p>&nbsp;</p>
             <p>
-                <button class="btn btn-primary" ng-click="save()" ng-disabled="ko=!canSave()">Enregistrer</button>
+				<button class="btn btn-primary" ng-click="save()" ng-disabled="ko=!canSave()">Enregistrer</button>
+				<button ng-if="instance.state=='closed'" class="btn btn-primary" ng-click="open()">Ré-ouvrir</button>
             </p>
             <p>
                 <a href="{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}" target="_blank">{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}</a>
             </p>
         </div>
     	<uib-tabset>
-            <uib-tab ng-repeat="page in instance.form.schema.pages">
+            <uib-tab ng-repeat="page in form.schema.pages">
                 <uib-tab-heading>
-                    Page {{$index+1}}
+                    {{page.nom || 'Page '+($index+1)}}
                 </uib-tab-heading>
                 <div>
                     <p>&nbsp;</p>
                     <div class="list-group">
                         <div ng-repeat="elt in page.elts" class="list-group-item" ng-show="!elt.condition || instance.collection[elt.condition.id].valeur==elt.condition.valeur">
-                            <span class="mini" ng-if="instance.collection[elt.id].modificationdate">({{calendar(instance.collection[elt.id].modificationdate)}} par {{Data.modele.usersall[instance.collection[elt.id].modifiedby].name}})<br /></span>
-                            <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/showformelts/'+elt.type+'.html'"></ng-include>
+                            <ng-include ng-init="p={elt:elt,collection:instance.collection,hash:instance.hash}" src="'partials/inc/roformelts/'+elt.type+'.html'"></ng-include>
                         </div>
                     </div>
                 </div>
@@ -36,12 +37,13 @@
         </div>
     </div>
     <div ng-if="instance.hash && instance.type_lien=='casquette'" class="col-xs-12 col-sm-6">
-        <div loading="formkey" data="Data">
-            <h3>Formulaire : <a href="modform/{{instance.form.id}}">{{instance.form.nom}}</a></h3>
+        <div>
+            <h3>Formulaire : <a href="modform/{{form.id}}">{{form.nom}}</a></h3>
         </div>
         <div loading="contactkey" data="Data">
             <h3 class="cursor" ng-class="{'individu':Data.modele[contactkey].casquettes[instance.id_lien].type==1, 'structure':Data.modele[contactkey].casquettes[instance.id_lien].type==2}"><a href="modcontact/{{Data.modele[contactkey].casquettes[instance.id_lien].id_contact}}">{{Data.modele[contactkey].casquettes[instance.id_lien].prenom}} {{Data.modele[contactkey].casquettes[instance.id_lien].nom}}</a></h3>
             <div ng-init="cas=Data.modele[contactkey].casquettes[instance.id_lien]" ng-include="'partials/inc/casquetteInfos.html'"></div>
         </div>
     </div>
+</div>
 </div>

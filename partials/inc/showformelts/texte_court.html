@@ -1,2 +1,2 @@
-<label ng-bind-html="trust(label(p.elt.label))"></label>
+<label ng-bind-html="trust(label(p.elt.label))"></label><span ng-if="elt.mandatory=='1'"> *</span> <span class="glyphicon glyphicon-ok cursor" ng-if="!isValid[currenthash][elt.id] && done[currenthash][elt.id]"></span>
 <input placeholder="{{p.elt.label}}" ng-model="p.collection[p.elt.id].valeur" class="form-control" type="text"/>

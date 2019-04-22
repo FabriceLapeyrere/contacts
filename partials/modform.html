@@ -6,6 +6,9 @@
 		    <span class="pull-right mini" ng-show="p">Enregistré</span>
 		    <span class="pull-right mini" ng-show="!p">Non enregistré</span>
 		</p>
+		<p>
+            <a href="{{Data.modele.config.config.app.url.value}}/formulaire.php?id={{Data.modele[key].id}}" target="_blank">{{Data.modele.config.config.app.url.value}}/formulaire.php?id={{Data.modele[key].id}}</a>
+        </p>
 	    <p>
 			<button class="btn btn-primary" ng-click="save()" ng-disabled="p=pristine(key)">Enregistrer</button>
 			<button class="btn btn-primary" ng-click="addPage()">Ajouter une page</button>
@@ -45,11 +48,20 @@
 				<label>Champ titre</label>
 				<select class="form-control" ng-options="e.id as e.label for e in Data.modele[key].schema.pages[0].elts | filter:{type:'texte_court'}" ng-model="Data.modele[key].schema.champ_titre"></select>
 				<p>&nbsp;</p>
+				<label>Texte du bouton enregistrer</label>
+				<input class="form-control" placeholder="Texte du bouton enregistrer" type="text" ng-model="Data.modele[key].schema.texte_save"/>
+				<p>&nbsp;</p>
+				<label>Texte du bouton valider</label>
+				<input class="form-control" placeholder="Texte du bouton valider" type="text" ng-model="Data.modele[key].schema.texte_validate"/>
+				<p>&nbsp;</p>
+				<label>Message instance validée</label>
+				<input class="form-control" placeholder="Message instance validée" type="text" ng-model="Data.modele[key].schema.instance_closed"/>
+				<p>&nbsp;</p>
 				<label>Texte du bouton qui permet d'ajouter une instance</label>
-				<input class="form-control" placeholder="Texte bouton" type="texte" ng-model="Data.modele[key].schema.texte_new_instance"/>
+				<input class="form-control" placeholder="Texte du bouton qui permet d'ajouter une instance" type="text" ng-model="Data.modele[key].schema.texte_new_instance"/>
 				<p>&nbsp;</p>
 				<label>Texte du bouton qui permet de supprimer une instance</label>
-				<input class="form-control" placeholder="Texte bouton" type="texte" ng-model="Data.modele[key].schema.texte_del_instance"/>
+				<input class="form-control" placeholder="Texte du bouton qui permet de supprimer une instance" type="text" ng-model="Data.modele[key].schema.texte_del_instance"/>
 				<p>&nbsp;</p>
 				<label>Contenu du mail de confirmation</label><br />
 				<textarea class="form-control" style="height:200px;" ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.mail_body_confirm"></textarea>
@@ -61,7 +73,19 @@
 				<ng-ckeditor ng-if="editorOk" ng-config="editorOptions" name="descriptif" ng-model="Data.modele[key].schema.home_body"></ng-ckeditor>
 				<p>&nbsp;</p>
 				<label>Texte du bouton d'inscription</label>
-				<input class="form-control" placeholder="Texte bouton" type="texte" ng-model="Data.modele[key].schema.home_btn"/>
+				<input class="form-control" placeholder="Texte du bouton d'inscription" type="text" ng-model="Data.modele[key].schema.home_btn"/>
+				<p>&nbsp;</p>
+				<label>Message e-mail manquant</label>
+				<input class="form-control" placeholder="Message e-mail manquant" type="text" ng-model="Data.modele[key].schema.msg_email_missing"/>
+				<p>&nbsp;</p>
+				<label>Message e-mail non valide</label>
+				<input class="form-control" placeholder="Message e-mail non valide" type="text" ng-model="Data.modele[key].schema.msg_email_invalid"/>
+				<p>&nbsp;</p>
+				<label>Message lien de l'instance envoyé</label>
+				<input class="form-control" placeholder="Message lien de l'instance envoyé" type="text" ng-model="Data.modele[key].schema.msg_link_sent"/>
+				<p>&nbsp;</p>
+				<label>Message mail de confirmation envoyé</label>
+				<input class="form-control" placeholder="Message mail de confirmation envoyé" type="text" ng-model="Data.modele[key].schema.msg_confirm_sent"/>
 				<p>&nbsp;</p>
 			</uib-tab>
 			<uib-tab ng-repeat="p in Data.modele[key].schema.pages" ng-init="pageIndex=$index">

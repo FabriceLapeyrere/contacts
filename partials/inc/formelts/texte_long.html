@@ -4,3 +4,9 @@
 <input ng-model="elt.maxLength" class="form-control" type="number" ng-init="elt.maxLength = elt.maxLength || 1000"/>
 <label>Hauteur de la zone de texte</label>
 <input ng-model="elt.height" class="form-control" type="number" ng-init="elt.height = elt.height || 150"/>
+<p>&nbsp;</p>
+<label>Obligatoire ?</label>
+<span ng-model="elt.mandatory" ng-init="elt.mandatory=elt.mandatory || '1'" uib-btn-checkbox btn-checkbox-true="'1'" btn-checkbox-false="'0'">
+    <span ng-if="elt.mandatory=='1'" class="btn-group"><span class="btn btn-primary">oui</span><span  class="btn btn-default">non</span></span>
+    <span ng-if="elt.mandatory=='0'" class="btn-group"><span class="btn btn-default">oui</span><span  class="btn btn-primary">non</span></span>
+</span>

@@ -1,0 +1,5 @@
+<label ng-bind-html="trust(label(p.elt.label))"></label>
+<span>
+    <span ng-if="p.collection[p.elt.id].valeur=='1'"><span class="label label-primary" ng-bind-html="trust(label(p.elt.trueValue || 'oui'))"></span></span>
+    <span ng-if="p.collection[p.elt.id].valeur=='0'"><span class="label label-primary" ng-bind-html="trust(label(p.elt.falseValue || 'non'))"></span></span>
+</span>

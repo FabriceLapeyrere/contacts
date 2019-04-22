@@ -464,6 +464,7 @@
 						array('nom'=>'id_lien','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'type_lien','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'hash','type'=>'string','defaut'=>'','options'=>''),
+						array('nom'=>'state','type'=>'string','defaut'=>'open','options'=>''),
 					)
 				),
 				array(

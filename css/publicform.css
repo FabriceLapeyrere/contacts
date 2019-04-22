@@ -8,6 +8,14 @@ body {
     font-size:0.8em;
     color:#666;
 }
-.btn-primary .traduction {
+.btn-primary .traduction, .label-primary .traduction {
 	color: #FFF;
+}
+pre {
+	white-space: pre-wrap;
+	word-break: normal;
+}
+pre.form-ro {
+    font-family:inherit;
+    background:#fff;
 }

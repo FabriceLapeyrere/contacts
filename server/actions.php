@@ -444,6 +444,14 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->add_form_instance_cas($params,$u['id']);
 		}
+		public function closeFormInstance($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->close_form_instance($params,$u['id']);
+		}
+		public function openFormInstance($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->open_form_instance($params,$u['id']);
+		}
 		public function delFormInstance($params){
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->del_form_instance($params,$u['id']);

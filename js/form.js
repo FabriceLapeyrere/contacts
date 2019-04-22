@@ -16,6 +16,7 @@ app.controller('mainCtl', ['$scope', '$location', '$timeout', '$interval', '$sce
 	$scope.prenom=document.getElementById("prenom").value;
 	$scope.hash=document.getElementById("hash").value;
 	$scope.public_header=document.getElementById("public-header").value;
+	$scope.public_footer=document.getElementById("public-footer").value;
 	$scope.formkey="form/"+$scope.idform;
 	Data.accept_anonymous=true;
 	$scope.help=function(id){
@@ -159,6 +160,8 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 			angular.forEach(p.elts,function(elt){
 				if (elt.type!='titre' && elt.type!='texte') $scope.check($scope.currenthash,elt);
 				if (elt.type=='upload') {
+					var maxSize=10*1000*1000;
+					if (elt.maxSize) maxSize=elt.maxSize*1000*1000;
 					if (!$scope.uploaders[$scope.currenthash+'-'+elt.id]) {
 						$scope.uploaders[$scope.currenthash+'-'+elt.id] = new FileUploader({
 							url: 'upload.php',
@@ -166,7 +169,15 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 							formData:[{hash:$scope.currenthash,id:elt.id},{type:'form_upload'}],
 							onCompleteAll:function(){
 								$scope.uploaders[$scope.currenthash+'-'+elt.id].clearQueue();
-							}
+							},
+							filters: [{
+						        name: 'filesize',
+						        // A user-defined filter
+						        fn: function(item) {
+									if (item.size>maxSize) window.alert("Fichier trop volumineux");
+									return item.size<=maxSize;
+						        }
+						    }]
 						});
 					}
 				}
@@ -178,7 +189,7 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 			$scope.save($scope.currenthash);
 		}
 		else console.log('save not needed');
-		$scope.checkOk[hash]=true;
+		$scope.checkOk[$scope.currenthash]=true;
 	};
 	$scope.$on('modele-update-'+$scope.formkey,function(){
 		if (Data.modele[$scope.key]) $scope.checkAll();
@@ -226,13 +237,33 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 			angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
 				angular.forEach(p.elts,function(elt){
 					if (elt.type=='texte_long' && elt.maxLength) {
-						var StrippedString = Data.modele[$scope.key][hash].collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
-						var tab=StrippedString.split(' ');
+						var strippedString = Data.modele[$scope.key][hash].collection[elt.id].valeur.replace(/(<([^>]+)>)/ig,"");
+						var tab=strippedString.split(' ');
 						var t=tab.length<=elt.maxLength;
 						var o="Texte trop long ("+tab.length+" mots pour "+elt.maxLength+" autorisés)";
 						if (!t){
 							if($scope.isValid[hash][elt.id]!=o) $scope.isValid[hash][elt.id]=o;
 						} else delete($scope.isValid[hash][elt.id]);
+					}
+				});
+			});
+		}
+	};
+	$scope.done={};
+	$scope.testDone=function(hash){
+		if (!$scope.done[hash]) $scope.done[hash]= {};
+		if (Data.modele[$scope.key][hash] && $scope.checkOk[hash]) {
+			angular.forEach(Data.modele[$scope.formkey].schema.pages,function(p){
+				angular.forEach(p.elts,function(elt){
+					if (elt.mandatory && elt.mandatory=='1' && (!elt.condition || Data.modele[$scope.key][hash].collection[elt.condition.id].valeur.split(',').indexOf(elt.condition.valeur)>=0)) {
+						if (elt.type=='texte_court' || elt.type=='texte_long' || elt.type=='date' || elt.type=='multiples' || elt.type=='upload') {
+							if(Data.modele[$scope.key][hash].collection[elt.id].valeur && Data.modele[$scope.key][hash].collection[elt.id].valeur.length>0) $scope.done[hash][elt.id]=true;
+							else $scope.done[hash][elt.id]=false;
+						} else {
+							$scope.done[hash][elt.id]=true;
+						}
+					} else {
+						$scope.done[hash][elt.id]=true;
 					}
 				});
 			});
@@ -257,6 +288,20 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 		$scope.testValid(hash);
 		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
 		return Object.keys($scope.isValid[hash]).length==0 && $scope.dirtyKey($scope.key,hash);
+	};
+	$scope.canValidate=function(hash){
+		$scope.testDone(hash);
+		test=true;
+		angular.forEach($scope.done[hash],function(e){
+			test=test && e;
+		});
+		//console.log(Object.keys($scope.isValid).length,$scope.dirty($scope.key));
+		return test && Object.keys($scope.isValid[hash]).length==0;
+	};
+	$scope.validate=function(hash){
+		Link.ajax([{action:'modFormInstance',params:{instance:Data.modele[$scope.key][hash]}}],function(r){
+			Link.ajax([{action:'closeFormInstance', params:{hash:hash}}]);
+		});
 	};
 	$scope.addInstance=function(){
 		console.log('addInstance');

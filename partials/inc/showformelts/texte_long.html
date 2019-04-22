@@ -1,3 +1,3 @@
-<label ng-bind-html="trust(label(p.elt.label))"></label>
-<div ng-if="isValid[p.elt.id]">{{isValid[p.elt.id]}}</div>
+<label ng-bind-html="trust(label(p.elt.label))"></label><span ng-if="elt.mandatory=='1'"> *</span> <span class="glyphicon glyphicon-ok cursor" ng-if="!isValid[currenthash][elt.id] && done[currenthash][elt.id]"></span>
+<div ng-if="isValid[currenthash][p.elt.id]">{{isValid[currenthash][p.elt.id]}}</div>
 <textarea ng-if="editorOk" ng-config="editorOptions" ng-model="p.collection[p.elt.id].valeur" class="form-control" ng-style="{height:(p.elt.height || 150) + 'px'}"></textarea>
