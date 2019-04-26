@@ -5,7 +5,11 @@
 	else {
 		$color='';
 		if (isset($tab[2])) {
-			$color=$tab[2];
+			$color_desc=$tab[2];
+			$t=explode(',',$color_desc);
+			$color=$t[0];
+			$style='none';
+			if (count($t)==2) $style=$t[1];
 			$doc = new DOMDocument();
 			$cv = mb_convert_encoding($valeur, 'HTML-ENTITIES', "UTF-8");
 			$doc->loadHTML($cv);
@@ -13,7 +17,7 @@
 			$nodes = $xpath->query('//a');
 			foreach($nodes as $node) {
 				$href=$node->getAttribute('href');
-				$node->setAttribute('style',"text-decoration:none;color:$color;");
+				$node->setAttribute('style',"text-decoration:$style;color:$color;");
 			}
 			$innerHTML="";
 			foreach ($doc->getElementsByTagName('body')->item(0)->childNodes as $child) {

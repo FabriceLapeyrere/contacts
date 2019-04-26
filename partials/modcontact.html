@@ -36,8 +36,10 @@
 					<div class="inter col-xs-12" ng-if="cas.okL.length + cas.okB.length>0"></div>
 					<div class="col-xs-12 row" ui-on-Drop="dropOnCas($event,$data,$channel,cas,$ctrl)" drop-channel="swapToCas" drop-validate="dropOnCasValidate(cas, $data)">
 						<div ng-repeat-start="d in cas.donnees | notNote" class="col-sm-6" style="overflow:hidden;">
-							<div ng-if="d.type!='adresse'" ui-draggable="true" drag="{idx:cas.donnees.indexOf(d)}" drag-channel="swapToEtab">
-								<span class="label-contact cursor" ng-class="{'erreur':d.type=='email_erreur'}" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+							<div ng-if="d.type!='adresse'">
+								<span ui-draggable="true" drag="{idx:cas.donnees.indexOf(d)}" drag-channel="swapToEtab">
+									<span class="label-contact cursor" ng-class="{'erreur':d.type=='email_erreur'}" ng-click="modCasquetteMod(cas)">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span>
+								</span><br />
 								{{d.value}}
 							</div>
 							<div ng-if="d.type=='adresse'">
@@ -70,8 +72,10 @@
 						</div>
 						<div class="col-xs-12">
 							<div ng-repeat-start="d in cas.etab.donnees | notNote" class="col-xs-6" style="overflow:hidden;">
-								<div ng-if="d.type!='adresse'" ui-draggable="true" drag="{idx:cas.etab.donnees.indexOf(d)}" drag-channel="swapToCas">
-									<span class="label-contact" ng-class="{'erreur':d.type=='email_erreur'}">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span><br />
+								<div ng-if="d.type!='adresse'">
+									<span ui-draggable="true" drag="{idx:cas.etab.donnees.indexOf(d)}" drag-channel="swapToCas">
+										<span class="label-contact" ng-class="{'erreur':d.type=='email_erreur'}">{{d.label}} : </span><span class="mini" ng-if="d.date">({{calendar(d.date)}} par {{Data.modele.usersall[d.by].name}})</span>
+									</span><br />
 									{{d.value}}
 								</div>
 								<div ng-if="d.type=='adresse'">

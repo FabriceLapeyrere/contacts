@@ -17,7 +17,7 @@
 			<div class="news-empty" ng-if="Data.modele[key].blocs.length==0" ui-on-Drop="addBloc($event,$data,0)" drop-channel="bloc">
 				Glisser les blocs ici...
 			</div>
-			<div ui-on-drop="drop($event,$data,$index,$channel)" drop-channel="order,bloc" ui-draggable="true" drag="$index+1" drag-channel="order" class="bloc" ng-repeat="bloc in Data.modele[key].blocs" ng-class="{'pair':$index%2==0, 'impair':$index%2==1}">
+			<div id="bloc-{{bloc.id}}" ui-on-drop="drop($event,$data,$index,$channel)" drop-channel="order,bloc" ui-draggable="true" drag="$index+1" drag-channel="order" class="bloc" ng-repeat="bloc in Data.modele[key].blocs" ng-class="{'pair':$index%2==0, 'impair':$index%2==1}">
 				<locked key="'newsbloc/'+Data.modele[key].id+'/'+bloc.id" data="Data">
 				<div class='menuBloc' >
 					<p><span ng-click="modBlocMod(bloc)" class='glyphicon glyphicon-pencil cursor'></span></p>
@@ -29,6 +29,7 @@
 				<div class="yui3-cssreset yui3-cssbase bloc-item" ng-dblclick="modBlocMod(bloc)" ng-class="{'minis':mini.bool}" ng-bind-html="trust(bloc.html)"></div>
 				</locked>
 			</div>
+			<div class="news-last" ui-on-Drop="drop($event,$data,Data.modele[key].blocs.length,$channel)" drop-channel="bloc,order"></div>
 		</div>
 	</div>
 	<div class="col-xs-12 col-md-4 col-lg-3 hidden-xs hidden-sm fixed">
