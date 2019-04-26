@@ -37,8 +37,8 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 			if (contexts[i].type=='usersall') hasusersall=true;
 			if (contexts[i].type=='groups') hasgroups=true;
 		}
-		if (!hasconfig) Data.contexts.push({type:'config'});  
-		if (!hasverrous) Data.contexts.push({type:'verrous'});  
+		if (!hasconfig) Data.contexts.push({type:'config'});
+		if (!hasverrous) Data.contexts.push({type:'verrous'});
 		if (!haschat) Data.contexts.push({type:'chat'});
 		if (!haslogged) Data.contexts.push({type:'logged'});
 		if (!hasusers) Data.contexts.push({type:'users'});
@@ -88,11 +88,11 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 	};
 	link.set_verrou = function(verrous) {
 		var actions=[];
-		for (var i=0; i<verrous.length;i++) {		
+		for (var i=0; i<verrous.length;i++) {
 			verrous[i]=verrous[i];
 			actions.push({action:'set_verrou', verrou:verrous[i]});
 		}
-		link.ajax(actions);	
+		link.ajax(actions);
 	}
 	link.del_verrou = function(key) {
 		var verrou=key;
@@ -154,8 +154,10 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 					Data.modele[k]=v;
 					Data.modeleSrv[k]=angular.copy(v);
 				}
+				console.log('broadcast','modele-update-'+k);
+				$rootScope.$broadcast('modele-update-'+k);
 			});
 		}
-	});	
+	});
 	return link;
 }]);

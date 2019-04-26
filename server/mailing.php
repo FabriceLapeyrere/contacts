@@ -269,7 +269,7 @@
 						foreach($row['blocs'] as $k=>$b){
 							$d=array();
 							if (isset($row['blocs'][$k]->donnees)) $d=(array)$row['blocs'][$k]->donnees;
-							$hb=Mailing::html_bloc($row['id'],$row['id_newsletter'],$row['blocs'][$k]->id_modele,$d,$id,$k);
+							$hb=Mailing::html_bloc($row['id'],$row['id_newsletter'],$row['blocs'][$k]->id_modele,$d,$id,$k,$row['blocs']);
 							$row['blocs'][$k]->html=$hb[0];
 							$row['blocs'][$k]->donnees=$hb[1];
 							$row['blocs'][$k]->donneeshtml=$hb[2];
@@ -411,7 +411,7 @@
 			});
 			return array($H,$D,$Dhtml);
 		}
-		public static function html_bloc($id_news,$id_newsletter,$id_modele,$data,$id,$n) {
+		public static function html_bloc($id_news,$id_newsletter,$id_modele,$data,$id,$n,$blocs) {
 			$C=Config::get();
 			$modele=Mailing::get_modele($id_modele);
 			$nom=$modele['nom'];
@@ -429,9 +429,16 @@
 				if (isset($C->news->newsletters->value[$id_newsletter]->wrapper->value) && $C->news->newsletters->value[$id_newsletter]->wrapper->value!="")
 					$wrapper=$C->news->newsletters->value[$id_newsletter]->wrapper->value;
 			}
+			//top
+			$top=0;
+			foreach ($blocs as $bk => $bv) {
+				if ($bk<$n) $top=$top+$bv->height;
+			}
+
 			//bloc sans wrapper
 			if (strpos($html_ok,'#FULL#')===false) {
 				$wrap=str_replace('::nBloc::',$n,$wrapper);
+				$wrap=str_replace('::top::',$top."px",$wrap);
 				$html_ok=str_replace('::code::',$html_ok,$wrap);
 			} else {
 				$html_ok=str_replace('#FULL#','',$html_ok);
