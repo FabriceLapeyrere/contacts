@@ -187,6 +187,28 @@ if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/styles.css')) echo "<link
     </div>
 </body>
 </html>
+<? } elseif ($form['state']=='scheduled' && $form['from_date']>$t) { ?>
+<html>
+<head>
+<title>404</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+</head>
+<body>
+	Ce formulaire sera disponible à partir du <?=date('d/m/Y',$form['from_date']/1000)?>.
+</body>
+</html>
+<? } elseif ($form['state']=='closed' || $form['state']=='scheduled' && $form['to_date']<$t) { ?>
+<html>
+<head>
+<title>404</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+</head>
+<body>
+	Ce formulaire est fermé.
+</body>
+</html>
 <? } else { ?>
 <html>
 <head>
