@@ -180,6 +180,50 @@ function normalizeChars($s) {
 function millisecondes(){
 	return floor(microtime(true)*1000);
 }
+function backgroundReplace($message,$mail,$basedir=''){
+	preg_match_all('/background-image: url\(["\'](.*)["\']\)/Ui', $message, $images);
+	if (isset($images[1])) {
+		foreach ($images[1] as $imgindex => $url) {
+			if (preg_match('#^data:(image[^;,]*)(;base64)?,#', $url, $match)) {
+				$data = substr($url, strpos($url, ','));
+				if ($match[2]) {
+					$data = base64_decode($data);
+				} else {
+					$data = rawurldecode($data);
+				}
+				$cid = md5($url) . '@phpmailer.0'; // RFC2392 S 2
+				if ($mail->addStringEmbeddedImage($data, $cid, '', 'base64', $match[1])) {
+					$message = str_replace($url, 'cid:' . $cid, $message);
+				}
+			} elseif (!preg_match('#^[A-z]+://#', $url)) {
+				// Do not change urls for absolute images (thanks to corvuscorax)
+				$filename = basename($url);
+				$directory = dirname($url);
+				if ($directory == '.') {
+					$directory = '';
+				}
+				$cid = md5($url) . '@phpmailer.0'; // RFC2392 S 2
+				if (strlen($basedir) > 1 && substr($basedir, -1) != '/') {
+					$basedir .= '/';
+				}
+				if (strlen($directory) > 1 && substr($directory, -1) != '/') {
+					$directory .= '/';
+				}
+				if ($mail->addEmbeddedImage(
+					$basedir . $directory . $filename,
+					$cid,
+					$filename,
+					'base64',
+					$mail->_mime_types($mail->mb_pathinfo($filename, PATHINFO_EXTENSION))
+				)
+				) {
+					$message = str_replace($url, 'cid:' . $cid, $message);
+				}
+			}
+		}
+	}
+    return $message;
+}
 function replaceHref($html, $redirect, $params)
 {
 	$dom = new DOMDocument();

@@ -110,6 +110,7 @@ if($envoi['statut']==1) {
 		        $unsubscribeurl="$unsubscribe_url?hash=$usbcr_hash";
 		        $html_def=str_replace("##UNSUBSCRIBEURL##",$unsubscribeurl,$htmlr);
 
+                $html_def=backgroundReplace($html_def,$mail);
 		        $mail->MsgHTML($html_def);
 			    $mail->AddAddress($email,$nom);
 
