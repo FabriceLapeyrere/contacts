@@ -11,9 +11,8 @@
 			</p>
 			</locked>
 		</form>
-		<div class="news" id="news-container">
+		<div class="news" id="news-container" ng-style="{'background-image':Data.modele[key].background_img ? 'url('+Data.modele[key].background_img+')' : 'none', 'background-position': 'top','background-repeat':'repeat-y', 'background-color': Data.modele[key].background_color}">
 			<style scoped ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>
-			<div class="news-first" ui-on-Drop="drop($event,$data,0,$channel)" drop-channel="bloc"></div>
 			<div class="news-empty" ng-if="Data.modele[key].blocs.length==0" ui-on-Drop="addBloc($event,$data,0)" drop-channel="bloc">
 				Glisser les blocs ici...
 			</div>
@@ -77,6 +76,27 @@
 				</div>
 			</div>
 			<input type="file" nv-file-select uploader="uploaders[key]" multiple/>
+		</uib-tab>
+		<uib-tab heading="Background" active="tabs.news.background">
+			<p>&nbsp;</p>
+			<p>
+			<label>Couleur de fond</label>
+			<span class="btn-group" ng-if="!Data.modele[key].background_color || Data.modele[key].background_color==''" ng-click="Data.modele[key].background_color='#FFFFFF';save();">
+			    <label class="btn btn-default">Oui</label>
+			    <label class="btn btn-primary" >Non</label>
+			</span>
+			<span class="btn-group" ng-if="Data.modele[key].background_color && Data.modele[key].background_color!=''" ng-click="Data.modele[key].background_color='';save();">
+			    <label class="btn btn-primary">Oui</label>
+			    <label class="btn btn-default">Non</label>
+			</span>
+			</p>
+			<p ng-if="Data.modele[key].background_color && Data.modele[key].background_color!=''">
+				<input class="form-control autoFocus" type="color" ng-model="Data.modele[key].background_color" ng-change="save()" ng-model-options="{ debounce: 1000 }"/>
+			</p>
+			<label>Image de fond</label>
+			<select class="form-control autoFocus" ng-change="save()" ng-options="pj.path as pj.filename for pj in Data.modele[key].pjs | image" ng-model="Data.modele[key].background_img" ng-model-options="{ debounce: 1000 }">
+				<option value="">Aucune</option>
+			</select>
 		</uib-tab>
 	</uib-tabset>
 	</div>

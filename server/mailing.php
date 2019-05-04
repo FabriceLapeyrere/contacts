@@ -121,8 +121,8 @@
 			$db= new DB();
 			$news=Mailing::get_news($params->news->id,$id);
 			$t=millisecondes();
-			$insert = $db->database->prepare('INSERT INTO news (sujet, blocs, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?)');
-			$insert->execute(array($news['sujet']." (copie)", json_encode($news['blocs']), $t, $id, $t, $id));
+			$insert = $db->database->prepare('INSERT INTO news (sujet, blocs, background_img, background_color, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?,?,?)');
+			$insert->execute(array($news['sujet']." (copie)", json_encode($news['blocs']), $news['background_img'], $news['background_color'], $t, $id, $t, $id));
 			$id_news = $db->database->lastInsertId();
 			smartCopy("./data/files/news/".$params->news->id, "./data/files/news/$id_news");
 			foreach($news['blocs'] as $index=>$b) {
@@ -153,6 +153,9 @@
 			$sujet=$params->news->sujet;
 			$id_newsletter=$params->news->id_newsletter;
 			$publie=$params->news->publie;
+			$background_img=$params->news->background_img;
+			$background_color=$params->news->background_color;
+			$blocs=$params->news->blocs;
 			$blocs=$params->news->blocs;
 			$t=millisecondes();
 			$news_old=Mailing::get_news($id_news,$id);
@@ -172,8 +175,8 @@
 					}
 				}
 			}
-			$update = $db->database->prepare('UPDATE news SET sujet=?, id_newsletter=?, publie=?, blocs=?, modificationdate=?, modifiedby=? WHERE id=?');
-			$update->execute(array($sujet, $id_newsletter, $publie, json_encode($blocs), $t, $id, $id_news));
+			$update = $db->database->prepare('UPDATE news SET sujet=?, id_newsletter=?, publie=?, blocs=?, background_img=?, background_color=?, modificationdate=?, modifiedby=? WHERE id=?');
+			$update->execute(array($sujet, $id_newsletter, $publie, json_encode($blocs), $background_img, $background_color, $t, $id, $id_news));
 			$db->database->commit();
 			$maj[]="newss";
 			$maj[]="news/$id_news";
@@ -255,7 +258,7 @@
 						if (is_file($f)) {
 							$used=false;
 							foreach($row['blocs'] as $b){
-								$used= $used || ispjused($f,$b);
+								$used= $used || ispjused($f,$b) || $f==$row['background_img'];
 							}
 							$row['pjs'][]=array(
 								"path"=>$f,
@@ -777,6 +780,7 @@
 				foreach($news['blocs'] as $b){
 					$html.=$b->html."\n";
 				}
+				$html=wrap_background($html,$news);
 				$pjs=$news['pjs'];
 			}
 			if ($params->type=='mail') {

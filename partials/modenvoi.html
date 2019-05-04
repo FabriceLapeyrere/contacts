@@ -1,5 +1,5 @@
 <div loading="key" data="Data">
-	<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+	<div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 		<h1>{{Data.modele[key].sujet}}</h1>
 		<p><small ng-if="Data.modele[key].boite_envoi.total==0">Envoi terminé</small></p>
 		<p ng-if="Data.modele[key].id_type>0">
@@ -10,18 +10,18 @@
 		<p> <span class="mini">{{calendar(Data.modele[key].date)}} par {{Data.modele.users[Data.modele[key].by].name}}.</span>
 		</p>
 		<p ng-if="Data.modele[key].boite_envoi.total>0 && !Data.modele[key].schedule">
-			<button class="btn btn-primary glyphicon glyphicon-refresh" ng-click="restart()" ng-disabled="Data.modele[key].statut==0 || (Data.modele[key].boite_envoi.collection|avecErreur).length==0"></button> 
+			<button class="btn btn-primary glyphicon glyphicon-refresh" ng-click="restart()" ng-disabled="Data.modele[key].statut==0 || (Data.modele[key].boite_envoi.collection|avecErreur).length==0"></button>
 			<button class="btn btn-primary glyphicon glyphicon-play" ng-click="play()" ng-disabled="Data.modele[key].statut==0 || Data.modele[key].statut==2 || (Data.modele[key].boite_envoi.collection|sansErreur).length==0"></button>
 			<button class="btn btn-primary glyphicon glyphicon-pause" ng-click="pause()" ng-disabled="Data.modele[key].statut==1 || Data.modele[key].statut==2"></button>
 			<button class="btn btn-danger glyphicon glyphicon-remove" ng-confirm-click="vide()" ng-confirm-message="Les messages en attente seront supprimés. Sûr?" ng-disabled="Data.modele[key].boite_envoi.total==0"></button>
 			|
-			<button class="btn btn-primary" ng-click="modSchedule()">Planifier l'envoi</button> 
-						
+			<button class="btn btn-primary" ng-click="modSchedule()">Planifier l'envoi</button>
+
 		</p>
 		<p ng-if="Data.modele[key].boite_envoi.total>0 && Data.modele[key].schedule">
 			Envoi planifié : <strong>{{calendarHeure(Data.modele[key].schedule.date)}}</strong>
-			<span ng-click="modSchedule(Data.modele[key].schedule.date)" class='glyphicon glyphicon-pencil cursor'></span>		
-			<span ng-confirm-click="delSchedule()" ng-confirm-message="Supprimer la planification ?" class='glyphicon glyphicon-trash cursor'></span>		
+			<span ng-click="modSchedule(Data.modele[key].schedule.date)" class='glyphicon glyphicon-pencil cursor'></span>
+			<span ng-confirm-click="delSchedule()" ng-confirm-message="Supprimer la planification ?" class='glyphicon glyphicon-trash cursor'></span>
 		</p>
 		<div class="progress" style="" ng-if="Data.modele[key].boite_envoi.total>0 || Data.modele[key].statut==0">
 			<div class="progress-bar" role="progressbar" ng-style="{ 'width': (Data.modele[key].nb-Data.modele[key].boite_envoi.total)*100/Data.modele[key].nb + '%' }"><span style="color:black; white-space:nowrap;"></span><div class="progress-center">{{Data.modele[key].nb-Data.modele[key].boite_envoi.total}} / {{Data.modele[key].nb}}</div></div>

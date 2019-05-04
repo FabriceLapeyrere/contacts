@@ -180,6 +180,69 @@ function normalizeChars($s) {
 function millisecondes(){
 	return floor(microtime(true)*1000);
 }
+function wrap_background($html,$news){
+	$new_html='';
+	$style="";
+	$width=0;
+	if ($news['background_img']!="" || $news['background_color']!="") {
+		if ($news['background_img']!="") {
+			list($width, $height, $type, $attr) = getimagesize($news['background_img']);
+		}
+		if ($width>700) $new_html.="<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">
+		<tr>
+			<td align=\"center\">
+				<table style=\"max-width:".$width."px;width:100%;\" cellspacing=\"0\" cellpadding=\"0\">
+					<tr>
+					<td width=\"center\" background=\"".$news['background_img']."\"
+					bgcolor=\"".$news['background_color']."\"
+					valign=\"top\"
+					align=\"center\"
+					style=\"background-position:top;\">
+	  <!--[if gte mso 9]>
+	  <v:rect xmlns:v=\"urn:schemas-microsoft-com:vml\" fill=\"true\" stroke=\"false\" style=\"mso-width-percent:1000;\">
+		<v:fill type=\"tile\" src=\"".$news['background_img']."\" color=\"".$news['background_color']."\" />
+		<v:textbox style=\"mso-fit-shape-to-text:true\" inset=\"0,0,0,0\">
+	  <![endif]-->
+			<div>";
+		else $new_html.="<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">
+		<tr>
+		<td background=\"".$news['background_img']."\"
+		bgcolor=\"".$news['background_color']."\" valign=\"top\"
+		style=\"background-position:top;\"
+		align=\"center\">
+	<!--[if gte mso 9]>
+	<v:rect xmlns:v=\"urn:schemas-microsoft-com:vml\" fill=\"true\" stroke=\"false\" style=\"mso-width-percent:1000;\">
+	<v:fill type=\"tile\" src=\"".$news['background_img']."\" color=\"".$news['background_color']."\" />
+	<v:textbox style=\"mso-fit-shape-to-text:true\" inset=\"0,0,0,0\">
+	<![endif]-->
+	<div>";
+		$new_html.="$html\n";
+		if ($width>700) $new_html.="
+						</div>
+					<!--[if gte mso 9]>
+					</v:textbox>
+					</v:rect>
+					<![endif]-->
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>";
+		else $new_html.="
+			</div>
+		  <!--[if gte mso 9]>
+			</v:textbox>
+		  </v:rect>
+		  <![endif]-->
+		</td>
+	</tr>
+</table>";
+	} else {
+		$new_html=$html;
+	}
+	return $new_html;
+}
 function backgroundReplace($message,$mail,$basedir=''){
 	preg_match_all('/background-image: url\(["\'](.*)["\']\)/Ui', $message, $images);
 	if (isset($images[1])) {

@@ -2062,19 +2062,6 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 		Data.modele[$scope.key].blocs.splice(i,1);
 		$scope.save();
 	};
-	$scope.checkHeights=function(){
-		var test=false;
-		angular.forEach(Data.modele[$scope.key].blocs, function(b){
-			var e=document.getElementById('bloc-'+b.id);
-			if (e) {
-				if (!b.height || b.height!=e.clientHeight) {
-					b.height=e.clientHeight;
-					test=true;
-				}
-			}
-		});
-		if (test) $scope.save();
-	};
 	if (!$scope.uploaders[$scope.key]) $scope.uploaders[$scope.key] = new FileUploader({
 			url: 'upload.php',
 		autoUpload:true,
@@ -2114,10 +2101,6 @@ app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$locati
 	}
 	$scope.$on("$destroy", function(){
 		angular.element($window).off('resize', $scope.resizeNews);
-	});
-	$scope.$on('modele-update-'+$scope.key, function(){
-		console.log('checkHeights');
-		$timeout($scope.checkHeights,100);
 	});
 	waitUntil(function(){return document.getElementById('news-container') && document.getElementById('news-container').clientWidth>0},$scope.resizeNews);
 }]);

@@ -88,7 +88,7 @@ li.tag-list {padding-right:2px;}
 .petit {font-size:0.8em;}
 
 .news-first {height:20px;border-bottom:1px solid lightgray;}
-.news-last {height:50px;border-top:1px solid lightgray;}
+.news-last {height:50px;border-top:1px solid lightgray;background-color:#EEE;}
 .news-empty {padding:30px;color:#333;}
 .menuBloc, .nBloc {display:none;}
 .menuBloc {position:absolute;z-index:10;top:5px;left:5px;padding:5px;background:#fff;
@@ -106,8 +106,8 @@ li.tag-list {padding-right:2px;}
 .bloc:hover .locked .menuBloc, .bloc:hover .locked .nBloc {display:none;}
 .bloc {position:relative;min-height:5px;}
 .bloc .html {width:100%;border:none;}
-.impair {background:#EAEAEA;}
-.pair {background:#EFEFEF;}
+.impair {background:#FFFFFF08;}
+.pair {background:#00000008;}
 .clair {opacity:0.5;}
 .bloc.on-drag-hover{opacity:0.5;}
 .fixed {
