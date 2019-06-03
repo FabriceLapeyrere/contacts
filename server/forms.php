@@ -57,6 +57,7 @@
 			return $t['res'];
 		}
 		public static function do_close_form_instance($params,$id) {
+			$C=Config::get();
 			$hash=$params->hash;
 			$db= new DB();
 			$update= $db->database->prepare('UPDATE form_instances SET state=? WHERE hash=?');
@@ -71,6 +72,11 @@
 			$maj[]="form_instances_form/".$db_instance['id_form'];
 			if ($db_instance['type_lien']=='casquette') {
 				$maj[]="form_instances_cas_form/".$db_instance['id_lien']."/".$db_instance['id_form'];
+			}
+			$docs=Forms::generate_docs($hash,$id);
+			$message="Le formulaire a été validé : \nodt -> ".$C->app->url->value."/".str_replace('./','',$docs['odt'])."\npdf -> ".$C->app->url->value."/".str_replace('./','',$docs['pdf']);
+			foreach(explode(",",$C->app->mails_notification->value) as $dest){
+				mail_utf8(trim($dest),"Formulaire validé ".$db_instance['form']['nom'],$message,'From: '.$C->app->mails_notification_from->value);
 			}
 			return array('maj'=>$maj,'res'=>1);
 		}
@@ -303,7 +309,7 @@
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$total=$row['nb'];
 			}
-			$query = "SELECT t1.id_form, t1.hash, t1.type_lien, t1.id_lien, t3.nom, t3.prenom, t3.type FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC LIMIT $first, $nb;";
+			$query = "SELECT t1.id_form, t1.hash, t1.type_lien, t1.id_lien, t1.state, t3.nom, t3.prenom, t3.type FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC LIMIT $first, $nb;";
 			$forms=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$forms[]=$row;
@@ -443,6 +449,110 @@
 			}
 			$db->database->commit();
 			return array('maj'=>array("contact/*","form/".$params->id_form,"form_casquettes/".$params->id_form,"form_instances_cas_form/*"),'res'=>1);
+		}
+		public static function generate_docs($hash,$id){
+			include_once('./server/lib/tbs_class.php');
+			include_once('./server/lib/tbs_plugin_opentbs.php');
+			set_time_limit(0);
+			$template="./templates/form_tpl.odt";
+			$instance=Forms::get_form_instance($hash,$id);
+			if (file_exists("./data/formulaires/".$instance['form']['id']."/form_tpl.odt")) $template="./data/formulaires/".$instance['form']['id']."/form_tpl.odt";
+
+			$TBS = new clsTinyButStrong;
+			$TBS->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
+			$TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+			$TBS->SetOption('noerr', false);
+			$contact=new stdClass;
+			$donnees=array();
+			$etab=new stdClass;
+			$etab->nom='';
+			$donnees_etab=array();
+			if ($instance['type_lien']=='casquette') {
+			    $contact=Contacts::get_contact($instance['id_contact'],true,$id);
+			    foreach($contact['casquettes'][$instance['id_lien']]['donnees'] as $dk=>$d){
+			        $v=$d->value;
+			        if ($d->type=='adresse') {
+			            if (!isset($d->value->adresse)) $d->value->adresse='';
+			            if (!isset($d->value->cp)) $d->value->cp='';
+			            if (!isset($d->value->ville)) $d->value->ville='';
+			            if (!isset($d->value->pays)) $d->value->pays='';
+			            $v=$d->value->adresse."\n".$d->value->cp." ".$d->value->ville."\n".$d->value->pays;
+			        }
+			        if ($d->type!='note') {
+			            $nd=new stdClass;
+			            $nd->value=$v;
+			            $donnees[]=$nd;
+			        }
+			    }
+			    if ($contact['casquettes'][$instance['id_lien']]['id_etab']>0) {
+			        $etab->nom=$contact['casquettes'][$instance['id_lien']]['nom_etab'];
+			        foreach($contact['casquettes'][$instance['id_lien']]['donnees_etab'] as $dk=>$d){
+			            $v=$d->value;
+			            if ($d->type=='adresse') {
+			                if (!isset($d->value->adresse)) $d->value->adresse='';
+			                if (!isset($d->value->cp)) $d->value->cp='';
+			                if (!isset($d->value->ville)) $d->value->ville='';
+			                if (!isset($d->value->pays)) $d->value->pays='';
+			                $v=$d->value->adresse."\n".$d->value->cp." ".$d->value->ville."\n".$d->value->pays;
+			            }
+			            if ($d->type!='note') {
+			                $nd=new stdClass;
+			                $nd->value=$v;
+			                $donnees_etab[]=$nd;
+			            }
+			        }
+			    }
+			}
+			$data=array();
+			foreach ($instance['form']['schema']->pages as $kp => $p) {
+			    foreach ($p->elts as $key => $champ) {
+			        $valeur='###';
+			        $tab=explode('|',$champ->label);
+			        $label=trim($tab[0]);
+			        if ($champ->type=='texte') {
+			            $label=strip_tags($label);
+			            $label=str_replace("\n\n","\n",html_entity_decode($label));
+			        }
+			        if (isset($instance['collection']->{$champ->id})) {
+			            $valeur=$instance['collection']->{$champ->id}['valeur'];
+			            if ($champ->type=='multiples') {
+			                $res=array();
+			                foreach (explode(',',$valeur) as $v) {
+			                    $res[]=$v;
+			                }
+			                $valeur=implode(', ',$res);
+			            }
+			            if ($champ->type=='upload') {
+			                $res=array();
+			                foreach ($valeur as $v) {
+			                    $res[]=$v->nom;
+			                }
+			                $valeur=implode("\n",$res);
+			            }
+			            if ($champ->type=='checkbox' || $champ->type=='tag') {
+			                $tab_true=explode('|',$champ->trueValue);
+			                $tab_false=explode('|',$champ->falseValue);
+			                $valeur= $valeur=='1' ? $tab_true[0] : $tab_false[0];
+			            }
+			        }
+			        $instance['form']['schema']->pages[$kp]->elts[$key]->label=$label;
+			        $instance['form']['schema']->pages[$kp]->elts[$key]->valeur=$valeur;
+			    }
+			}
+			$TBS->MergeBlock('pages',$instance['form']['schema']->pages);
+			$TBS->MergeField('form',$instance['form']);
+			$TBS->MergeField('contact',$contact);
+			$TBS->MergeField('etab',$etab);
+			$TBS->MergeBlock('donnees',$donnees);
+			$TBS->MergeBlock('donnees_etab',$donnees_etab);
+			//error_log(var_export($instance['form']['schema']->pages,true),3,"/tmp/fab.log");
+			$t=millisecondes();
+			mkdir("/tmp/LibO_Conversion-$hash-$t");
+			$filename="form-".filter2($instance['form']['nom'])."-".filter2($contact['nom']);
+			$TBS->Show(OPENTBS_FILE, "./data/files/form_upload/$hash/$filename.odt");
+			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$hash-$t\" --headless --invisible --convert-to pdf ./data/files/form_upload/$hash/$filename.odt --outdir ./data/files/form_upload/$hash/");
+			deleteDirectory("/tmp/LibO_Conversion-$hash-$t");
+			return array('odt'=>"./data/files/form_upload/$hash/$filename.odt",'pdf'=>"./data/files/form_upload/$hash/$filename.pdf");
 		}
 	}
 ?>

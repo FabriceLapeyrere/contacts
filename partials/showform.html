@@ -11,8 +11,11 @@
 				<button class="btn btn-primary" ng-click="save()" ng-disabled="ko=!canSave()">Enregistrer</button>
 				<button ng-if="instance.state=='closed'" class="btn btn-primary" ng-click="open()">Ré-ouvrir</button>
             </p>
-            <p>
+			<p>
                 <a href="{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}" target="_blank">{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}</a>
+            </p>
+			<p>
+                <span class="cursor individu" ng-click="getDoc()">Télécharger le pdf</span>
             </p>
         </div>
     	<uib-tabset>

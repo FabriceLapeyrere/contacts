@@ -2567,6 +2567,13 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 		if (elt.default===undefined) elt.default='';
 		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
 	}
+	$scope.getDoc=function(){
+		var data={
+			type:'instance_template',
+			hash:$scope.hash
+		};
+		angular.element.redirect('doc.php',data,'POST','_blank');
+	}
 	$scope.checkAll=function(){
 		console.log('checkAll',Data.modele[$scope.key]);
 		$scope.formkey='form/'+Data.modele[$scope.key].id_form;

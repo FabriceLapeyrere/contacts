@@ -717,5 +717,25 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		$a2=(array)$o2;
 		return (object) array_merge($a1, $a2);
 	}
+	function deleteDirectory($dirPath) {
+	    if (is_dir($dirPath)) {
+	        $objects = scandir($dirPath);
+	        foreach ($objects as $object) {
+	            if ($object != "." && $object !="..") {
+	                if (filetype($dirPath . DIRECTORY_SEPARATOR . $object) == "dir") {
+	                    deleteDirectory($dirPath . DIRECTORY_SEPARATOR . $object);
+	                } else {
+	                    unlink($dirPath . DIRECTORY_SEPARATOR . $object);
+	                }
+	            }
+	        }
+	    reset($objects);
+	    rmdir($dirPath);
+	    }
+	}
+	function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') {
+		$header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
+		mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
+	}
 
 ?>
