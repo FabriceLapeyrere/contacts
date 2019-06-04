@@ -2563,16 +2563,21 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 			return res;
 		} else return '';
 	}
+	$scope.docsUpToDate=function(){
+		var test=true;
+		if (Data.modele[$scope.key]){
+			for(var i=0;i<Data.modele[$scope.key].docs.length;i++){
+				if(Data.modele[$scope.key].modificationdate>Data.modele[$scope.key].docs[i].modificationdate) test=false;
+			}
+		}
+		return test;
+	};
 	$scope.check=function(hash,elt){
 		if (elt.default===undefined) elt.default='';
 		if (!Data.modele[$scope.key].collection[elt.id]) Data.modele[$scope.key].collection[elt.id]={id_schema:elt.id,valeur:elt.default,type:elt.type};
 	}
-	$scope.getDoc=function(){
-		var data={
-			type:'instance_template',
-			hash:$scope.hash
-		};
-		angular.element.redirect('doc.php',data,'POST','_blank');
+	$scope.generateDocs=function(){
+		Link.ajax([{action:'generateDocsFormInstance', params:{hash:$scope.hash}}]);
 	}
 	$scope.checkAll=function(){
 		console.log('checkAll',Data.modele[$scope.key]);

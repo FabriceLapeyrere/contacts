@@ -47,7 +47,21 @@
 				$res['id_contact']=$row['id_contact'];
 				$res['state']=$row['state'];
 			};
+			$md=0;
+			foreach ($res['collection'] as $k => $v) {
+				$md=max($md,$v['modificationdate']);
+			}
+			$res['modificationdate']=$md;
 			$res['collection']=(object)$res['collection'];
+			$res['docs']=array();
+			foreach (glob("./data/files/form_upload/$hash/*.odt") as $f)
+			{
+				$res['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
+			}
+			foreach (glob("./data/files/form_upload/$hash/*.pdf") as $f)
+			{
+				$res['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
+			}
 			if ($form) $res['form']=Forms::get_form($res['id_form'],$id);
 			return $res;
 		}
@@ -73,7 +87,10 @@
 			if ($db_instance['type_lien']=='casquette') {
 				$maj[]="form_instances_cas_form/".$db_instance['id_lien']."/".$db_instance['id_form'];
 			}
-			$docs=Forms::generate_docs($hash,$id);
+			$p=new stdClass;
+			$p->hash=$hash;
+			$generate_res=Forms::do_generate_docs($p,$id);
+			$docs=$generate_res['res'];
 			$message="Le formulaire a été validé : \nodt -> ".$C->app->url->value."/".str_replace('./','',$docs['odt'])."\npdf -> ".$C->app->url->value."/".str_replace('./','',$docs['pdf']);
 			foreach(explode(",",$C->app->mails_notification->value) as $dest){
 				mail_utf8(trim($dest),"Formulaire validé ".$db_instance['form']['nom'],$message,'From: '.$C->app->mails_notification_from->value);
@@ -450,18 +467,34 @@
 			$db->database->commit();
 			return array('maj'=>array("contact/*","form/".$params->id_form,"form_casquettes/".$params->id_form,"form_instances_cas_form/*"),'res'=>1);
 		}
-		public static function generate_docs($hash,$id){
+		public function generate_docs($params,$id) {
+			$t=Forms::do_generate_docs($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_generate_docs($params,$id){
+			$hash=$params->hash;
 			include_once('./server/lib/tbs_class.php');
 			include_once('./server/lib/tbs_plugin_opentbs.php');
 			set_time_limit(0);
 			$template="./templates/form_tpl.odt";
 			$instance=Forms::get_form_instance($hash,$id);
+			if (!file_exists("./data/files/form_upload/$hash/")) mkdir("./data/files/form_upload/$hash/", 0777, true);
 			if (file_exists("./data/formulaires/".$instance['form']['id']."/form_tpl.odt")) $template="./data/formulaires/".$instance['form']['id']."/form_tpl.odt";
+
+			foreach (glob("./data/files/form_upload/$hash/*.odt") as $f)
+			{
+				unlink($f);
+			}
+			foreach (glob("./data/files/form_upload/$hash/*.pdf") as $f)
+			{
+				unlink($f);
+			}
 
 			$TBS = new clsTinyButStrong;
 			$TBS->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
 			$TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-			$TBS->SetOption('noerr', false);
+			$TBS->SetOption('noerr', true);
 			$contact=new stdClass;
 			$donnees=array();
 			$etab=new stdClass;
@@ -514,6 +547,7 @@
 			            $label=str_replace("\n\n","\n",html_entity_decode($label));
 			        }
 			        if (isset($instance['collection']->{$champ->id})) {
+						$instance_elt=$instance['collection']->{$champ->id};
 			            $valeur=$instance['collection']->{$champ->id}['valeur'];
 			            if ($champ->type=='multiples') {
 			                $res=array();
@@ -522,21 +556,25 @@
 			                }
 			                $valeur=implode(', ',$res);
 			            }
-			            if ($champ->type=='upload') {
+						if ($champ->type=='upload') {
 			                $res=array();
 			                foreach ($valeur as $v) {
 			                    $res[]=$v->nom;
 			                }
 			                $valeur=implode("\n",$res);
 			            }
-			            if ($champ->type=='checkbox' || $champ->type=='tag') {
+						if ($champ->type=='checkbox' || $champ->type=='tag') {
 			                $tab_true=explode('|',$champ->trueValue);
 			                $tab_false=explode('|',$champ->falseValue);
 			                $valeur= $valeur=='1' ? $tab_true[0] : $tab_false[0];
 			            }
 			        }
 			        $instance['form']['schema']->pages[$kp]->elts[$key]->label=$label;
-			        $instance['form']['schema']->pages[$kp]->elts[$key]->valeur=$valeur;
+			        $instance['form']['schema']->pages[$kp]->elts[$key]->valeur=str_replace("'","''",$valeur);
+					if(isset($champ->condition)) $champ->condition->valeur;
+					if(isset($champ->condition)) $instance['collection']->{$champ->condition->id}['valeur'];
+					if(isset($champ->condition) && !in_array($champ->condition->valeur,explode(',',$instance['collection']->{$champ->condition->id}['valeur'])))
+						unset($instance['form']['schema']->pages[$kp]->elts[$key]);
 			    }
 			}
 			$TBS->MergeBlock('pages',$instance['form']['schema']->pages);
@@ -552,7 +590,7 @@
 			$TBS->Show(OPENTBS_FILE, "./data/files/form_upload/$hash/$filename.odt");
 			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$hash-$t\" --headless --invisible --convert-to pdf ./data/files/form_upload/$hash/$filename.odt --outdir ./data/files/form_upload/$hash/");
 			deleteDirectory("/tmp/LibO_Conversion-$hash-$t");
-			return array('odt'=>"./data/files/form_upload/$hash/$filename.odt",'pdf'=>"./data/files/form_upload/$hash/$filename.pdf");
+			return array('res'=>array('odt'=>"./data/files/form_upload/$hash/$filename.odt",'pdf'=>"./data/files/form_upload/$hash/$filename.pdf"),'maj'=>array("form_instance/".$hash));
 		}
 	}
 ?>

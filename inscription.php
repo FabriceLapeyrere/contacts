@@ -6,10 +6,6 @@ foreach (glob("server/*.php") as $filename)
 }
 include 'conf/main.php';
 $C=Config::get();
-function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') {
-  $header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
-  mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
-}
 function test_email($email)
 {
 	if( preg_match("~^[_\.0-9a-z-]+@([0-9a-z-]+\.)+[a-z]{2,4}$~",$email) )
@@ -22,7 +18,7 @@ function test_email($email)
 	// L'adresse email n'est pas valide
 	return false;
 	}
-}	
+}
 function casquette($email)
 {
 	$db= new DB(true);
@@ -84,7 +80,7 @@ if (isset($_REQUEST['cat']) && file_exists('data/newsletter/'.$_REQUEST['cat']))
 					$infos[]=$_POST['email']."\n";
 					$infos[]=$id_categorie."\n";
 					file_put_contents("data/cle/$cle",$infos);
-			
+
 					$message="Afin de completer votre inscription à notre newsletter, merci de suivre le lien suivant :
 
 {$C->app->url->value}/confirmation.php?cle=$cle
@@ -92,7 +88,7 @@ if (isset($_REQUEST['cat']) && file_exists('data/newsletter/'.$_REQUEST['cat']))
 $msg";
 
 					mail_utf8($_POST['email'],"Newsletter $brand, confirmation",$message,"From: $from");
-			
+
 					$res="Nous vous avons envoyé un e-mail de confirmation. (pensez à vérifier vos spams)";
 				}
 			}

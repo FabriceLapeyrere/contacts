@@ -45,10 +45,6 @@ function aj_contact($params)
     $maj=array_values(array_unique($maj));
     WS_maj($maj);
 }
-function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') {
-  $header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
-  mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
-}
 if (isset($_GET['cle'])) {
 	if (file_exists("data/cle/".$_GET['cle'])) {
 		$fichier=file("data/cle/".$_GET['cle']);

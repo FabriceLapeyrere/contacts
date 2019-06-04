@@ -273,7 +273,7 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 		var tab=p.collection[p.elt.id].valeur.split(',');
 		var i=tab.indexOf(choix.valeur);
 		if (tab[0]=='') tab.splice(0,1);
-		console.log(p.collection[p.elt.id].valeur,tab,p.elt.nbMax);
+		//console.log(p.collection[p.elt.id].valeur,tab,p.elt.nbMax);
 		if (i<0) {
 			if (tab.length<p.elt.nbMax) tab.push(choix.valeur);
 			else {
@@ -282,7 +282,11 @@ app.controller('showformCtl', ['$routeParams','$scope', '$http', '$location', '$
 			}
 		}
 		else tab.splice(i,1);
-		p.collection[p.elt.id].valeur=tab.join();
+		var sortedTab=[];
+		for(var j=0;j<p.elt.choix.length;j++){
+			if(tab.indexOf(p.elt.choix[j].valeur)>=0) sortedTab.push(p.elt.choix[j].valeur);
+		}
+		p.collection[p.elt.id].valeur=sortedTab.join();
 	}
 	$scope.canSave=function(hash){
 		$scope.testValid(hash);

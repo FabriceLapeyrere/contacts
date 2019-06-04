@@ -464,5 +464,9 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->associer($params,$u['id']);
 		}
+		public function generateDocsFormInstance($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->generate_docs($params,$u['id']);
+		}
 
 	}

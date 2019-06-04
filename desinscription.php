@@ -6,10 +6,6 @@ foreach (glob("server/*.php") as $filename)
 }
 include 'conf/main.php';
 $C=Config::get();
-function mail_utf8($to, $subject = '(No subject)', $message = '', $header = '') {
-  $header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
-  mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
-}
 
 if (isset($_REQUEST['hash'])) {
 	$params=json_decode(base64_decode($_REQUEST['hash']),true);
@@ -22,7 +18,7 @@ if (isset($_REQUEST['hash'])) {
 		}
 		if ($r['res']>0) {
 			foreach(explode(",",$C->app->mails_notification->value) as $dest){
-				mail_utf8(trim($dest),"Désinscription automatique",implode(", ",$emails),'From: '.$C->app->mails_notification_from->value);		
+				mail_utf8(trim($dest),"Désinscription automatique",implode(", ",$emails),'From: '.$C->app->mails_notification_from->value);
 			}
 ?><html>
 <head>
