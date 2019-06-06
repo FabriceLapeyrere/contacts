@@ -129,21 +129,47 @@
 				</div>
 			</uib-tab>
 			<uib-tab heading="Instances">
+				<p>&nbsp;</p>
 				<div ng-show="Data.modele['form_instances_form/'+id_form].tout.collection.length>0">
-					<h1>Tout</h1>
-					<uib-pagination ng-if="Data.modele['form_instances_form/'+id_form].tout.total>itemsParPage" boundary-links="true" total-items="Data.modele['form_instances_form/'+id_form].tout.total" ng-model="Data.pageForms[id_form].tout" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
-					<span ng-if="Data.modele['form_instances_form/'+id_form].tout.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.modele['form_instances_form/'+id_form].tout.page-1)+1}} - {{min(itemsParPage*Data.modele['form_instances_form/'+id_form].tout.page,Data.modele['form_instances_form/'+id_form].tout.total)}} de {{Data.modele['form_instances_form/'+id_form].tout.total}}</span>
-					<ul class="list-group">
-						<li class="list-group-item" ng-repeat="instance in Data.modele['form_instances_form/'+id_form].tout.collection">
-			                <a href="showform/{{instance.hash}}" ng-class="{'individu':instance.type==1, 'structure':instance.type==2}">
-								<span ng-show="instance.prenom">{{instance.prenom}} </span>{{instance.nom}} <span class="mini" ng-if="!(instance.nom || instance.prenom)">(sans nom)</span>
-								<span class="glyphicon glyphicon-ok" ng-if="instance.state=='closed'"></span>
-							</a>
-						</li>
-					</ul>
+				<uib-tabset>
+					<uib-tab heading="Tout">
+						<uib-pagination ng-if="Data.modele['form_instances_form/'+id_form].tout.total>itemsParPage" boundary-links="true" total-items="Data.modele['form_instances_form/'+id_form].tout.total" ng-model="Data.pageForms[id_form].tout" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+						<span ng-if="Data.modele['form_instances_form/'+id_form].tout.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.pageForms[id_form].tout-1)+1}} - {{min(itemsParPage*Data.pageForms[id_form].tout,Data.modele['form_instances_form/'+id_form].tout.total)}} de {{Data.modele['form_instances_form/'+id_form].tout.total}}</span>
+						<ul class="list-group">
+							<li class="list-group-item" ng-repeat="instance in Data.modele['form_instances_form/'+id_form].tout.collection">
+				                <a href="showform/{{instance.hash}}" ng-class="{'individu':instance.type==1, 'structure':instance.type==2}">
+									<span ng-show="instance.prenom">{{instance.prenom}} </span>{{instance.nom}} <span class="mini" ng-if="!(instance.nom || instance.prenom)">(sans nom)</span>
+									<span class="glyphicon glyphicon-ok" ng-if="instance.state=='closed'"></span>
+								</a>
+							</li>
+						</ul>
+					</uib-tab>
+					<uib-tab heading="Ok">
+						<uib-pagination ng-if="Data.modele['form_instances_form/'+id_form].ok.total>itemsParPage" boundary-links="true" total-items="Data.modele['form_instances_form/'+id_form].ok.total" ng-model="Data.pageForms[id_form].ok" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+						<span ng-if="Data.modele['form_instances_form/'+id_form].ok.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.pageForms[id_form].ok-1)+1}} - {{min(itemsParPage*Data.pageForms[id_form].ok,Data.modele['form_instances_form/'+id_form].ok.total)}} de {{Data.modele['form_instances_form/'+id_form].ok.total}}</span>
+						<ul class="list-group">
+							<li class="list-group-item" ng-repeat="instance in Data.modele['form_instances_form/'+id_form].ok.collection">
+				                <a href="showform/{{instance.hash}}" ng-class="{'individu':instance.type==1, 'structure':instance.type==2}">
+									<span ng-show="instance.prenom">{{instance.prenom}} </span>{{instance.nom}} <span class="mini" ng-if="!(instance.nom || instance.prenom)">(sans nom)</span>
+									<span class="glyphicon glyphicon-ok" ng-if="instance.state=='closed'"></span>
+								</a>
+							</li>
+						</ul>
+					</uib-tab>
+					<uib-tab heading="En cours">
+						<uib-pagination ng-if="Data.modele['form_instances_form/'+id_form].encours.total>itemsParPage" boundary-links="true" total-items="Data.modele['form_instances_form/'+id_form].encours.total" ng-model="Data.pageForms[id_form].encours" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+						<span ng-if="Data.modele['form_instances_form/'+id_form].encours.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.pageForms[id_form].encours-1)+1}} - {{min(itemsParPage*Data.pageForms[id_form].encours,Data.modele['form_instances_form/'+id_form].encours.total)}} de {{Data.modele['form_instances_form/'+id_form].encours.total}}</span>
+						<ul class="list-group">
+							<li class="list-group-item" ng-repeat="instance in Data.modele['form_instances_form/'+id_form].encours.collection">
+				                <a href="showform/{{instance.hash}}" ng-class="{'individu':instance.type==1, 'structure':instance.type==2}">
+									<span ng-show="instance.prenom">{{instance.prenom}} </span>{{instance.nom}} <span class="mini" ng-if="!(instance.nom || instance.prenom)">(sans nom)</span>
+									<span class="glyphicon glyphicon-ok" ng-if="instance.state=='closed'"></span>
+								</a>
+							</li>
+						</ul>
+					</uib-tab>
 				</div>
 			</uib-tab>
-
 		<uib-tabset>
 	</div>
 	<div class="col-xs-12">

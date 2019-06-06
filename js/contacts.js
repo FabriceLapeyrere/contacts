@@ -2309,9 +2309,9 @@ app.controller('formsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link',
 }]);
 app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location', '$routeParams', '$interval', '$uibModal', 'Link', 'Data', function ($window, $timeout, $scope, $http, $location, $routeParams, $interval, $uibModal, Link, Data) {
 	$scope.getPage=function(init){
-		var pagePr;
-		var pageRe;
-		var pageTe;
+		var pageTout;
+		var pageEncours;
+		var pageOk;
 		if (init) {
 			if (!Data.pageForms) Data.pageForms={};
 			if (!Data.pageForms[$routeParams.id]) Data.pageForms[$routeParams.id]={};
@@ -2570,6 +2570,7 @@ app.controller('showformCtl', ['$scope', '$http', '$location', '$routeParams', '
 				if(Data.modele[$scope.key].modificationdate>Data.modele[$scope.key].docs[i].modificationdate) test=false;
 			}
 		}
+		if (Data.modele[$scope.key].docs.length==0) test=false;
 		return test;
 	};
 	$scope.check=function(hash,elt){

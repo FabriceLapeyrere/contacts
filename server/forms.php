@@ -319,24 +319,52 @@
 		public static function get_form_instances_form($id_form, $params, $id) {
 			$db= new DB();
 			$page=$params->pageTout;
-			$first=($params->pageTout-1)*$params->nb;
+			$first_tout=($params->pageTout-1)*$params->nb;
+			$first_ok=($params->pageOk-1)*$params->nb;
+			$first_encours=($params->pageEncours-1)*$params->nb;
 			$nb=$params->nb;
-			$query = "SELECT count(*) as nb FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC;";
-			$total=0;
-			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				$total=$row['nb'];
+			//tout
+			$query_tout = "SELECT count(*) as nb FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC;";
+			$total_tout=0;
+			foreach($db->database->query($query_tout, PDO::FETCH_ASSOC) as $row){
+				$total_tout=$row['nb'];
 			}
-			$query = "SELECT t1.id_form, t1.hash, t1.type_lien, t1.id_lien, t1.state, t3.nom, t3.prenom, t3.type FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC LIMIT $first, $nb;";
-			$forms=array();
-			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				$forms[]=$row;
+			$query_tout = "SELECT t1.id_form, t1.hash, t1.type_lien, t1.id_lien, t1.state, t3.nom, t3.prenom, t3.type FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form ORDER BY id_form ASC LIMIT $first_tout, $nb;";
+			$forms_tout=array();
+			foreach($db->database->query($query_tout, PDO::FETCH_ASSOC) as $row){
+				$forms_tout[]=$row;
 			}
-			$res=array('collection'=>$forms,'total'=>$total);
+			$res_tout=array('collection'=>$forms_tout,'total'=>$total_tout);
+			//ok
+			$query_ok = "SELECT count(*) as nb FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form AND state='closed' ORDER BY id_form ASC;";
+			$total_ok=0;
+			foreach($db->database->query($query_ok, PDO::FETCH_ASSOC) as $row){
+				$total_ok=$row['nb'];
+			}
+			$query_ok = "SELECT t1.id_form, t1.hash, t1.type_lien, t1.id_lien, t1.state, t3.nom, t3.prenom, t3.type FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form AND state='closed' ORDER BY id_form ASC LIMIT $first_ok, $nb;";
+			$forms_ok=array();
+			foreach($db->database->query($query_ok, PDO::FETCH_ASSOC) as $row){
+				$forms_ok[]=$row;
+			}
+			//encours
+			$query_encours = "SELECT count(*) as nb FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form AND state='open' ORDER BY id_form ASC;";
+			$total_encours=0;
+			foreach($db->database->query($query_encours, PDO::FETCH_ASSOC) as $row){
+				$total_encours=$row['nb'];
+			}
+			$query_encours = "SELECT t1.id_form, t1.hash, t1.type_lien, t1.id_lien, t1.state, t3.nom, t3.prenom, t3.type FROM form_instances as t1 left join casquettes as t2 on t1.type_lien='casquette' AND t1.id_lien=t2.id left join contacts as t3 on t2.id_contact=t3.id WHERE id_form=$id_form AND state='open' ORDER BY id_form ASC LIMIT $first_encours, $nb;";
+			$forms_encours=array();
+			foreach($db->database->query($query_encours, PDO::FETCH_ASSOC) as $row){
+				$forms_encours[]=$row;
+			}
+			$res_tout=array('collection'=>$forms_tout,'total'=>$total_tout);
+			$res_ok=array('collection'=>$forms_ok,'total'=>$total_ok);
+			$res_encours=array('collection'=>$forms_encours,'total'=>$total_encours);
 			return array(
 				'params'=>$params,
-				'tout'=>$res,
-				'encours'=>$res,
-				'ok'=>$res
+				'tout'=>$res_tout,
+				'encours'=>$res_encours,
+				'ok'=>$res_ok
 			);
 		}
 		public function add_form($params,$id) {
@@ -586,7 +614,7 @@
 			//error_log(var_export($instance['form']['schema']->pages,true),3,"/tmp/fab.log");
 			$t=millisecondes();
 			mkdir("/tmp/LibO_Conversion-$hash-$t");
-			$filename="form-".filter2($instance['form']['nom'])."-".filter2($contact['nom']);
+			$filename="form-".$instance['form']['id']."-".$instance['id_contact']."-".filter2($contact['nom']);
 			$TBS->Show(OPENTBS_FILE, "./data/files/form_upload/$hash/$filename.odt");
 			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$hash-$t\" --headless --invisible --convert-to pdf ./data/files/form_upload/$hash/$filename.odt --outdir ./data/files/form_upload/$hash/");
 			deleteDirectory("/tmp/LibO_Conversion-$hash-$t");
