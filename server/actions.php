@@ -468,5 +468,9 @@
 			$u=$this->WS->getSession($this->from,'user');
 			return $this->Forms->generate_docs($params,$u['id']);
 		}
+		public function generateDocsForm($params){
+			$u=$this->WS->getSession($this->from,'user');
+			return $this->Forms->generate_docs_liste($params,$u['id']);
+		}
 
 	}

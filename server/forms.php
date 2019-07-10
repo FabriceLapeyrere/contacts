@@ -10,14 +10,24 @@
 		//forms
 		public static function get_form($id_form,$id) {
 			$db= new DB();
-			$query = "SELECT *, (SELECT count(*)>0 FROM form_instances WHERE id_form=t1.id) as has_instance FROM forms as t1 WHERE id=$id_form";
+			$query = "SELECT *, (SELECT count(*)>0 FROM form_instances WHERE id_form=$id_form) as has_instance, (SELECT max(modificationdate) FROM forms_data WHERE hash IN (SELECT hash FROM form_instances WHERE id_form=$id_form)) as i_modificationdate FROM forms as t1 WHERE id=$id_form";
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$row['schema']=json_decode($row['schema']);
 				$row['from_date']=$row['from_date']+0;
 				$row['to_date']=$row['to_date']+0;
+				$row['docs']=array();
+				foreach (glob("./data/files/form/$id_form/*.odt") as $f)
+				{
+					$row['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
+				}
+				foreach (glob("./data/files/form/$id_form/*.pdf") as $f)
+				{
+					$row['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
+				}
 				$res[]=$row;
 			}
+
 			return $res[0];
 		}
 		public static function get_id_schema_idx($id_form,$idx,$id){
@@ -31,39 +41,85 @@
 			}
 		}
 		public static function get_form_instance($hash,$id,$form=true) {
+			$res=Forms::get_form_instances(array($hash),$id,$form);
+			return $res[$hash];
+		}
+		public static function get_form_instances($hashs,$id,$form=true) {
 			$db= new DB();
-			$query = "SELECT t1.hash as main_hash, t1.id_form as main_id_form, t1.id_lien as main_id_lien, t1.type_lien as main_type_lien, t1.state as state, t2.*, t3.id_contact as id_contact FROM form_instances as t1 left join forms_data as t2 on t1.hash=t2.hash left join casquettes as t3 on t1.type_lien='casquette' AND t1.id_lien=t3.id where t1.hash='$hash'";
+			foreach ($hashs as $key => $value) {
+				$hashs[$key]="'".$value."'";
+			}
+			$query = "SELECT
+				t1.hash as main_hash,
+				t1.id_form as main_id_form,
+				t1.id_lien as main_id_lien,
+				t1.type_lien as main_type_lien,
+				t1.state as state,
+				t2.*,
+				t21.schema as schema,
+				t21.nom as nom_form,
+				t3.id_contact as id_contact,
+				t3.donnees as donnees,
+				t4.nom as nom_contact,
+				t4.prenom as prenom_contact,
+				t31.donnees as donnees_etab,
+				t41.nom as nom_etab
+				FROM form_instances as t1
+					left join forms_data as t2 on t1.hash=t2.hash
+					left join forms as t21 on t1.id_form=t21.id
+					left join casquettes as t3 on t1.type_lien='casquette' AND t1.id_lien=t3.id
+					left join casquettes as t31 on t31.id=t3.id_etab
+					left join contacts as t4 on t3.id_contact=t4.id
+					left join contacts as t41 on t31.id_contact=t41.id
+					where t1.hash IN (".implode(',',$hashs).")";
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
-			$res=array('collection'=>array());
+			$I=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				if (!array_key_exists($row['main_hash'],$I)){
+					$I[$row['main_hash']]=array('collection'=>array());
+					$I[$row['main_hash']]['hash']=$row['main_hash'];
+					$I[$row['main_hash']]['id_form']=$row['main_id_form'];
+					$I[$row['main_hash']]['nom_form']=$row['nom_form'];
+					$I[$row['main_hash']]['id_lien']=$row['main_id_lien'];
+					$I[$row['main_hash']]['type_lien']=$row['main_type_lien'];
+					$I[$row['main_hash']]['id_contact']=$row['id_contact'];
+					$I[$row['main_hash']]['nom_contact']=$row['nom_contact'];
+					$I[$row['main_hash']]['prenom_contact']=$row['prenom_contact'];
+					$I[$row['main_hash']]['donnees']=json_decode($row['donnees']);
+					$I[$row['main_hash']]['nom_etab']=$row['nom_etab'];
+					$I[$row['main_hash']]['donnees_etab']=json_decode($row['donnees_etab']);
+					$I[$row['main_hash']]['state']=$row['state'];
+					$I[$row['main_hash']]['schema']=json_decode($row['schema']);
+				}
 				if ($row['type']!=''){
 					 if ($row['type']=='upload') $row['valeur']=json_decode($row['valeur']);
-					 $res['collection'][$row['id_schema']]=$row;
+					 $I[$row['main_hash']]['collection'][$row['id_schema']]=array(
+					 	"type"=>$row['type'],
+						"valeur"=>$row['valeur'],
+						"modificationdate"=>$row['modificationdate'],
+						"modifiedby"=>$row['modifiedby']
+					);
 				}
-				$res['hash']=$row['main_hash'];
-				$res['id_form']=$row['main_id_form'];
-				$res['id_lien']=$row['main_id_lien'];
-				$res['type_lien']=$row['main_type_lien'];
-				$res['id_contact']=$row['id_contact'];
-				$res['state']=$row['state'];
 			};
-			$md=0;
-			foreach ($res['collection'] as $k => $v) {
-				$md=max($md,$v['modificationdate']);
+			foreach ($I as $h => $instance) {
+				$md=0;
+				foreach ($I[$h]['collection'] as $k => $v) {
+					$md=max($md,$v['modificationdate']);
+				}
+				$I[$h]['modificationdate']=$md;
+				$I[$h]['collection']=(object)$I[$h]['collection'];
+				$I[$h]['docs']=array();
+				foreach (glob("./data/files/form_upload/$h/*.odt") as $f)
+				{
+					$I[$h]['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
+				}
+				foreach (glob("./data/files/form_upload/$h/*.pdf") as $f)
+				{
+					$I[$h]['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
+				}
+				if ($form) $I[$h]['form']=Forms::get_form($I[$h]['id_form'],$id);
 			}
-			$res['modificationdate']=$md;
-			$res['collection']=(object)$res['collection'];
-			$res['docs']=array();
-			foreach (glob("./data/files/form_upload/$hash/*.odt") as $f)
-			{
-				$res['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
-			}
-			foreach (glob("./data/files/form_upload/$hash/*.pdf") as $f)
-			{
-				$res['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
-			}
-			if ($form) $res['form']=Forms::get_form($res['id_form'],$id);
-			return $res;
+			return $I;
 		}
 		public function close_form_instance($params,$id) {
 			$t=Forms::do_close_form_instance($params,$id);
@@ -200,6 +256,7 @@
 			}
 			$db->database->commit();
 			$maj=array("casquettes");
+			$maj[]="form/".$db_instance['id_form'];
 			$maj[]="form_instance/".$params->instance->hash;
 			$maj[]="form_instances_form/".$db_instance['id_form'];
 			if ($db_instance['type_lien']=='casquette') {
@@ -518,100 +575,9 @@
 			{
 				unlink($f);
 			}
-
-			$TBS = new clsTinyButStrong;
-			$TBS->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
-			$TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-			$TBS->SetOption('noerr', true);
-			$contact=new stdClass;
-			$donnees=array();
-			$etab=new stdClass;
-			$etab->nom='';
-			$donnees_etab=array();
-			if ($instance['type_lien']=='casquette') {
-			    $contact=Contacts::get_contact($instance['id_contact'],true,$id);
-			    foreach($contact['casquettes'][$instance['id_lien']]['donnees'] as $dk=>$d){
-			        $v=$d->value;
-			        if ($d->type=='adresse') {
-			            if (!isset($d->value->adresse)) $d->value->adresse='';
-			            if (!isset($d->value->cp)) $d->value->cp='';
-			            if (!isset($d->value->ville)) $d->value->ville='';
-			            if (!isset($d->value->pays)) $d->value->pays='';
-			            $v=$d->value->adresse."\n".$d->value->cp." ".$d->value->ville."\n".$d->value->pays;
-			        }
-			        if ($d->type!='note') {
-			            $nd=new stdClass;
-			            $nd->value=$v;
-			            $donnees[]=$nd;
-			        }
-			    }
-			    if ($contact['casquettes'][$instance['id_lien']]['id_etab']>0) {
-			        $etab->nom=$contact['casquettes'][$instance['id_lien']]['nom_etab'];
-			        foreach($contact['casquettes'][$instance['id_lien']]['donnees_etab'] as $dk=>$d){
-			            $v=$d->value;
-			            if ($d->type=='adresse') {
-			                if (!isset($d->value->adresse)) $d->value->adresse='';
-			                if (!isset($d->value->cp)) $d->value->cp='';
-			                if (!isset($d->value->ville)) $d->value->ville='';
-			                if (!isset($d->value->pays)) $d->value->pays='';
-			                $v=$d->value->adresse."\n".$d->value->cp." ".$d->value->ville."\n".$d->value->pays;
-			            }
-			            if ($d->type!='note') {
-			                $nd=new stdClass;
-			                $nd->value=$v;
-			                $donnees_etab[]=$nd;
-			            }
-			        }
-			    }
-			}
-			$data=array();
-			foreach ($instance['form']['schema']->pages as $kp => $p) {
-			    foreach ($p->elts as $key => $champ) {
-			        $valeur='###';
-			        $tab=explode('|',$champ->label);
-			        $label=trim($tab[0]);
-			        if ($champ->type=='texte') {
-			            $label=strip_tags($label);
-			            $label=str_replace("\n\n","\n",html_entity_decode($label));
-			        }
-			        if (isset($instance['collection']->{$champ->id})) {
-						$instance_elt=$instance['collection']->{$champ->id};
-			            $valeur=$instance['collection']->{$champ->id}['valeur'];
-			            if ($champ->type=='multiples') {
-			                $res=array();
-			                foreach (explode(',',$valeur) as $v) {
-			                    $res[]=$v;
-			                }
-			                $valeur=implode(', ',$res);
-			            }
-						if ($champ->type=='upload') {
-			                $res=array();
-			                foreach ($valeur as $v) {
-			                    $res[]=$v->nom;
-			                }
-			                $valeur=implode("\n",$res);
-			            }
-						if ($champ->type=='checkbox' || $champ->type=='tag') {
-			                $tab_true=explode('|',$champ->trueValue);
-			                $tab_false=explode('|',$champ->falseValue);
-			                $valeur= $valeur=='1' ? $tab_true[0] : $tab_false[0];
-			            }
-			        }
-			        $instance['form']['schema']->pages[$kp]->elts[$key]->label=$label;
-			        $instance['form']['schema']->pages[$kp]->elts[$key]->valeur=str_replace("'","''",$valeur);
-					if(isset($champ->condition)) $champ->condition->valeur;
-					if(isset($champ->condition)) $instance['collection']->{$champ->condition->id}['valeur'];
-					if(isset($champ->condition) && !in_array($champ->condition->valeur,explode(',',$instance['collection']->{$champ->condition->id}['valeur'])))
-						unset($instance['form']['schema']->pages[$kp]->elts[$key]);
-			    }
-			}
-			$TBS->MergeBlock('pages',$instance['form']['schema']->pages);
-			$TBS->MergeField('form',$instance['form']);
-			$TBS->MergeField('contact',$contact);
-			$TBS->MergeField('etab',$etab);
-			$TBS->MergeBlock('donnees',$donnees);
-			$TBS->MergeBlock('donnees_etab',$donnees_etab);
-			//error_log(var_export($instance['form']['schema']->pages,true),3,"/tmp/fab.log");
+			$instances=array($instance);
+			$TBS=Forms::tbs_instance($template,$instances,$id);
+			$contact=Contacts::get_contact($instance['id_contact'],true,$id);
 			$t=millisecondes();
 			mkdir("/tmp/LibO_Conversion-$hash-$t");
 			$filename="form-".$instance['form']['id']."-".$instance['id_contact']."-".filter2($contact['nom']);
@@ -619,6 +585,141 @@
 			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$hash-$t\" --headless --invisible --convert-to pdf ./data/files/form_upload/$hash/$filename.odt --outdir ./data/files/form_upload/$hash/");
 			deleteDirectory("/tmp/LibO_Conversion-$hash-$t");
 			return array('res'=>array('odt'=>"./data/files/form_upload/$hash/$filename.odt",'pdf'=>"./data/files/form_upload/$hash/$filename.pdf"),'maj'=>array("form_instance/".$hash));
+		}
+		public function generate_docs_liste($params,$id) {
+			$t=Forms::do_generate_docs_liste($params,$id);
+			$this->WS->maj($t['maj']);
+			return $t['res'];
+		}
+		public static function do_generate_docs_liste($params,$id){
+			$db= new DB();
+			$id_form=$params->id_form;
+			set_time_limit(0);
+			$template="./templates/form_tpl.odt";
+			if (file_exists("./data/formulaires/$id_form/form_tpl.odt")) $template="./data/formulaires/$id_form/form_tpl.odt";
+			if (!file_exists("./data/files/form/$id_form/")) mkdir("./data/files/form/$id_form/", 0777, true);
+
+			$query_ok = "SELECT hash FROM form_instances WHERE id_form=$id_form AND state='closed' ORDER BY id_form;";
+			$hashs=array();
+			foreach($db->database->query($query_ok, PDO::FETCH_ASSOC) as $row){
+				$hashs[]=$row['hash'];
+			}
+			foreach (glob("./data/files/form/$id_form/*.odt") as $f)
+			{
+				unlink($f);
+			}
+			foreach (glob("./data/files/form/$id_form/*.pdf") as $f)
+			{
+				unlink($f);
+			}
+			$instances=Forms::get_form_instances($hashs,$id,false);
+			$TBS=Forms::tbs_instance($template,$instances,$id);
+			$t=millisecondes();
+			mkdir("/tmp/LibO_Conversion-$id_form-$t");
+			$filename="formulaires-$id_form";
+			$TBS->Show(OPENTBS_FILE, "./data/files/form/$id_form/$filename.odt");
+			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$id_form-$t\" --headless --invisible --convert-to pdf ./data/files/form/$id_form/$filename.odt --outdir ./data/files/form/$id_form/");
+			deleteDirectory("/tmp/LibO_Conversion-$id_form-$t");
+			return array('res'=>array('odt'=>"./data/files/form/$id_form/$filename.odt",'pdf'=>"./data/files/form/$id_form/$filename.pdf"),'maj'=>array("form/".$id_form));
+		}
+		public static function tbs_instance($template,$instances,$id){
+			include_once('./server/lib/tbs_class.php');
+			include_once('./server/lib/tbs_plugin_opentbs.php');
+			$TBS = new clsTinyButStrong;
+			$TBS->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
+			$TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+			$TBS->SetOption('noerr', false);
+			$I=array();
+			foreach ($instances as $key => $instance) {
+				$donnees=array();
+				$donnees_etab=array();
+				if (is_array($instance['donnees'])) {
+					foreach($instance['donnees'] as $dk=>$d){
+						$v=$d->value;
+						if ($d->type=='adresse') {
+							if (!isset($d->value->adresse)) $d->value->adresse='';
+							if (!isset($d->value->cp)) $d->value->cp='';
+							if (!isset($d->value->ville)) $d->value->ville='';
+							if (!isset($d->value->pays)) $d->value->pays='';
+							$v=$d->value->adresse."\n".$d->value->cp." ".$d->value->ville."\n".$d->value->pays;
+						}
+						if ($d->type!='note') {
+							$nd=new stdClass;
+							$nd->value=$v;
+							$donnees[]=$nd;
+						}
+					}
+					if (is_array($instance['donnees_etab'])) {
+						foreach($instance['donnees_etab'] as $dk=>$d){
+							$v=$d->value;
+							if ($d->type=='adresse') {
+								if (!isset($d->value->adresse)) $d->value->adresse='';
+								if (!isset($d->value->cp)) $d->value->cp='';
+								if (!isset($d->value->ville)) $d->value->ville='';
+								if (!isset($d->value->pays)) $d->value->pays='';
+								$v=$d->value->adresse."\n".$d->value->cp." ".$d->value->ville."\n".$d->value->pays;
+							}
+							if ($d->type!='note') {
+								$nd=new stdClass;
+								$nd->value=$v;
+								$donnees_etab[]=$nd;
+							}
+						}
+					}
+				}
+				$data=array();
+				foreach ($instance['schema']->pages as $kp => $p) {
+					foreach ($p->elts as $key => $champ) {
+						$valeur='###';
+						$tab=explode('|',$champ->label);
+						$label=trim($tab[0]);
+						if ($champ->type=='texte') {
+							$label=strip_tags($label);
+							$label=str_replace("\n\n","\n",html_entity_decode($label));
+						}
+						if (isset($instance['collection']->{$champ->id})) {
+							$instance_elt=$instance['collection']->{$champ->id};
+							$valeur=$instance['collection']->{$champ->id}['valeur'];
+							if ($champ->type=='multiples') {
+								$res=array();
+								foreach (explode(',',$valeur) as $v) {
+									$res[]=$v;
+								}
+								$valeur=implode(', ',$res);
+							}
+							if ($champ->type=='upload') {
+								$res=array();
+								foreach ($valeur as $v) {
+									$res[]=$v->nom;
+								}
+								$valeur=implode("\n",$res);
+							}
+							if ($champ->type=='checkbox' || $champ->type=='tag') {
+								$tab_true=explode('|',$champ->trueValue);
+								$tab_false=explode('|',$champ->falseValue);
+								$valeur= $valeur=='1' ? $tab_true[0] : $tab_false[0];
+							}
+						}
+						$instance['schema']->pages[$kp]->elts[$key]->label=$label;
+						$instance['schema']->pages[$kp]->elts[$key]->valeur=str_replace("'","''",utf8_for_xml($valeur));
+						if(isset($champ->condition)) $champ->condition->valeur;
+						if(isset($champ->condition)) $instance['collection']->{$champ->condition->id}['valeur'];
+						if(isset($champ->condition) && !in_array($champ->condition->valeur,explode(',',$instance['collection']->{$champ->condition->id}['valeur'])))
+							unset($instance['schema']->pages[$kp]->elts[$key]);
+					}
+				}
+				$myinstance=[];
+				$myinstance["contact_nom"]=$instance['nom_contact'];
+				$myinstance["contact_prenom"]=$instance['prenom_contact'];
+				$myinstance["etab_nom"]=$instance["nom_etab"];
+				$myinstance["donnees"]=$donnees;
+				$myinstance['donnees_etab']=$donnees_etab;
+				$myinstance["pages"]=$instance['schema']->pages;
+				$I[]=$myinstance;
+			}
+
+			$TBS->MergeBlock('instances',$I);
+			return $TBS;
 		}
 	}
 ?>

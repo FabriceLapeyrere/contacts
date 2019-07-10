@@ -16,7 +16,7 @@
                 <a href="{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}" target="_blank">{{Data.modele.config.config.app.url.value}}/form/{{instance.hash}}</a>
             </p>
 			<p>
-                <span ng-repeat="doc in instance.docs"><a href="{{doc.path}}" target="_blank">{{doc.nom}}</a><br /></span>
+                <span ng-repeat="doc in instance.docs"><a href="{{doc.path}}?{{doc.modificationdate}}" target="_blank">{{doc.nom}}</a><br /></span>
             </p>
         </div>
     	<uib-tabset>

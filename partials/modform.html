@@ -133,7 +133,6 @@
 				<div ng-show="Data.modele['form_instances_form/'+id_form].tout.collection.length>0">
 				<uib-tabset>
 					<uib-tab heading="Tout">
-						<uib-pagination ng-if="Data.modele['form_instances_form/'+id_form].tout.total>itemsParPage" boundary-links="true" total-items="Data.modele['form_instances_form/'+id_form].tout.total" ng-model="Data.pageForms[id_form].tout" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 						<span ng-if="Data.modele['form_instances_form/'+id_form].tout.total>itemsParPage" class="pagination-span">{{itemsParPage*(Data.pageForms[id_form].tout-1)+1}} - {{min(itemsParPage*Data.pageForms[id_form].tout,Data.modele['form_instances_form/'+id_form].tout.total)}} de {{Data.modele['form_instances_form/'+id_form].tout.total}}</span>
 						<ul class="list-group">
 							<li class="list-group-item" ng-repeat="instance in Data.modele['form_instances_form/'+id_form].tout.collection">
@@ -169,6 +168,15 @@
 						</ul>
 					</uib-tab>
 				</div>
+			</uib-tab>
+			<uib-tab heading="Documents">
+				<p>&nbsp;</p>
+				<p>
+						<button class="btn btn-primary" ng-click="generateDocs()" >Générer les docs <span class="glyphicon glyphicon-refresh" ng-show="!docsUpToDate()"></span></button>
+				</p>
+				<p ng-if="Data.modele[key].docs.length>0">
+					<span ng-repeat="doc in Data.modele[key].docs"><a href="{{doc.path}}?{{doc.modificationdate}}" target="_blank">{{doc.nom}}</a><br /></span>
+				</p>
 			</uib-tab>
 		<uib-tabset>
 	</div>

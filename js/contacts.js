@@ -2341,6 +2341,19 @@ app.controller('modformCtl', ['$window','$timeout','$scope', '$http', '$location
 	});
 	$scope.key='form/'+$routeParams.id;
 	$scope.id_form=$routeParams.id;
+	$scope.generateDocs=function(){
+		Link.ajax([{action:'generateDocsForm', params:{id_form:$scope.id_form}}]);
+	}
+	$scope.docsUpToDate=function(){
+		var test=true;
+		if (Data.modele[$scope.key]){
+			for(var i=0;i<Data.modele[$scope.key].docs.length;i++){
+				if(Data.modele[$scope.key].i_modificationdate>Data.modele[$scope.key].docs[i].modificationdate) test=false;
+			}
+		}
+		if (Data.modele[$scope.key].docs.length==0) test=false;
+		return test;
+	};
 	$scope.currentIndex=function(i,pi){
 		var idx=i+1;
 		for(var j=0;j<pi;j++){

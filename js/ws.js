@@ -111,7 +111,7 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 	};
 	var wsUrl= location.protocol=='https:' ? 'wss://' + location.host + ':' + (parseInt(document.getElementById('ws-port').value)+1000) : 'ws://' + location.host + ':' + document.getElementById('ws-port').value;
 	console.log(location.protocol,wsUrl);
-	link.ws = new WebSocketR2(wsUrl);
+	link.ws = new WebSocketR2(wsUrl,{requestTimeout:3600000});
 	link.initSocket=function(e){
 		console.log("Connection established!");
 		console.log('init');

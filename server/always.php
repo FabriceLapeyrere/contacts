@@ -737,5 +737,8 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		$header_ = 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
 		mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $message, $header_ . $header);
 	}
-
+	function utf8_for_xml($string)
+	{
+	    return preg_replace ('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $string);
+	}
 ?>
