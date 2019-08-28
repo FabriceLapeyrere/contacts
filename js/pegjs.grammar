@@ -31,8 +31,11 @@ integer "integer"
   / ':mail' id:[0-9]+ { return 'destinataire du mail n° '+id.join(""); }
   / '!:mail' id:[0-9]+ { return 'pas destinataire du mail n° '+id.join(""); }
   / ':form' idform:[0-9]+ '/' idchamp:[0-9]+ '=' word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return 'le champ n°' + idchamp.join('') + ' du formulaire n°' + idform.join("") + ' vaut ' + word.join(''); }
+  / '!:form' idform:[0-9]+ '/' idchamp:[0-9]+ '=' word:[a-zA-Z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ \*'"\.@\-]+ { return 'le champ n°' + idchamp.join('') + ' du formulaire n°' + idform.join("") + ' ne vaut pas ' + word.join(''); }
   / ':form' id:[0-9]+ { return 'est associé au formulaire n° '+id.join(""); }
   / '!:form' id:[0-9]+ { return 'n\'est pas associé au formulaire n° '+id.join(""); }
+  / ':form-ok' id:[0-9]+ { return 'a validé le formulaire n° '+id.join(""); }
+  / '!:form-ok' id:[0-9]+ { return 'n\'a pas validé le formulaire n° '+id.join(""); }
   / ':clic-envoi' id:[0-9]+ { return 'a cliqué sur l\'envoi n° '+id.join(""); }
   / '!:clic-envoi' id:[0-9]+ { return 'n\'a pas cliqué sur de l\'envoi n° '+id.join(""); }
   / ':clic-news' id:[0-9]+ { return 'a cliqué sur la newsletter n° '+id.join(""); }

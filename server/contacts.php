@@ -460,10 +460,13 @@
 					case 'form-champ':
 						list($id_form,$idx,$valeur)=explode('|',$param);
 						$id_schema=Forms::get_id_schema_idx($id_form,$idx,$id);
-						$valeur= "t2.id IN (SELECT id_lien FROM forms_data as tform WHERE tform.id_form=$id_form AND tform.type_lien='casquette' AND tform.id_schema='$id_schema' AND tform.valeur='".str_replace("'","''",$valeur)."')";
+						$valeur= "t2.id IN (SELECT t1.id_lien FROM form_instances as t1 INNER JOIN forms_data as tform on tform.hash=t1.hash WHERE t1.id_form=$id_form AND t1.type_lien='casquette' AND tform.id_schema='$id_schema' AND (tform.type='multiples' AND tform.valeur like '%".str_replace("'","''",$valeur)."%' OR tform.valeur='".str_replace("'","''",$valeur)."'))";
 						break;
 					case 'form':
 						$valeur= "t2.id IN (SELECT id_lien FROM form_instances as tform WHERE tform.id_form=$param AND type_lien='casquette')";
+						break;
+					case 'form-ok':
+						$valeur= "t2.id IN (SELECT id_lien FROM form_instances as tform WHERE tform.id_form=$param AND type_lien='casquette' AND tform.state='closed')";
 						break;
 					case 'clic-envoi':
 						$valeur= "t2.id IN (SELECT id_cas FROM r WHERE id_envoi=$param)";
