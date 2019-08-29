@@ -258,7 +258,7 @@
 								$used= $used || ispjused($f,$b);
 							}
 							$row['pjs'][]=array(
-								"path"=>$f,
+								"path"=>str_replace('../data','data',$f),
 								"filename"=>basename($f),
 								"mime"=>finfo_file($finfo, $f),
 								"used"=>$used
