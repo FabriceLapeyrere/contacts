@@ -6,14 +6,14 @@ $envois=Mailing::get_envois($params,1);
 foreach($envois as $e) {
 	$id_envoi=$e['id'];
 	echo $e['sujet']."\n";
-	if (file_exists("data/files/envois/$id_envoi/succes.log")){
+	if (file_exists("../data/files/envois/$id_envoi/succes.log")){
 		$query = "SELECT count(*) as nb FROM envoi_cas WHERE id_envoi=$id_envoi";
 		$nb=0;
 		foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 			$nb=$row['nb'];
 		}
 		if ($nb==0) {
-			$log=file("data/files/envois/$id_envoi/succes.log");
+			$log=file("../data/files/envois/$id_envoi/succes.log");
 			$db->database->beginTransaction();
 			foreach($log as $l) {
 				$o=json_decode($l);

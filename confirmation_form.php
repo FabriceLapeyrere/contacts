@@ -44,8 +44,8 @@ function casquette($email)
 }
 
 if (isset($_GET['cle'])) {
-	if (file_exists("data/cle/".$_GET['cle'])) {
-		$fichier=file("data/cle/".$_GET['cle']);
+	if (file_exists("../data/cle/".$_GET['cle'])) {
+		$fichier=file("../data/cle/".$_GET['cle']);
 		$params['nom']=trim($fichier[0]);
 		$params['prenom']=trim($fichier[1]);
 		$params['donnees']=array();
@@ -125,7 +125,7 @@ ciao";
                 WS_maj($tab['maj']);
                 $instance=Forms::get_form_instance($tab['res'],1);
                 $fichier[]='done';
-				file_put_contents("data/cle/".$_GET['cle'],$fichier);
+				file_put_contents("../data/cle/".$_GET['cle'],$fichier);
                 $message="Bonjour,
 
 Voici le lien pour remplir le formulaire : ".$form['nom']." :

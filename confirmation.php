@@ -46,8 +46,8 @@ function aj_contact($params)
     WS_maj($maj);
 }
 if (isset($_GET['cle'])) {
-	if (file_exists("data/cle/".$_GET['cle'])) {
-		$fichier=file("data/cle/".$_GET['cle']);
+	if (file_exists("../data/cle/".$_GET['cle'])) {
+		$fichier=file("../data/cle/".$_GET['cle']);
 		$params['nom']=trim($fichier[0]);
 		$params['prenom']=trim($fichier[1]);
 		$params['donnees']=array();
@@ -58,7 +58,7 @@ if (isset($_GET['cle'])) {
 		);
 		$id_categorie=trim($fichier[3]);
 		$params['categories']=array($id_categorie);
-		$path='data/newsletter/'.$id_categorie;
+		$path='../data/newsletter/'.$id_categorie;
 		if (file_exists($path)) {
 			$logo="$path/logo.png";
 			$data=json_decode(file_get_contents("$path/data.json"));
@@ -101,7 +101,7 @@ ciao";
 				}
 				aj_contact($params);
 				$fichier[]='done';
-				file_put_contents("data/cle/".$_GET['cle'],$fichier);
+				file_put_contents("../data/cle/".$_GET['cle'],$fichier);
 ?>
 <html>
 <head>

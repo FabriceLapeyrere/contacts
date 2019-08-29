@@ -610,8 +610,8 @@
 				}
 			}
 			if (count($sql)>0) {
-				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'data/log/db.log');
-				error_log(implode("\n",$sql)."\n\n",3,'data/log/db.log');
+				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'../data/log/db.log');
+				error_log(implode("\n",$sql)."\n\n",3,'../data/log/db.log');
 				$this->database->beginTransaction();
 				foreach($sql as $s){
 					$this->database->exec($s);
@@ -625,10 +625,10 @@
 				$nb=$row['nb'];
 			}
 			if ($nb>0) {
-				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'data/log/db.log');
+				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'../data/log/db.log');
 				$delete=$this->database->prepare("DELETE from tag_cas WHERE id_tag IS NULL or id_cas IS NULL;");
 				$delete->execute(array());
-				error_log("DELETE from tag_cas WHERE id_tag IS NULL or id_cas IS NULL;\n\n",3,'data/log/db.log');
+				error_log("DELETE from tag_cas WHERE id_tag IS NULL or id_cas IS NULL;\n\n",3,'../data/log/db.log');
 			}
 			//on supprime les contacts sans casquette
 			$sql="SELECT count(*) as nb from contacts WHERE id not in (SELECT id_contact from casquettes group by id_contact)";
@@ -637,10 +637,10 @@
 				$nb=$row['nb'];
 			}
 			if ($nb>0) {
-				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'data/log/db.log');
+				error_log(date('d/m/Y h:i:s')." modification de la base : \n",3,'../data/log/db.log');
 				$delete=$this->database->prepare("DELETE from contacts WHERE id not in (SELECT id_contact from casquettes group by id_contact)");
 				$delete->execute(array());
-				error_log("DELETE from contacts WHERE id not in (SELECT id_contact from casquettes group by id_contact);\n\n",3,'data/log/db.log');
+				error_log("DELETE from contacts WHERE id not in (SELECT id_contact from casquettes group by id_contact);\n\n",3,'../data/log/db.log');
 			}
 
 		}

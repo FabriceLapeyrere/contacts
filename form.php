@@ -15,11 +15,11 @@ foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
     $id_cas=$row['id_lien'];
 }
 $header="";
-if (file_exists('data/formulaires/'.$id_form.'/public/header.html')) $header='data/formulaires/'.$id_form.'/public/header.html';
+if (file_exists('../data/formulaires/'.$id_form.'/public/header.html')) $header='../data/formulaires/'.$id_form.'/public/header.html';
 $footer="";
-if (file_exists('data/formulaires/'.$id_form.'/public/footer.html')) $footer='data/formulaires/'.$id_form.'/public/footer.html';
+if (file_exists('../data/formulaires/'.$id_form.'/public/footer.html')) $footer='../data/formulaires/'.$id_form.'/public/footer.html';
 $css="";
-if (file_exists('data/formulaires/'.$id_form.'/public/styles.css')) $css='data/formulaires/'.$id_form.'/public/styles.css';
+if (file_exists('../data/formulaires/'.$id_form.'/public/styles.css')) $css='../data/formulaires/'.$id_form.'/public/styles.css';
 $query = "SELECT * FROM forms WHERE id=$id_form";
 foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
     $form=$row;

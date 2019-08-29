@@ -77,7 +77,7 @@ $email="";
 if (isset($_REQUEST['email'])) $email=$_REQUEST['email'];
 
 if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<$t && $form['to_date']>$t) {
-    if (!file_exists('data/cle')) mkdir('../data/cle', 0777, true);
+    if (!file_exists('../data/cle')) mkdir('../data/cle', 0777, true);
 	$res="";
 	if (isset($_POST) && count($_POST)>0) {
 		if ($_POST['email']=="") $res=$msg_email_missing;
@@ -130,7 +130,7 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
 					$infos[]=$_POST['prenom']."\n";
 					$infos[]=$_POST['email']."\n";
 					$infos[]=$form['id']."\n";
-					file_put_contents("data/cle/$cle",$infos);
+					file_put_contents("../data/cle/$cle",$infos);
 
 					$message="Afin de completer votre inscription au formulaire, merci de suivre le lien suivant :
 

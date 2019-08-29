@@ -641,8 +641,8 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 	function conf(){
 		$conf=(object) null;
 		$conf->ws_port=8082;
-		if (file_exists("data/conf.json")) $conf=json_decode(file_get_contents("data/conf.json"));
-		else file_put_contents("data/conf.json",json_encode($conf));
+		if (file_exists("../data/conf.json")) $conf=json_decode(file_get_contents("../data/conf.json"));
+		else file_put_contents("../data/conf.json",json_encode($conf));
 		return $conf;
 	}
 	function hasListAncestor($id, $tags){

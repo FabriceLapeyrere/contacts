@@ -17,7 +17,7 @@ foreach($news['blocs'] as $b){
 };
 $html.='</body></html>';
 
-$html=str_replace("src=\"../data/files/","src=\"".$C->app->url->value."/data/files/",$html);
+$html=str_replace("src=\"data/files/","src=\"".$C->app->url->value."/data/files/",$html);
 $html=str_replace("src=\"data/files/","src=\"".$C->app->url->value."/data/files/",$html);
 $filename=filter2($news['sujet']);
 

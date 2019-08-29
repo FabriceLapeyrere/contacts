@@ -7,7 +7,7 @@
 set_time_limit(0);
 
 	$params=json_decode(json_encode($_POST));
-	$filename="data/tmp/export".time().".csv";
+	$filename="../data/tmp/export".time().".csv";
 	$fp = fopen($filename, 'w');
 	$selection=array();
 	$query=$params->res->query;
@@ -76,4 +76,4 @@ set_time_limit(0);
 	fclose($fp);
 	prepend(implode(',',$header)."\n",$filename);
 	header("Location: $filename");
-?>	
+?>

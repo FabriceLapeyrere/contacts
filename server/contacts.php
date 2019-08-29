@@ -1672,7 +1672,7 @@
 			$map=$params->map;
 			$hash=$params->hash;
 			$i=0;
-			if (($handle = fopen("data/tmp/$hash", "r")) !== FALSE) {
+			if (($handle = fopen("../data/tmp/$hash", "r")) !== FALSE) {
 				while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 					if ($i>0) $rows[]=$data;
 					$i++;

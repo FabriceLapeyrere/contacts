@@ -251,7 +251,7 @@
 					$row['blocs']=json_decode($row['blocs']);
 					$row['pjs']=array();
 					$finfo = finfo_open(FILEINFO_MIME_TYPE);
-					foreach(glob("data/files/news/".$row['id']."/*") as $f){
+					foreach(glob("../data/files/news/".$row['id']."/*") as $f){
 						if (is_file($f)) {
 							$used=false;
 							foreach($row['blocs'] as $b){
@@ -317,7 +317,7 @@
 					}
 				}
 				$donneeshtml=new stdClass;
-				if(file_exists("data/news_elements/elt_$type.php")) include "data/news_elements/elt_$type.php";
+				if(file_exists("../data/news_elements/elt_$type.php")) include "../data/news_elements/elt_$type.php";
 				elseif(file_exists("server/news_elements/elt_$type.php")) include "server/news_elements/elt_$type.php";
 				$html=str_replace($code,$valeur,$html);
 				error_log("replacePatternDonneesHtml\n-------------\n".var_export($donneeshtml,true)."\n-------------\n",3,"/tmp/fab.log");

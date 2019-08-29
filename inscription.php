@@ -47,10 +47,10 @@ function ass_casquette($id_casquette,$id_contact,$id_categorie)
 }
 
 
-if (isset($_REQUEST['cat']) && file_exists('data/newsletter/'.$_REQUEST['cat'])) {
-	if (!file_exists('data/cle')) mkdir('../data/cle', 0777, true);
+if (isset($_REQUEST['cat']) && file_exists('../data/newsletter/'.$_REQUEST['cat'])) {
+	if (!file_exists('../data/cle')) mkdir('../data/cle', 0777, true);
 	$id_categorie=$_REQUEST['cat'];
-	$path='data/newsletter/'.$id_categorie;
+	$path='../data/newsletter/'.$id_categorie;
 	$logo="$path/logo.png";
 	$data=json_decode(file_get_contents("$path/data.json"));
 	$brand=$data->brand;
@@ -79,7 +79,7 @@ if (isset($_REQUEST['cat']) && file_exists('data/newsletter/'.$_REQUEST['cat']))
 					$infos[]=$_POST['prenom']."\n";
 					$infos[]=$_POST['email']."\n";
 					$infos[]=$id_categorie."\n";
-					file_put_contents("data/cle/$cle",$infos);
+					file_put_contents("../data/cle/$cle",$infos);
 
 					$message="Afin de completer votre inscription à notre newsletter, merci de suivre le lien suivant :
 

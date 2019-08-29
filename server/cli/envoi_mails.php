@@ -5,14 +5,14 @@
  */
 $id_envoi=$argv[2];
 require 'server/lib/PHPMailer/PHPMailerAutoload.php';
-error_log(date('d/m/Y H:i:s')." - Script lancé.\n", 3, "data/log/envoi.log");
+error_log(date('d/m/Y H:i:s')." - Script lancé.\n", 3, "../data/log/envoi.log");
 $envoi=Mailing::get_envoi($id_envoi,'',1);
 $C=Config::get();
 if($envoi['statut']==1) {
     $emails_ok=array();
 	$M=Mailing::do_play_envoi($id_envoi);
 	WS_maj($M['maj']);
-	error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi commencé.\n", 3, "data/log/envoi.log");
+	error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi commencé.\n", 3, "../data/log/envoi.log");
 	$sujet=$envoi['sujet'];
 	$html=$envoi['html'];
 	if ($envoi['type']=='news') {
@@ -55,20 +55,20 @@ if($envoi['statut']==1) {
 
 	$mail->From = $exp->email->value;
 	$mail->FromName = $exp->nom->value;
-	error_log(date('d/m/Y H:i:s')." - nb = ".Mailing::nb_messages_boite_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
+	error_log(date('d/m/Y H:i:s')." - nb = ".Mailing::nb_messages_boite_envoi($id_envoi)."\n", 3, "../data/log/envoi.log");
 	while (Mailing::nb_messages_boite_envoi($id_envoi)>0) {
 		$htmlr=$html;
 		if ($pas==$mailing_nbmail) {
 			$pas=1;
-			error_log(date('d/m/Y H:i:s')." - On attend\n", 3, "data/log/envoi.log");
+			error_log(date('d/m/Y H:i:s')." - On attend\n", 3, "../data/log/envoi.log");
 			for($j=1;$j<$mailing_t_pause;$j++) {
 				sleep(1);
 				if(Mailing::statut_envoi($id_envoi)==2) {
-					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)." -> arret demandé\n", 3, "data/log/envoi.log");
+					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)." -> arret demandé\n", 3, "../data/log/envoi.log");
 					$M=Mailing::do_pause_envoi($id_envoi);
 					WS_maj($M['maj']);
-					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
-					error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "data/log/envoi.log");
+					error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "../data/log/envoi.log");
+					error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "../data/log/envoi.log");
 					exit(0);
 				}
 
@@ -77,11 +77,11 @@ if($envoi['statut']==1) {
 			$pas++;
 		}
 		if(Mailing::statut_envoi($id_envoi)==2) {
-			error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)." -> arret demandé\n", 3, "data/log/envoi.log");
+			error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)." -> arret demandé\n", 3, "../data/log/envoi.log");
 			$M=Mailing::do_pause_envoi($id_envoi);
 			WS_maj($M['maj']);
-			error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
-			error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "data/log/envoi.log");
+			error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "../data/log/envoi.log");
+			error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "../data/log/envoi.log");
 			exit(0);
 		}
 		$m=Mailing::envoi_premier_message($id_envoi);
@@ -175,7 +175,7 @@ if($envoi['statut']==1) {
 sleep(2);
 $M=Mailing::do_pause_envoi($id_envoi);
 WS_maj($M['maj']);
-error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
-error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "data/log/envoi.log");
+error_log(date('d/m/Y H:i:s')." - statut : ".Mailing::statut_envoi($id_envoi)."\n", 3, "../data/log/envoi.log");
+error_log(date('d/m/Y H:i:s')." - Envoi numéro $id_envoi arrété.\n", 3, "../data/log/envoi.log");
 exit(0);
 ?>
