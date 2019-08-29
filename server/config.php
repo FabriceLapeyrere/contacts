@@ -3,13 +3,13 @@ class Config {
 		protected $WS;
 		protected $from;
 		// class object constructor
-		const FILE = "./data/db/config.json";
+		const FILE = "../data/db/config.json";
 		public function __construct($WS,$from)
 		{
 		 	$this->WS= $WS;
 	 	 	$this->from= $from;
-			if (!file_exists('./data/db')) mkdir('./data/db', 0777, true);
-			if (!file_exists('./data/tmp')) mkdir('./data/tmp', 0777, true);
+			if (!file_exists('../data/db')) mkdir('../data/db', 0777, true);
+			if (!file_exists('../data/tmp')) mkdir('../data/tmp', 0777, true);
 			// file location for the user database
 
 			// do we need to build a new database?

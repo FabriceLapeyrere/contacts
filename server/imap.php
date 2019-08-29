@@ -87,24 +87,24 @@ class Imap {
 		return "";
 	}
 	public static function get_status(){
-		if(!file_exists("./data/files/traitements/imap")) $status=array('running'=>0);
-		else $status=json_decode(file_get_contents("./data/files/traitements/imap"));
+		if(!file_exists("../data/files/traitements/imap")) $status=array('running'=>0);
+		else $status=json_decode(file_get_contents("../data/files/traitements/imap"));
 		return $status;
 	}
 	public static function get_imaps(){
 		$imaps=array();
-		foreach(glob('./data/files/traitements/historique/imap-*') as $f) {
+		foreach(glob('../data/files/traitements/historique/imap-*') as $f) {
 			$imaps[]=json_decode(file_get_contents($f));
 		}
 		return $imaps;
 	}
 	public static function set_status($id,$nbb,$ib,$r,$p,$c){
 		$status=array('by'=>$id,'nb_boites'=>$nbb,'index_boite'=>$ib,'running'=>$r, 'pourcentage'=>$p, 'nb'=>$c);
-		file_put_contents("./data/files/traitements/imap",json_encode($status));
+		file_put_contents("../data/files/traitements/imap",json_encode($status));
 		$t=millisecondes();
 		if ($r==2) {
 			$imap=array('by'=>$id,'date'=>$t, 'nb'=>$c);
-			file_put_contents("./data/files/traitements/historique/imap-$t",json_encode($imap));
+			file_put_contents("../data/files/traitements/historique/imap-$t",json_encode($imap));
 		}
 		WS_maj(array("imap"));
 	}

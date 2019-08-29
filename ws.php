@@ -9,7 +9,7 @@ use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 use Ratchet\Session\SessionProvider;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler;
-if (!file_exists('./data/log')) mkdir('./data/log', 0777, true);
+if (!file_exists('../data/log')) mkdir('../data/log', 0777, true);
 $db= new DB(true);
 $conf=conf();
 $mc=new Memcached();

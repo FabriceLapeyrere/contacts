@@ -16,7 +16,7 @@ $scheduler->call(
         'user' => 'cool',
     ],
     'myCustomIdentifier'
-)->date('2018-11-30 16:44')->output('./data/log/scheduler.log');
+)->date('2018-11-30 16:44')->output('../data/log/scheduler.log');
 
 // Let the scheduler execute jobs which are due.
 $scheduler->run();

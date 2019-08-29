@@ -77,7 +77,7 @@ $email="";
 if (isset($_REQUEST['email'])) $email=$_REQUEST['email'];
 
 if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<$t && $form['to_date']>$t) {
-    if (!file_exists('data/cle')) mkdir('./data/cle', 0777, true);
+    if (!file_exists('data/cle')) mkdir('../data/cle', 0777, true);
 	$res="";
 	if (isset($_POST) && count($_POST)>0) {
 		if ($_POST['email']=="") $res=$msg_email_missing;
@@ -154,13 +154,13 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
 <meta charset="UTF-8">
 <link href="lib/css/bootstrap.min.css" media="all" type="text/css" rel="stylesheet">
 <?php
-if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/styles.css')) echo "<link href=\"data/formulaires/".$_REQUEST['id']."/styles.css\" media=\"all\" type=\"text/css\" rel=\"stylesheet\">";
+if(file_exists('../data/formulaires/'.$_REQUEST['id'].'/styles.css')) echo "<link href=\"data/formulaires/".$_REQUEST['id']."/styles.css\" media=\"all\" type=\"text/css\" rel=\"stylesheet\">";
 ?>
 </head>
 <body>
 	<form id="formulaire" class="col-xs-12 col-md-6 col-md-offset-3" method="post" action="formulaire.php?id=<?=$_REQUEST['id']?>">
 		<?php
-        if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/header.html')) echo file_get_contents('./data/formulaires/'.$_REQUEST['id'].'/header.html')."\n";
+        if(file_exists('../data/formulaires/'.$_REQUEST['id'].'/header.html')) echo file_get_contents('../data/formulaires/'.$_REQUEST['id'].'/header.html')."\n";
         ?>
         <div class="text-container"><?=$text?></div>
         <div class="row">
@@ -178,7 +178,7 @@ if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/styles.css')) echo "<link
 <?}?>
     <div class="col-xs-12 col-md-6 col-md-offset-3">
 		<?php
-        if(file_exists('./data/formulaires/'.$_REQUEST['id'].'/footer.html')) echo file_get_contents('./data/formulaires/'.$_REQUEST['id'].'/footer.html')."\n";
+        if(file_exists('../data/formulaires/'.$_REQUEST['id'].'/footer.html')) echo file_get_contents('../data/formulaires/'.$_REQUEST['id'].'/footer.html')."\n";
         ?>
     </div>
 </body>

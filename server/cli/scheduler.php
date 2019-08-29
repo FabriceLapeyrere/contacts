@@ -17,7 +17,7 @@ foreach($envois as $e) {
 		},
 		array('envoi'=>$e),
 		'envoi'
-	)->date(date('Y-m-d H:i',$e['json']->date/1000))->output('./data/log/scheduler.log');
+	)->date(date('Y-m-d H:i',$e['json']->date/1000))->output('../data/log/scheduler.log');
 }
 
 // Let the scheduler execute jobs which are due.

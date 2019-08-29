@@ -8,6 +8,6 @@ $storage = new NativeSessionStorage(array(), new MemcachedSessionHandler($mc));
 $session = new Session($storage);
 $session->start();
 $sid=$session->getId();
-$sessions=json_decode(file_get_contents('./data/sessions'));
+$sessions=json_decode(file_get_contents('../data/sessions'));
 $my_session= new stdClass;
 if (isset($sessions->$sid)) $my_session=$sessions->$sid;

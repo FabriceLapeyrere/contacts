@@ -29,12 +29,12 @@ class WS implements MessageComponentInterface {
 		$sid=$conn->Session->getId();
 		if (!array_key_exists($sid, $this->sessions)) $this->sessions[$sid]=array();
 		$this->sessions[$sid][$k]=$v;
-		file_put_contents('./data/sessions', json_encode($this->sessions));
+		file_put_contents('../data/sessions', json_encode($this->sessions));
 	}
  	public function removeSession($conn,$k) {
 		$sid=$conn->Session->getId();
 		if (array_key_exists($sid, $this->sessions)) unset($this->sessions[$sid][$k]);
-		file_put_contents('./data/sessions', json_encode($this->sessions));
+		file_put_contents('../data/sessions', json_encode($this->sessions));
 	}
  	public function onOpen(ConnectionInterface $conn) {
  	 	// Store the new connection to send messages to later
@@ -48,7 +48,7 @@ class WS implements MessageComponentInterface {
 		$payload=json_decode($msg);
  	 	echo sprintf('Connection %d sending message "%s"'."\n"
  	 	 	, $from->resourceId, $msg);
-		if (!file_exists('./data/log')) mkdir('./data/log', 0777, true);
+		if (!file_exists('../data/log')) mkdir('../data/log', 0777, true);
 		$t0=microtime(true);
 		$t=$t0*10000%10000;
 		$rid=$payload->id;
@@ -58,7 +58,7 @@ class WS implements MessageComponentInterface {
 		$uid=$from->resourceId;
 		$datas=$params->data;
 		$res=array();
-		error_log("---------------------------------------------\n:::: ".$uid." :::: AJAX CALL 1 $t\n",3,"./data/log/link.log");
+		error_log("---------------------------------------------\n:::: ".$uid." :::: AJAX CALL 1 $t\n",3,"../data/log/link.log");
 		if (count($datas)==1 && $datas[0]->action=='login' ) {
 			$res[]=$Actions->login($datas[0]->params);
 		}
@@ -99,7 +99,7 @@ class WS implements MessageComponentInterface {
 							'date'=>millisecondes(),
 							'params'=>$params
 						);
-						error_log(json_encode($log)."\n", 3, "./data/log/log.txt");
+						error_log(json_encode($log)."\n", 3, "../data/log/log.txt");
 						$this->maj(array('log'));
 					}
 				}
@@ -119,7 +119,7 @@ class WS implements MessageComponentInterface {
 		$reponse['res']=$res;
 		$reponse['uid']=$uid;
 		$reponse['user']=$this->getSession($from,'user');
-		error_log("---------------------------------------------\n:::: ".$uid." :::: AJAX END 1 $t\n",3,"./data/log/link.log");
+		error_log("---------------------------------------------\n:::: ".$uid." :::: AJAX END 1 $t\n",3,"../data/log/link.log");
 		$from->send(json_encode(array('id'=>$rid,'data'=>$reponse)));
 		$this->clear_old_subs();
 	}
@@ -161,7 +161,7 @@ class WS implements MessageComponentInterface {
 					foreach($data['modele'] as $k=>$v){
 						$ks.=" $k";
 					}
-					error_log("SEND :::: ".$uid." :::: $ks\n",3,"./data/log/link.log");
+					error_log("SEND :::: ".$uid." :::: $ks\n",3,"../data/log/link.log");
 					$client->send(json_encode(array('data'=>$data)));
 				}
 			}
@@ -220,7 +220,7 @@ class WS implements MessageComponentInterface {
  	 	 	$types[]=$c->type;
  	 	}
  	 	$this->prep_notify($types);
- 	 	error_log(":::: ".$uid." :::: force notify\n",3,"./data/log/link.log");
+ 	 	error_log(":::: ".$uid." :::: force notify\n",3,"../data/log/link.log");
 	}
  	public function notify($uid) {
  		echo "notify\n";
@@ -232,9 +232,9 @@ class WS implements MessageComponentInterface {
  	 	 	if (md5(var_export($data,true))!=md5(var_export($notified,true))) {
  	 	 	 	$this->notified[$uid."-".$type]=$data;
  	 	 	 	$datas[$type]=$data;
- 	 	 	 	error_log(":::: ".$uid." :::: notify => $type\n",3,"./data/log/link.log");
+ 	 	 	 	error_log(":::: ".$uid." :::: notify => $type\n",3,"../data/log/link.log");
  	 	 	} else {
- 	 	 	 	error_log(":::: ".$uid." :::: notify => $type not needed\n",3,"./data/log/link.log");
+ 	 	 	 	error_log(":::: ".$uid." :::: notify => $type not needed\n",3,"../data/log/link.log");
  	 	 	}
  	 	}
  	 	$this->del_nots($uid);
@@ -307,18 +307,18 @@ class WS implements MessageComponentInterface {
  	public function subscribe($uid,$ws) {
  	 	echo "subscribe\n";
 		$this->set_sub($uid,array());
- 	 	error_log(":::: ".$uid." :::: subscribe\n",3,"./data/log/link.log");
+ 	 	error_log(":::: ".$uid." :::: subscribe\n",3,"../data/log/link.log");
  	}
  	public function subscribe_update($uid) {
  	 	echo "subscribe_update\n";
 		$sub=$this->subs($uid);
  	 	$this->set_sub($uid,$sub->contexts);
- 	 	error_log(":::: ".$uid." :::: subscribe update\n",3,"./data/log/link.log");
+ 	 	error_log(":::: ".$uid." :::: subscribe update\n",3,"../data/log/link.log");
  	}
  	public function contexts_update($uid,$contexts) {
 		echo "contexts_update\n";
 		$this->set_sub($uid,$contexts);
- 	 	error_log(":::: ".$uid." :::: contexts update ".count($contexts)." item(s) \n",3,"./data/log/link.log");
+ 	 	error_log(":::: ".$uid." :::: contexts update ".count($contexts)." item(s) \n",3,"../data/log/link.log");
  	 	$this->force_notify($uid);
  		$this->send_nots();
 	}
@@ -344,7 +344,7 @@ class WS implements MessageComponentInterface {
  	 	echo "del_sub\n";
 		unset($this->subs[$uid]);
  	 	$this->maj(array('logged'));
- 	 	error_log(":::: del $uid\n",3,"./data/log/link.log");
+ 	 	error_log(":::: del $uid\n",3,"../data/log/link.log");
  	}
  	public function set_sub($uid,$contexts) {
 		echo "set_sub\n";
@@ -378,18 +378,18 @@ class WS implements MessageComponentInterface {
  	//VERROUS
  	public function set_verrou($uid,$type) {
  	 	echo "set_verrou\n";
-		error_log(":::: ".$uid." :::: set verrou $uid\n",3,"./data/log/link.log");
+		error_log(":::: ".$uid." :::: set verrou $uid\n",3,"../data/log/link.log");
  	 	if (!array_key_exists($type,$this->verrous)) {
  	 	 	$this->verrous[$type]=$uid;
  	 	}
-		$this->maj(array('verrous')); 	
+		$this->maj(array('verrous'));
  	}
  	public function del_verrou($uid,$type) {
  	 	echo "del_verrou\n";
 		if (array_key_exists($type,$this->verrous)) {
  	 	 	if ($this->verrous[$type]==$uid) unset($this->verrous[$type]);
  	 	}
- 		$this->maj(array('verrous')); 	
+ 		$this->maj(array('verrous'));
  	}
  	public function del_old_verrous() {
  	 	echo "del_old_verrous\n";
@@ -397,19 +397,19 @@ class WS implements MessageComponentInterface {
 		$test=false;
  	 	foreach($this->verrous as $type=>$u) {
  	 	 	if (!array_key_exists($u,$this->subs)) {
- 	 	 	 	error_log(":::: -> $u\n",3,"./data/log/link.log");
+ 	 	 	 	error_log(":::: -> $u\n",3,"../data/log/link.log");
  	 	 	 	unset($this->verrous[$type]);
 				$test=true;
  	 	 	}
  	 	}
  		if ($test) {
-			error_log(":::: del old verrous\n",3,"./data/log/link.log");
+			error_log(":::: del old verrous\n",3,"../data/log/link.log");
 	 	 	$this->maj(array('verrous'));
 		}
  	}
  	public function get_verrou($type) {
 		echo "get_verrou\n";
-		error_log("$type\n",3,"./data/log/link.log");
+		error_log("$type\n",3,"../data/log/link.log");
  	 	return array_key_exists($type,$this->verrous) ? $this->verrous[$type] : 'none';
  	}
 }

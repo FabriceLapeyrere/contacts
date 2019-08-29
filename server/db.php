@@ -4,9 +4,9 @@
 		// class object constructor
 		function __construct($check=false)
 		{
-			if (!file_exists('./data/db')) mkdir('./data/db', 0777, true);
+			if (!file_exists('../data/db')) mkdir('../data/db', 0777, true);
 			// file location for the user database
-			$dbfile = "./data/db/db.db";
+			$dbfile = "../data/db/db.db";
 
 			$this->schema = array(
 				array(

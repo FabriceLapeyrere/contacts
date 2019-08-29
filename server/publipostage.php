@@ -116,7 +116,7 @@
 			$res=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				foreach(glob("./data/files/template/".$row['id']."/*") as $f){
+				foreach(glob("../data/files/template/".$row['id']."/*") as $f){
 					if (is_file($f)) {
 						clearstatcache();
 						$row['template'][]=array(
@@ -210,7 +210,7 @@
 		{
 			$id_template=$params->id;
 			$tpl=$params->tpl;
-			unlink("./data/files/template/$id_template/".$tpl->filename);
+			unlink("../data/files/template/$id_template/".$tpl->filename);
 			Publipostage::touch_template($id_template,$id);
 			return array('maj'=>array("template/$id_template"),'res'=>1);
 		}

@@ -62,7 +62,7 @@
 				if ($id>0) {
 					$row['pjs']=array();
 					$finfo = finfo_open(FILEINFO_MIME_TYPE);
-					foreach(glob("./data/files/mail/".$row['id']."/*") as $f){
+					foreach(glob("../data/files/mail/".$row['id']."/*") as $f){
 						if (is_file($f)) {
 							$row['pjs'][]=array(
 								"path"=>$f,
@@ -93,7 +93,7 @@
 			$db= new DB();
 			$id_mail=$params->id;
 			$pj=$params->pj;
-			unlink("./data/files/mail/$id_mail/".$pj->filename);
+			unlink("../data/files/mail/$id_mail/".$pj->filename);
 			Mailing::touch_mail($id_mail,$id);
 			return array('maj'=>array("mail/$id_mail"),'res'=>1);
 		}
@@ -124,7 +124,7 @@
 			$insert = $db->database->prepare('INSERT INTO news (sujet, blocs, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?)');
 			$insert->execute(array($news['sujet']." (copie)", json_encode($news['blocs']), $t, $id, $t, $id));
 			$id_news = $db->database->lastInsertId();
-			smartCopy("./data/files/news/".$params->news->id, "./data/files/news/$id_news");
+			smartCopy("../data/files/news/".$params->news->id, "../data/files/news/$id_news");
 			foreach($news['blocs'] as $index=>$b) {
 				$news['blocs'][$index]=clean_pjs_bloc($id_news,$b);
 			}
@@ -448,7 +448,7 @@
 		{
 			$id_news=$params->id;
 			$pj=$params->pj;
-			unlink("./data/files/news/$id_news/".$pj->filename);
+			unlink("../data/files/news/$id_news/".$pj->filename);
 			Mailing::touch_news($id_news,$id);
 			return array('maj'=>array("news/$id_news"),'res'=>1);
 		}
@@ -606,7 +606,7 @@
 				$envoi['succes_log']['page']=$succes_page;
 				$envoi['succes_log']['nb']=$succes_nb;
 				$envoi['succes_log']['collection']=array();
-				$succes_log="./data/files/envois/$id_envoi/succes.log";
+				$succes_log="../data/files/envois/$id_envoi/succes.log";
 				$i=0;
 				if (file_exists($succes_log)) {
 					$handle = fopen($succes_log, 'r');
@@ -631,7 +631,7 @@
 				$envoi['erreur_log']['page']=$erreur_page;
 				$envoi['erreur_log']['nb']=$erreur_nb;
 				$envoi['erreur_log']['collection']=array();
-				$erreur_log="./data/files/envois/$id_envoi/erreur.log";
+				$erreur_log="../data/files/envois/$id_envoi/erreur.log";
 				$i=0;
 				if (file_exists($erreur_log)) {
 					$handle = fopen($erreur_log, 'r');
@@ -786,13 +786,13 @@
 			$insert->execute(array($sujet,$html,$query,json_encode($pjs),json_encode($expediteur),$params->type,$params->e->id,$nb,1,millisecondes(),$id));
 			$id_envoi = $db->database->lastInsertId();
 			//on met à jour les liens vers les fichiers
-			$html=str_replace("./data/files/{$params->type}/{$params->e->id}","./data/files/envois/$id_envoi",$html);
+			$html=str_replace("../data/files/{$params->type}/{$params->e->id}","../data/files/envois/$id_envoi",$html);
 			foreach($pjs as $k=>$pj){
-				$pjs[$k]['path']=str_replace("./data/files/{$params->type}/{$params->e->id}","./data/files/envois/$id_envoi",$pj['path']);
+				$pjs[$k]['path']=str_replace("../data/files/{$params->type}/{$params->e->id}","../data/files/envois/$id_envoi",$pj['path']);
 			}
 			$update = $db->database->prepare('UPDATE envois SET html=?, pjs=? WHERE id=?');
 			$update->execute(array($html,json_encode($pjs),$id_envoi));
-			smartCopy("./data/files/{$params->type}/{$params->e->id}","./data/files/envois/$id_envoi");
+			smartCopy("../data/files/{$params->type}/{$params->e->id}","../data/files/envois/$id_envoi");
 
 			$db->database->beginTransaction();
 			$i=1;
@@ -900,7 +900,7 @@
 		}
 		public static function do_log_succes($id_envoi,$log) {
 			$db= new DB();
-			$log_path="./data/files/envois/$id_envoi";
+			$log_path="../data/files/envois/$id_envoi";
 			$log_file="$log_path/succes.log";
 			if (!file_exists($log_path)) mkdir($log_path, 0777, true);
 			error_log(json_encode($log)."\n",3,$log_file);
@@ -924,7 +924,7 @@
 			return array('maj'=>array("contact/".$s['id_contact'],"contact/".$d['id_contact']), 'res'=>1);
 		}
 		public static function log_erreur($id_envoi,$log) {
-			$log_path="./data/files/envois/$id_envoi";
+			$log_path="../data/files/envois/$id_envoi";
 			$log_file="$log_path/erreur.log";
 			if (!file_exists($log_path)) mkdir($log_path, 0777, true);
 			error_log(json_encode($log)."\n",3,$log_file);

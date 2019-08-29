@@ -329,7 +329,7 @@
 		public static function get_log(){
 			$i=0;
 			$tab=array();
-			$lines = file('./data/log/log.txt');
+			$lines = file('../data/log/log.txt');
 			foreach (array_reverse($lines) as $line) {
 				$tab[]=json_decode($line);
 				$i++;

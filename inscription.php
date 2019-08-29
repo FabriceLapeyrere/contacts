@@ -48,7 +48,7 @@ function ass_casquette($id_casquette,$id_contact,$id_categorie)
 
 
 if (isset($_REQUEST['cat']) && file_exists('data/newsletter/'.$_REQUEST['cat'])) {
-	if (!file_exists('data/cle')) mkdir('./data/cle', 0777, true);
+	if (!file_exists('data/cle')) mkdir('../data/cle', 0777, true);
 	$id_categorie=$_REQUEST['cat'];
 	$path='data/newsletter/'.$id_categorie;
 	$logo="$path/logo.png";

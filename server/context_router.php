@@ -33,7 +33,7 @@
 			$c=$this->WS->get_cache($context,$this->from);
 			if ($c!==false) {
 				$res=$c;
-				error_log("from cache\n",3,"./data/log/link.log");
+				error_log("from cache\n",3,"../data/log/link.log");
 			} else {
 				$tab=explode('/',$type);
 				switch ($tab[0]) {
@@ -194,7 +194,7 @@
 						break;
 					}
 				$this->WS->set_cache($context,$res,$this->from);
-				error_log("computed\n",3,"./data/log/link.log");
+				error_log("computed\n",3,"../data/log/link.log");
 			}
 			return $res;
 		}

@@ -17,11 +17,11 @@
 				$row['from_date']=$row['from_date']+0;
 				$row['to_date']=$row['to_date']+0;
 				$row['docs']=array();
-				foreach (glob("./data/files/form/$id_form/*.odt") as $f)
+				foreach (glob("../data/files/form/$id_form/*.odt") as $f)
 				{
 					$row['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
 				}
-				foreach (glob("./data/files/form/$id_form/*.pdf") as $f)
+				foreach (glob("../data/files/form/$id_form/*.pdf") as $f)
 				{
 					$row['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
 				}
@@ -109,11 +109,11 @@
 				$I[$h]['modificationdate']=$md;
 				$I[$h]['collection']=(object)$I[$h]['collection'];
 				$I[$h]['docs']=array();
-				foreach (glob("./data/files/form_upload/$h/*.odt") as $f)
+				foreach (glob("../data/files/form_upload/$h/*.odt") as $f)
 				{
 					$I[$h]['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
 				}
-				foreach (glob("./data/files/form_upload/$h/*.pdf") as $f)
+				foreach (glob("../data/files/form_upload/$h/*.pdf") as $f)
 				{
 					$I[$h]['docs'][]=array('nom'=>basename($f),'path'=>$f,'modificationdate'=>(filemtime($f)*1000)."");
 				}
@@ -320,7 +320,7 @@
 				$res=$row;
 			}
 			if (count($res)>0) {
-				unlink("./data/files/form_upload/$hash/$id_elt/$file");
+				unlink("../data/files/form_upload/$hash/$id_elt/$file");
 				$v=json_decode($res['valeur']);
 				$nv=array();
 				foreach ($v as $key => $value) {
@@ -564,14 +564,14 @@
 			set_time_limit(0);
 			$template="./templates/form_tpl.odt";
 			$instance=Forms::get_form_instance($hash,$id);
-			if (!file_exists("./data/files/form_upload/$hash/")) mkdir("./data/files/form_upload/$hash/", 0777, true);
-			if (file_exists("./data/formulaires/".$instance['form']['id']."/form_tpl.odt")) $template="./data/formulaires/".$instance['form']['id']."/form_tpl.odt";
+			if (!file_exists("../data/files/form_upload/$hash/")) mkdir("../data/files/form_upload/$hash/", 0777, true);
+			if (file_exists("../data/formulaires/".$instance['form']['id']."/form_tpl.odt")) $template="../data/formulaires/".$instance['form']['id']."/form_tpl.odt";
 
-			foreach (glob("./data/files/form_upload/$hash/*.odt") as $f)
+			foreach (glob("../data/files/form_upload/$hash/*.odt") as $f)
 			{
 				unlink($f);
 			}
-			foreach (glob("./data/files/form_upload/$hash/*.pdf") as $f)
+			foreach (glob("../data/files/form_upload/$hash/*.pdf") as $f)
 			{
 				unlink($f);
 			}
@@ -581,10 +581,10 @@
 			$t=millisecondes();
 			mkdir("/tmp/LibO_Conversion-$hash-$t");
 			$filename="form-".$instance['form']['id']."-".$instance['id_contact']."-".filter2($contact['nom']);
-			$TBS->Show(OPENTBS_FILE, "./data/files/form_upload/$hash/$filename.odt");
-			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$hash-$t\" --headless --invisible --convert-to pdf ./data/files/form_upload/$hash/$filename.odt --outdir ./data/files/form_upload/$hash/");
+			$TBS->Show(OPENTBS_FILE, "../data/files/form_upload/$hash/$filename.odt");
+			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$hash-$t\" --headless --invisible --convert-to pdf ../data/files/form_upload/$hash/$filename.odt --outdir ../data/files/form_upload/$hash/");
 			deleteDirectory("/tmp/LibO_Conversion-$hash-$t");
-			return array('res'=>array('odt'=>"./data/files/form_upload/$hash/$filename.odt",'pdf'=>"./data/files/form_upload/$hash/$filename.pdf"),'maj'=>array("form_instance/".$hash));
+			return array('res'=>array('odt'=>"../data/files/form_upload/$hash/$filename.odt",'pdf'=>"../data/files/form_upload/$hash/$filename.pdf"),'maj'=>array("form_instance/".$hash));
 		}
 		public function generate_docs_liste($params,$id) {
 			$t=Forms::do_generate_docs_liste($params,$id);
@@ -596,19 +596,19 @@
 			$id_form=$params->id_form;
 			set_time_limit(0);
 			$template="./templates/form_tpl.odt";
-			if (file_exists("./data/formulaires/$id_form/form_tpl.odt")) $template="./data/formulaires/$id_form/form_tpl.odt";
-			if (!file_exists("./data/files/form/$id_form/")) mkdir("./data/files/form/$id_form/", 0777, true);
+			if (file_exists("../data/formulaires/$id_form/form_tpl.odt")) $template="../data/formulaires/$id_form/form_tpl.odt";
+			if (!file_exists("../data/files/form/$id_form/")) mkdir("../data/files/form/$id_form/", 0777, true);
 
 			$query_ok = "SELECT hash FROM form_instances WHERE id_form=$id_form AND state='closed' ORDER BY id_form;";
 			$hashs=array();
 			foreach($db->database->query($query_ok, PDO::FETCH_ASSOC) as $row){
 				$hashs[]=$row['hash'];
 			}
-			foreach (glob("./data/files/form/$id_form/*.odt") as $f)
+			foreach (glob("../data/files/form/$id_form/*.odt") as $f)
 			{
 				unlink($f);
 			}
-			foreach (glob("./data/files/form/$id_form/*.pdf") as $f)
+			foreach (glob("../data/files/form/$id_form/*.pdf") as $f)
 			{
 				unlink($f);
 			}
@@ -617,10 +617,10 @@
 			$t=millisecondes();
 			mkdir("/tmp/LibO_Conversion-$id_form-$t");
 			$filename="formulaires-$id_form";
-			$TBS->Show(OPENTBS_FILE, "./data/files/form/$id_form/$filename.odt");
-			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$id_form-$t\" --headless --invisible --convert-to pdf ./data/files/form/$id_form/$filename.odt --outdir ./data/files/form/$id_form/");
+			$TBS->Show(OPENTBS_FILE, "../data/files/form/$id_form/$filename.odt");
+			exec("libreoffice -env:UserInstallation=\"file:///tmp/LibO_Conversion-$id_form-$t\" --headless --invisible --convert-to pdf ../data/files/form/$id_form/$filename.odt --outdir ../data/files/form/$id_form/");
 			deleteDirectory("/tmp/LibO_Conversion-$id_form-$t");
-			return array('res'=>array('odt'=>"./data/files/form/$id_form/$filename.odt",'pdf'=>"./data/files/form/$id_form/$filename.pdf"),'maj'=>array("form/".$id_form));
+			return array('res'=>array('odt'=>"../data/files/form/$id_form/$filename.odt",'pdf'=>"../data/files/form/$id_form/$filename.pdf"),'maj'=>array("form/".$id_form));
 		}
 		public static function tbs_instance($template,$instances,$id){
 			include_once('./server/lib/tbs_class.php');

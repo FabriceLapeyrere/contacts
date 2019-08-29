@@ -339,9 +339,9 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 	function ldap_update($id) {
         	$C=Config::get();
 		// connect to ldap server
-		error_log("connection ldap ...\n",3,"./data/log/debug.log");
+		error_log("connection ldap ...\n",3,"../data/log/debug.log");
 		if ($C->ldap->active->value==1){
-			error_log("reussie\n",3,"./data/log/debug.log");
+			error_log("reussie\n",3,"../data/log/debug.log");
 			$ldapconn = ldap_connect($C->ldap->srv->value)
 				or die("Could not connect to LDAP server.");
 			ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -415,12 +415,12 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 				$r=ldap_add($ldapconn, $contact, $entry_new);
 				foreach($C->ldap->tags->value as $t){
 					if ($t->idtag->value>0) {
-						error_log($t->idtag->value." ".$t->base->value."\n",3,"./data/log/debug.log");
+						error_log($t->idtag->value." ".$t->base->value."\n",3,"../data/log/debug.log");
 						$contact="uid=$id,".$t->base->value;
-						error_log("suppression casquette n°$id de ".$t->base->value."\n",3,"./data/log/debug.log");
+						error_log("suppression casquette n°$id de ".$t->base->value."\n",3,"../data/log/debug.log");
 						@ldap_delete($ldapconn,$contact);
 						if (Contacts::cas_has_tag($id,$t->idtag->value)) {
-							error_log("ajout casquette n°$id à ".$t->base->value."\n",3,"./data/log/debug.log");
+							error_log("ajout casquette n°$id à ".$t->base->value."\n",3,"../data/log/debug.log");
 							$r=ldap_add($ldapconn, $contact, $entry_new);
 						}
 					}
