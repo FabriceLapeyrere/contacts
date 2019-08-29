@@ -109,7 +109,7 @@ fakeWs.factory('Link',['Data', '$rootScope', '$window', '$interval', '$location'
 		var verrou=key;
 		link.ajax([{action:'del_verrou', type:verrou}]);
 	};
-	var wsUrl= location.protocol=='https:' ? 'wss://' + location.host + ':' + (parseInt(document.getElementById('ws-port').value)+1000) : 'ws://' + location.host + ':' + document.getElementById('ws-port').value;
+	var wsUrl= location.protocol=='https:' ? 'wss://' + location.hostname + ':' + (parseInt(document.getElementById('ws-port').value)+1000) : 'ws://' + location.hostname + ':' + document.getElementById('ws-port').value;
 	console.log(location.protocol,wsUrl);
 	link.ws = new WebSocketR2(wsUrl,{requestTimeout:3600000});
 	link.initSocket=function(e){
