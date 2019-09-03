@@ -1,7 +1,8 @@
 <?php
 	if ($valeur=='') {
-		$valeur="data/files/brand/logo.png";
+		$valeur="../data/files/brand/logo.png";
 	}
+	if (strpos($valeur,'data')===0) $valeur="../$valeur";
 	//on detecte le type
 	$finfo = finfo_open(FILEINFO_MIME_TYPE);
 	$mime=finfo_file($finfo, $valeur);
@@ -53,7 +54,7 @@
 			//création de la destination
 			$destination = imagecreatetruecolor(min($width,$w), min($height,$h));
 			$back = imagecolorallocate($destination, 255, 255, 255);
-	
+
 			//on ouvre la source
 			switch ($mime) {
 				case "image/png":
@@ -72,7 +73,7 @@
 			imagesavealpha($destination, true);
 			// Redimensionnement
 			imagecopyresampled($destination, $source, 0, 0, max(0,($largeur-$w/$r)/2), max(0,($hauteur-$h/$r)/2), min($width,$w), min($height,$h),min($width,$w)/$r, min($height,$h)/$r);
-			
+
 			switch ($mime) {
 				case "image/png":
 					imagepng($destination,$dest);
@@ -87,6 +88,6 @@
 			imagedestroy($destination);
 			imagedestroy($source);
 		}
-		$valeur=$dest;			
+		$valeur=$dest;
 	}
 ?>

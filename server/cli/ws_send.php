@@ -1,7 +1,8 @@
 <?php
-$msg=base64_decode($argv[2]);
+$host=$argv[2];
+$msg=base64_decode($argv[3]);
 $conf=conf();
-\Ratchet\Client\connect('ws://localhost:'.$conf->ws_port)->then(function($conn) use ($msg) {
+\Ratchet\Client\connect("ws://$host:8082")->then(function($conn) use ($msg) {
 	echo "Connexion OK";
 	$conn->send($msg);
 	$conn->close();

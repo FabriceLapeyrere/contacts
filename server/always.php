@@ -611,7 +611,8 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 		$msg['id']=-1;
 		$msg['key']='1234';
 		$msg['data']=$data;
-		$command = "nohup /usr/bin/php exec.php ws_send ".base64_encode(json_encode($msg))." > /dev/null 2>&1 &";
+		$host=$_SERVER['SERVER_NAME'];
+		$command = "nohup /usr/local/bin/php exec.php ws_send $host ".base64_encode(json_encode($msg))." > /dev/null 2>&1 &";
 		exec($command);
 	}
 	function WS_maj($types) {
@@ -620,7 +621,8 @@ function replaceImgs($html, $base, $params, $use_redirect, $redirect)
 			$msg['id']=-1;
 			$msg['key']='1234';
 			$msg['data']=array('data'=>array(array('action'=>'maj','types'=>$types)));
-			$command = "nohup /usr/bin/php exec.php ws_send ".base64_encode(json_encode($msg))." > /dev/null 2>&1 &";
+			$host=$_SERVER['SERVER_NAME'];
+			$command = "nohup /usr/local/bin/php exec.php ws_send $host ".base64_encode(json_encode($msg))." > /dev/null 2>&1 &";
 			exec($command);
 		}
 	}

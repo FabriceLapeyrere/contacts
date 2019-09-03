@@ -15,8 +15,8 @@ if ( !empty( $_FILES ) ) {
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
 		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
 
-		$uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $id;
-		$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . filter($path_parts['filename']).".".$path_parts['extension'];
+		$uploadDir = "../data/files/$type/$id";
+		$uploadPath = $uploadDir . "/" . filter($path_parts['filename']).".".$path_parts['extension'];
 		if (!file_exists($uploadDir)){
 			mkdir($uploadDir, 0777, true);
 		}
@@ -47,8 +47,8 @@ if ( !empty( $_FILES ) ) {
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
 		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
 
-		$uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $hash. DIRECTORY_SEPARATOR . $id_elt;
-		$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . filter($path_parts['filename']).".".$path_parts['extension'];
+		$uploadDir = "../data/files/$type/$hash/$id_elt";
+		$uploadPath = $uploadDir."/". filter($path_parts['filename']).".".$path_parts['extension'];
 		if (!file_exists($uploadDir)){
 			mkdir($uploadDir, 0777, true);
 		}
@@ -84,8 +84,8 @@ if ( !empty( $_FILES ) ) {
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
 		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
 
-		$uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR . $id;
-		$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . filter($path_parts['filename']).".".$path_parts['extension'];
+		$uploadDir = "../data/files/$type/$id";
+		$uploadPath = $uploadDir . "/" . filter($path_parts['filename']).".".$path_parts['extension'];
 		if (!file_exists($uploadDir)){
 			mkdir($uploadDir, 0777, true);
 		}
@@ -120,8 +120,8 @@ if ( !empty( $_FILES ) ) {
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
 		$path_parts = pathinfo($_FILES[ 'file' ][ 'name' ]);
 		$hash=millisecondes();
-		$uploadDir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tmp';
-		$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . $hash;
+		$uploadDir = "../data/tmp";
+		$uploadPath = $uploadDir . "/" . $hash;
 		if (move_uploaded_file( $tempPath, $uploadPath )) {
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$row = 1;
@@ -342,5 +342,3 @@ if ( !empty( $_FILES ) ) {
 	echo 'No files';
 
 }
-
-?>
