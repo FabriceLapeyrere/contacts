@@ -374,17 +374,6 @@
 				),
 				array(
 					'type'=>'table',
-					'nom'=>'acl',
-					'champs'=>array(
-						array('nom'=>'id_ressource','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
-						array('nom'=>'type_ressource','type'=>'TEXT','defaut'=>'','options'=>''),
-						array('nom'=>'id_acces','type'=>'INTEGER','defaut'=>'','options'=>''),
-						array('nom'=>'type_acces','type'=>'TEXT','defaut'=>'','options'=>''),
-						array('nom'=>'level','type'=>'INTEGER','defaut'=>'','options'=>'')
-					)
-				),
-				array(
-					'type'=>'table',
 					'nom'=>'user_group',
 					'champs'=>array(
 						array('nom'=>'id_user','type'=>'INTEGER','defaut'=>'','options'=>''),
