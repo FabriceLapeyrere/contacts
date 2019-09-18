@@ -192,7 +192,10 @@ class WS implements MessageComponentInterface {
 			case 'envoi':
 				$res=array($type,'envois');
 				break;
-			case 'suivi':
+            case 'suivi':
+				$res=array($type,'suivis');
+				break;
+            case 'suivis_thread':
 				$res=array($type,'suivis');
 				break;
 			case 'modele':

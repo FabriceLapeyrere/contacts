@@ -1848,7 +1848,7 @@ app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 
 		Link.ajax([{action:'dupNews',params:{news:news}}]);
 	}
 	$scope.$watch('pageCourante.news',function(n,o){
-		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre}}]);
+		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre.news}}]);
 	});
 	$scope.$watchCollection('filtre.news',function(n,o){
 		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre.news}}]);
@@ -2547,7 +2547,8 @@ app.controller('modsuiviCtl', ['$scope', '$http', '$location', '$routeParams', '
 		modal.result.then(function (cas) {
 			Data.modele[$scope.key].id_casquette=cas.id;
 			Data.modele[$scope.key].cas=cas;
-			$scope.save();
+			Data.modele[$scope.threadKey].id_casquette=cas.id;
+			Link.ajax([{action:'modSuivisThread', params:{suivis_thread:Data.modele[$scope.threadKey]}}],$scope.update);
 		}, function(){
 			$scope.update();
 		});

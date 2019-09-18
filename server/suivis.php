@@ -16,7 +16,7 @@
 				SELECT id_ressource from acl WHERE type_acces='group' AND id_acces=".$params->group."
 			)";
 			$tab=array();
-			
+
 			$t=millisecondes()-24*3600000;
 			$query_count_pr = "SELECT count(*) as nb
 			FROM suivis as t1
@@ -73,7 +73,7 @@
 				$suivis_pr[$row['id']]=$row;
 				$tab[]=$row['id_casquette'];
 			}
-			
+
 			$query_count_re = "SELECT count(*) as nb
 			FROM suivis as t1
 			inner join suivis_threads as t2 on t2.id=t1.id_thread
@@ -128,7 +128,7 @@
 				$suivis_re[$row['id']]=$row;
 				$tab[]=$row['id_casquette'];
 			}
-			
+
 
 			$query_count_te = "SELECT count(*) as nb
 			FROM suivis as t1
@@ -239,6 +239,7 @@
 			$db= new DB();
 			$query = "SELECT t1.*,
 			t2.id as id_thread,
+			t2.id_casquette as id_casquette,
 			t2.nom as nom_thread,
 			t2.desc as desc_thread,
 			t2.createdby as createdby_thread,
@@ -266,6 +267,7 @@
 					'nom'=>$row['nom_thread'],
 					'desc'=>$row['desc_thread'],
 					'id'=>$row['id_thread'],
+					'id_casquette'=>$row['id_casquette'],
 					'groups'=>json_decode($row['groups']),
 					'createdby'=>$row['createdby_thread'],
 					'creationdate'=>$row['creationdate_thread'],
@@ -282,6 +284,7 @@
 			$db= new DB();
 			$query = "SELECT t1.*,
 			t2.id as id_thread,
+			t2.id_casquette as id_casquette,
 			t2.nom as nom_thread,
 			t2.desc as desc_thread,
 			t2.createdby as createdby_thread,
@@ -305,6 +308,7 @@
 			$res['collection']=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 				$res['id']=$row['id_thread'];
+				$res['id_casquette']=$row['id_thread'];
 				$res['nom']=$row['nom_thread'];
 				$res['desc']=$row['desc_thread'];
 				$res['createdby']=$row['createdby_thread'];
@@ -386,9 +390,11 @@
 			$db= new DB();
 			$nom=$params->suivis_thread->nom;
 			$desc=$params->suivis_thread->desc;
+			$id_casquette=$params->suivis_thread->id_casquette;
 			$id_suivis_thread=$params->suivis_thread->id;
-			$update = $db->database->prepare('UPDATE suivis_threads SET nom=?, desc=?, modificationdate=?, modifiedby=? WHERE id=?');
-			$update->execute(array($nom,$desc,millisecondes(),$id,$id_suivis_thread));
+			error_log(var_export($params,true),3,"/tmp/fab.log");
+			$update = $db->database->prepare('UPDATE suivis_threads SET nom=?, desc=?, id_casquette=?, modificationdate=?, modifiedby=? WHERE id=?');
+			$update->execute(array($nom,$desc,$id_casquette,millisecondes(),$id,$id_suivis_thread));
 			$cas=Contacts::get_casquette_thread($id_suivis_thread,$id);
 			return array('maj'=>array("suivis_thread/$id_suivis_thread","contact/".$cas['id_contact']), 'res'=>1);
 		}
@@ -447,4 +453,4 @@
 			$delete->execute(array($id_suivis_thread));
 			return array('maj'=>array("suivis","contact/".$cas['id_contact']), 'res'=>1);
 		}
-	}	
+	}
