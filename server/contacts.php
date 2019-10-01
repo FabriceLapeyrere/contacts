@@ -79,6 +79,7 @@
 			if ($full) {
 				$cas['suivis']=(object)Suivis::get_suivis_casquette($id_cas,$id);
 				$cas['envois']=Mailing::get_envois_casquette($id_cas,$id);
+				$cas['impacts']=Mailing::get_impacts_casquette($id_cas,$id);
 			}
 			return $cas;
 		}

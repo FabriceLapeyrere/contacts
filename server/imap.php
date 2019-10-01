@@ -9,10 +9,11 @@ class Imap {
 	public function start_check($id){
 		$command = "nohup /usr/bin/php exec.php imap_check $id > /dev/null 2>&1 &";
 		exec($command);
-	}	
+	}
 	public function check_imap($id){
 		$C=Config::get();
 		$exps=$C->mailing->expediteurs->value;
+		if (!file_exists("./data/files/traitements/")) mkdir("./data/files/traitements/", 0777, true);
 		Imap::set_status($id,count($exps),0,1,0,0);
 		$cass=array();
 		foreach($exps as $k=>$exp){
@@ -30,7 +31,7 @@ class Imap {
 					imap_createmailbox($mbox, imap_utf7_encode("{".$server."}$name"));
 					imap_subscribe($mbox,imap_utf7_encode("{".$server."}$name"));
 				}
-				
+
 				$total=imap_num_msg($mbox);
 				$pp=-1;
 				for ($i=1; $i<=$total; $i++) {
@@ -109,4 +110,3 @@ class Imap {
 		WS_maj(array("imap"));
 	}
 }
-

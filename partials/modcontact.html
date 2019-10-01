@@ -145,6 +145,27 @@
 						</div>
 					</div>
 					<div class="col-xs-12 inter clearfix"></div>
+
+					<div ng-if="cas.impacts.length>0" class="col-xs-12 clearfix list-group-item">
+						<span class="label-contact">Impacts ({{cas.impacts.length}})</span>
+						<span class="cursor mini" ng-if="!imp[cas.id]" ng-click="imp[cas.id]=true">voir</span>
+						<span class="cursor mini" ng-if="imp[cas.id]" ng-click="imp[cas.id]=false">cacher</span>
+						<div ng-if="imp[cas.id]">
+							<uib-pagination ng-init="pageCourante.impactCas[cas.id]= pageCourante.impactCas[cas.id] ? pageCourante.impactCas[cas.id] : 1" ng-if="cas.impacts.length>itemsParPage" boundary-links="true" total-items="cas.impacts.length" ng-model="pageCourante.impactCas[cas.id]" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
+							<div class="small-row" ng-repeat="clic in cas.impacts | startFrom:(pageCourante.impactCas[cas.id]-1)*itemsParPage | limitTo:itemsParPage">
+								<small class="mini">{{calendar(clic.date)}}</small>
+								<small>
+									<span class="vert" ng-if="clic.url=='Lu'">E-mail ouvert</span><a ng-if="clic.url!='Lu'" href="{{clic.url}}" target="_blank">{{clic.url}}</a>  {{clic.email}}
+									(<a href='modenvoi/{{clic.id_envoi}}'>{{clic.sujet}}</a> -
+									<a href="modnews/{{clic.id_type}}" ng-if="clic.type=='news'">Newsletter n°{{clic.id_type}}</a><a href="mail/{{clic.id_type}}" ng-if="clic.type=='mail'">E-mail n°{{clic.id_type}}</a>)
+								</small>
+
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-xs-12 inter clearfix"></div>
 					<div ng-show="(cas.suivis | toArray).length>0" class="col-xs-12">Suivis :</div>
 					<div ng-repeat="suivisThread in cas.suivis | toArray | orderBy:'date':true" class="list-group-item col-xs-12">
 						<div class="contact-btn cursor" ng-if="suivisCas.length==0">

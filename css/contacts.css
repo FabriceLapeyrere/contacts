@@ -327,3 +327,11 @@ pre {
 	left:2px;
 	top:13px;
 }
+.small-row {
+	border-bottom: 1px solid #0003;
+	padding-bottom:2px;
+}
+.small-row:last-of-type {
+	border-bottom: none;
+	padding-bottom:0;
+}

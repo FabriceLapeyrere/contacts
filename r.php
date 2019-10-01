@@ -9,6 +9,7 @@ $C=Config::get();
 $hash=$_GET['h'];
 $params=json_decode(base64_decode($hash),true);
 $contact=$params['contact'];
+$email= isset($params['email']) ? $params['email'] : "";
 $envoi=$params['envoi'];
 $url=$params['url'];
 if (ctype_digit(strval($contact)) && ctype_digit(strval($envoi))) {
@@ -68,24 +69,24 @@ if (ctype_digit(strval($contact)) && ctype_digit(strval($envoi))) {
 	$notify=false;
 	if ($isimg==1){
 		$db->database->beginTransaction();
-		$query = "SELECT * FROM r WHERE id_envoi=$envoi AND id_cas=$contact AND url='Lu'";
+		$query = "SELECT * FROM r WHERE id_envoi=$envoi AND id_cas=$contact AND email='$email' AND url='Lu'";
 		$res=array();
 		foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
 			$res[]=$row;
 		}
 		if (count($res)==0) {
-			$insert = $db->database->prepare('INSERT INTO r (id_cas, id_envoi, url, date) VALUES (?,?,?,?) ');
-			$insert->execute(array($contact, $envoi, 'Lu', $date));
+			$insert = $db->database->prepare('INSERT INTO r (id_cas, id_envoi, email, url, date) VALUES (?,?,?,?,?) ');
+			$insert->execute(array($contact, $envoi, $email, 'Lu', $date));
 			$notify=true;
 		}
 		$db->database->commit();
 	} else {
-		$insert = $db->database->prepare('INSERT INTO r (id_cas, id_envoi, url, date) VALUES (?,?,?,?) ');
-		$insert->execute(array($contact, $envoi, $url, $date));
+		$insert = $db->database->prepare('INSERT INTO r (id_cas, id_envoi, email, url, date) VALUES (?,?,?,?,?) ');
+		$insert->execute(array($contact, $envoi, $email, $url, $date));
 		$notify=true;
 	}
 	if ($notify) {
-		WS_maj(array("envoi/$envoi","impacts","casquettes"));
+		WS_maj(array("envoi/$envoi","impacts","contact/*"));
 		//on previent l'expéditeur!!
 		if ($C->mailing->redirect_notification->value) {
 			$e=Mailing::get_envoi($envoi,'',1);

@@ -57,7 +57,6 @@ if($envoi['statut']==1) {
 	$mail->FromName = $exp->nom->value;
 	error_log(date('d/m/Y H:i:s')." - nb = ".Mailing::nb_messages_boite_envoi($id_envoi)."\n", 3, "data/log/envoi.log");
 	while (Mailing::nb_messages_boite_envoi($id_envoi)>0) {
-		$htmlr=$html;
 		if ($pas==$mailing_nbmail) {
 			$pas=1;
 			error_log(date('d/m/Y H:i:s')." - On attend\n", 3, "data/log/envoi.log");
@@ -86,24 +85,27 @@ if($envoi['statut']==1) {
 		}
 		$m=Mailing::envoi_premier_message($id_envoi);
 		$i=$m['i'];
-		if($use_redirect){
-			$params=array(
-				'contact'=>$m['id_cas'],
-				'envoi'=>$id_envoi
-			);
-			$htmlr=replaceHref($htmlr, $redirect_url, $params);
-		}
-		if($remote_imgs){
-			$params=array(
-				'contact'=>$m['id_cas'],
-				'envoi'=>$id_envoi
-			);
-			$htmlr=replaceImgs($htmlr, $base, $params, $use_redirect, $redirect_url);
-		}
 		$c=Contacts::get_casquette($m['id_cas'],false,1);
 		$nom=trim($c['prenom']." ".$c['nom']);
 		$emails=$c['emails'];
 		foreach($emails as $email){
+    	    $htmlr=$html;
+			if($use_redirect){
+    			$params=array(
+    				'contact'=>$m['id_cas'],
+    				'envoi'=>$id_envoi,
+                    'email'=>$email
+    			);
+    			$htmlr=replaceHref($html, $redirect_url, $params);
+    		}
+    		if($remote_imgs){
+    			$params=array(
+    				'contact'=>$m['id_cas'],
+    				'envoi'=>$id_envoi,
+                    'email'=>$email
+    			);
+    			$htmlr=replaceImgs($html, $base, $params, $use_redirect, $redirect_url);
+    		}
 		    if (!in_array($email,$emails_ok)) {
 		        //lien de desinscription
 		        $usbcr_hash=base64_encode(json_encode(array("emails"=>array($email))));

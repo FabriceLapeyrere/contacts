@@ -169,6 +169,7 @@ app.controller('mainCtl', ['$scope', '$http', '$location', '$timeout', '$interva
 	$scope.pageCourante.erreur=1;
 	$scope.pageCourante.impacts=1;
 	$scope.pageCourante.envoiCas={};
+	$scope.pageCourante.impactCas={};
 	$scope.pageCourante.tags={};
 	$scope.pageCourante.news=1;
 	$scope.pageCourante.mails=1;
@@ -1327,6 +1328,7 @@ app.controller('modcontactCtl', ['$scope', '$filter', '$http', '$location', '$ro
 	});
 	$scope.sv={};
 	$scope.ev={};
+	$scope.imp={};
 	$scope.svDesc={};
 	$scope.idx=-1;
 	$scope.modContact=function(contact){

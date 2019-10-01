@@ -69,7 +69,7 @@
 			<uib-pagination boundary-links="true" total-items="Data.modele[key].impact.total" ng-model="pageCourante.impact" items-per-page="itemsParPage" max-size="maxSize" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
 			<ul class="list-group" ng-if="Data.modele[key].impact.total>0">
 				<li class="list-group-item" ng-repeat="clic in Data.modele[key].impact.collection | toArray" ng-init="mcas=Data.modele[key].cas[clic.id_cas]">
-					{{calendar(clic.date)}} - <span class="vert" ng-if="clic.url=='Lu'">E-mail ouvert</span><a ng-if="clic.url!='Lu'" href="{{clic.url}}" target="_blank">{{clic.url}}</a> - <a href="modcontact/{{mcas.id_contact}}" ng-class="{'structure':mcas.type==2,'contact':mcas.type==1}"><span ng-if="mcas.prenom">{{mcas.prenom}} </span>{{mcas.nom}}<span ng-if="!(mcas.prenom || mcas.nom)">(sans nom)</span></a>
+					{{calendar(clic.date)}} - <span class="vert" ng-if="clic.url=='Lu'">E-mail ouvert</span><a ng-if="clic.url!='Lu'" href="{{clic.url}}" target="_blank">{{clic.url}}</a> - <a href="modcontact/{{mcas.id_contact}}" ng-class="{'structure':mcas.type==2,'contact':mcas.type==1}"><span ng-if="mcas.prenom">{{mcas.prenom}} </span>{{mcas.nom}}<span ng-if="!(mcas.prenom || mcas.nom)">(sans nom)</span></a> {{clic.email}}
 				</li>
 			</ul>
 		</uib-tab>

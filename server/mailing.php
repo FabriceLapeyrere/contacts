@@ -559,6 +559,16 @@
 			}
 			return $envois;
 		}
+		public static function get_impacts_casquette($id_cas,$id) {
+			$db= new DB();
+			$impacts=array();
+			$query = "SELECT * FROM r WHERE id_cas=$id_cas ORDER BY DATE DESC;";
+			$query = "SELECT t1.*, t2.type, t2.id_type, t2.sujet FROM r as t1 INNER JOIN envois as t2 on t1.id_envoi=t2.id WHERE id_cas=$id_cas ORDER BY t1.date DESC;";
+			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
+				$impacts[]=$row;
+			}
+			return $impacts;
+		}
 		public static function get_envoi($id_envoi,$params='',$id) {
 			$db= new DB();
 			if ($params!='') {

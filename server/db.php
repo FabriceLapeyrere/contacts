@@ -318,6 +318,7 @@
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
 						array('nom'=>'id_cas','type'=>'INTEGER','defaut'=>'','options'=>''),
 						array('nom'=>'id_envoi','type'=>'INTEGER','defaut'=>'','options'=>''),
+						array('nom'=>'email','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'url','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'date','type'=>'INTEGER','defaut'=>'','options'=>'')
 					)
