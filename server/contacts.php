@@ -1779,6 +1779,8 @@
 					$tags_new_map[$tag_tab[1]]=$id_tag;
 				}
 			}
+			$doublons_texte=array();
+			$doublons_email=array();
 			foreach($contacts as $index=>$contact) {
 				$nom=$contact['nom'];
 				$prenom = isset($contact['prenom']) ? $contact['prenom'] : '';
@@ -1788,12 +1790,15 @@
 				$insert = $db->database->prepare('INSERT INTO contacts (sort, nom, prenom, type, creationdate, createdby, modificationdate, modifiedby) VALUES (?,?,?,?,?,?,?,?)');
 				$insert->execute(array($sort, $nom, $prenom, $contact['type'], millisecondes(), $id, millisecondes(), $id));
 				$id_contact = $db->database->lastInsertId();
+				$doublons_texte[]=$id_contact;
 				//on ajoute une casquette
 				$donnees=$contact['donnees'];
 				$nom_cas= 'Perso';
 				if ($contact['type']==2) $nom_cas= 'Siège Social';
+				$emails=emails($donnees);
+				$doublons_email=array_merge($doublons_email,json_decode($emails));
 				$insert = $db->database->prepare('INSERT INTO casquettes (nom,donnees,emails,email_erreur,fonction,cp,gps_x,gps_y,id_etab,id_contact,creationdate,createdby,modificationdate,modifiedby) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-				$insert->execute(array($nom_cas,json_encode($donnees),emails($donnees),0,fonction($donnees),cp($donnees),1000,1000,0,$id_contact,millisecondes(),$id,millisecondes(),$id));
+				$insert->execute(array($nom_cas,json_encode($donnees),$emails,0,fonction($donnees),cp($donnees),1000,1000,0,$id_contact,millisecondes(),$id,millisecondes(),$id));
 				$id_cas = $db->database->lastInsertId();
 				$contacts[$index]['id_cas']=$id_cas;
 				$insert = $db->database->prepare('INSERT INTO casquettes_fts (id,idx) VALUES (?,?)');
@@ -1832,7 +1837,8 @@
 			}
 			$db->database->commit();
 			if (count($cass)>0) ldap_update_array($cass);
-			doublon_maj(array());
+			doublon_maj($doublons_texte);
+			check_doublon_emails($doublons_email);
 			Contacts::index_gps();
 			return array('maj'=>array('*'), 'res'=>1);
 		}
