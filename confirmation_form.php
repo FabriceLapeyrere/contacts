@@ -130,7 +130,7 @@ ciao";
 
 Voici le lien pour remplir le formulaire : ".$form['nom']." :
 
-{$C->app->url->value}/form.php?h=".$instance['hash']."
+{$C->app->url->value}/form/".$instance['hash']."
 ";
                 if ($mail_body!='') {
                     $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
