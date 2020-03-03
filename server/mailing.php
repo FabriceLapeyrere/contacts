@@ -187,6 +187,54 @@
 			$params->id_news=$id_news;
 			return Mailing::get_newss($params,$id);
 		}
+		public static function get_news_prev_next($id_news,$params,$id)
+		{
+			$sujet='';
+			$id_newsletter=-1;
+			if (isset($params->filtre)) {
+				if (isset($params->filtre->sujet)) {
+					$sujet=$params->filtre->sujet;
+				}
+				if (isset($params->filtre->id_newsletter)) {
+					$id_newsletter=$params->filtre->id_newsletter;
+				}
+			}
+			$db= new DB();
+			$condition=" sujet like ?";
+			$tab=array("%$sujet%");
+			if ($id_newsletter>=0) {
+				$condition .= " AND id_newsletter=?";
+				$tab[]="$id_newsletter";
+			}
+
+			$sql = "create table temp.tmp as SELECT
+			id
+			FROM news
+			WHERE $condition
+			ORDER BY id DESC";
+			$select = $db->database->prepare($sql);
+			$select->execute($tab);
+			$sql = "select rowid, id, (select rowid from temp.tmp where id=$id_news) as courant, (select count(*) from temp.tmp) as total
+			from temp.tmp where
+				rowid=courant-1
+				OR
+				rowid=courant+1
+			;	";
+			$res=array();
+			$current=0;
+			$total=0;
+			$prev=0;
+			$next=0;
+			foreach($db->database->query($sql, PDO::FETCH_ASSOC) as $row){
+				$current=$row['courant'];
+				$total=$row['total'];
+				if ($row['rowid']<$row['courant']) $prev=$row['id'];
+				if ($row['rowid']>$row['courant']) $next=$row['id'];
+			}
+			$sql = "drop table temp.tmp;";
+			$db->database->exec($sql);
+			return array($prev,$next,$current,$total);
+		}
 		public function del_news($params,$id) {
 			$t=Mailing::do_del_news($params,$id);
 			$this->WS->maj($t['maj']);
@@ -435,7 +483,7 @@
 			//top
 			$top=0;
 			foreach ($blocs as $bk => $bv) {
-				if ($bk<$n) $top=$top+$bv->height;
+				if (isset($bv->height) && $bk<$n) $top=$top+$bv->height;
 			}
 
 			//bloc sans wrapper
@@ -542,7 +590,7 @@
 			$query = "select t1.*, Group_Concat(DISTINCT t2.id_news) as news from news_modeles as t1 left outer join modeles_news as t2 on t1.id=t2.id_modele group by t1.id ORDER BY t1.id ASC";
 			$modeles=array();
 			foreach($db->database->query($query, PDO::FETCH_ASSOC) as $row){
-				//$row['news']= $row['news']!='' ? explode(',',$row['news']) : array();
+				$row['news']= $row['news']!='' ? explode(',',$row['news']) : array();
 				$row['used']= count($row['news'])>0;
 				$modeles[$row['id']]=$row;
 			}

@@ -168,6 +168,9 @@
 					case "news":
 						$res=Mailing::get_news($tab[1],$u['id']);
 						break;
+					case "news_prev_next":
+						$res=Mailing::get_news_prev_next($tab[1],$params,$u['id']);
+						break;
 					case "modeles":
 						$res=Mailing::get_modeles();
 						break;

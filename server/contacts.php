@@ -1688,7 +1688,9 @@
 								if ($type=='ville') $adresse['ville']=trim($row[$k]);
 								if ($type=='pays') $adresse['pays']=trim($row[$k]);
 							}
-							if ($type=='note') {
+							if ($type=='text') $donnees[]=array('type'=>'text','label'=>$label,'value'=>$row[$k]);
+							if ($type=='note' && $label!='Note') $donnees[]=array('type'=>'note','label'=>$label,'value'=>$row[$k]);
+							if ($type=='note' && $label=='Note') {
 								if (trim($row[$k])!='') $note.="\n".$row[$k];
 							}
 							if ($type=='tag') {

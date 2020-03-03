@@ -91,8 +91,12 @@ if (ctype_digit(strval($contact)) && ctype_digit(strval($envoi))) {
 		if ($C->mailing->redirect_notification->value) {
 			$e=Mailing::get_envoi($envoi,'',1);
 			$expediteur=$e['expediteur'];
-			$exp=$C->mailing->expediteurs->value[$expediteur->id];
-
+			$exp=new stdClass;
+            foreach ($C->mailing->expediteurs->value as $key => $value) {
+                if($value->email->value==$expediteur->email) $exp=$value;
+            }
+            if (!isset($exp->email)) $exp=$C->mailing->expediteurs->value[0];
+            
 			require 'server/lib/PHPMailer/PHPMailerAutoload.php';
 			$mail = new PHPMailer();
 			$mail->SetLanguage("fr","server/lib/PHPmailer/language/");
@@ -105,9 +109,9 @@ if (ctype_digit(strval($contact)) && ctype_digit(strval($envoi))) {
 			$mail->CharSet = "UTF-8";
 			$mail->Subject = '[[Nouveau clic]]';
 			$mail->Body = "$nom (N° $contact) a cliqué sur $url !";
-			$mail->From = $exp->email->value;
+			$mail->From = $expediteur->email;
 			$mail->FromName = 'Newsletter';
-			$mail->AddAddress($exp->email->value,$exp->nom->value);
+			$mail->AddAddress($expediteur->email,$expediteur->nom);
 			$mail->Send();
 		}
 	}

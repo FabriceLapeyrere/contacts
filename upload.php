@@ -105,6 +105,12 @@ if ( !empty( $_FILES ) ) {
 				}
 				fclose($handle);
 			}
+			$custom_types = array(
+				'email',
+				'tel',
+				'note',
+				'text'
+			);
 			$types = array(
 				'type',
 				'nom',
@@ -149,13 +155,23 @@ if ( !empty( $_FILES ) ) {
 					$label=$labels[$c];
 					$i=1;
 					$label_alt=$label;
-					while(in_array($label_alt,$map_labels)) {
+					while($label!='Note' && in_array($label_alt,$map_labels)) {
 						$label_alt=$label." $i";
 						$i++;
 					}
 					$map_labels[]=$label_alt;
 					if(!isset($map[$type])) $map[$type]=array();
 					$map[$type_string][$k]=$label_alt;
+				} else {
+					$custom_tab=explode('&',$type);
+					if (count($custom_tab)==2 && in_array($custom_tab[1],$custom_types)){
+						$label=$custom_tab[0];
+						$type=$custom_tab[1];
+						$header[$k]=$type;
+						$map_labels[]=$label;
+						if(!isset($map[$type])) $map[$type]=array();
+						$map[$type][$k]=$label;
+					}
 				}
 			}
 			$contacts=array();
@@ -184,14 +200,20 @@ if ( !empty( $_FILES ) ) {
 								if ($type=='type') $contact['type']=$exemple[$k];
 								if ($type=='fonction') {
 									$contact['fonction']=$exemple[$k];
-									$donnees[]=array('type'=>'fonction','label'=>$label,'value'=>$exemple[$k]);
+									$donnees[]=array('type'=>'fonction','k'=>$k,'suffixe'=>'','value'=>$exemple[$k]);
 								}
 								if ($type=='adresse') $adresse['adresse']=trim($exemple[$k]);
 								if ($type=='cp') $adresse['cp']=$exemple[$k];
 								if ($type=='ville') $adresse['ville']=$exemple[$k];
 								if ($type=='pays') $adresse['pays']=$exemple[$k];
 							}
-							if ($type=='note') {
+							if ($type=='text'){
+									$donnees[]=array('type'=>'text','k'=>$k,'suffixe'=>'','value'=>$exemple[$k]);
+							}
+							if ($type=='note' && $label!='Note'){
+								$donnees[]=array('type'=>'note','k'=>$k,'suffixe'=>'','value'=>$exemple[$k]);
+							}
+							if ($type=='note' && $label=='Note') {
 								if (trim($exemple[$k])!='') $note.="\n".$exemple[$k];
 							}
 							if ($type=='tag') {

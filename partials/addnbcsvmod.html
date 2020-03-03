@@ -64,7 +64,7 @@
 				<div ng-repeat-end class="clearfix inter col-xs-12 hidden-xs" ng-if="$index % 2==1"></div>
 				<div ng-repeat="d in exemples[i].donnees" class="col-xs-12" style="overflow:hidden;" ng-if="d.value!='' && d.type=='note'">
 					<div>
-						<span class="label-contact">{{d.label}} : </span><br />
+						<span class="label-contact">{{d.label ? d.label : map[d.type][d.k]}} : </span><br />
 						<div ng-bind-html="d.value | nl2br"></div>
 					</div>
 				</div>

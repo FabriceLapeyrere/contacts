@@ -2,14 +2,17 @@
 	<div class="col-xs-12 col-md-8 col-lg-9" id="news-Parent">
 		<form>
 		<p><button class="btn btn-default" ng-click="envoyer()">Envoyer à</button> <button class="btn btn-default" ng-click="pdf()">PDF</button> <button class="btn btn-primary" ng-click="unpublie()" ng-if="p=(Data.modele[key].publie==1)">Publié</button><button class="btn btn-default" ng-click="publie()" ng-if="!p">Non publié</button> <button class="btn btn-default" ng-click="modNewsletterMod()"><span ng-if="n= Data.modele[key].id_newsletter==-1 || !Data.modele[key].id_newsletter">Aucune newletter associée</span><span ng-if="!n">{{Data.modele.config.config.news.newsletters.value[Data.modele[key].id_newsletter].nom.value}}</span></button></p>
-		<locked key="key" data="Data">
-			<p>
-				<h3 ng-click="modSujetMod()" class="cursor individu">{{Data.modele[key].sujet}}</h3>
-				<a ng-if="p" href="{{Data.modele.config.config.app.url.value}}/news.php?id={{Data.modele[key].id}}" target="_blank">voir en ligne</a>
-			</p>
-			<p> <span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
-			</p>
+			<locked key="key" data="Data">
+				<p>
+					<h3 ng-click="modSujetMod()" class="cursor individu">{{Data.modele[key].sujet}}</h3>
+					<a ng-if="p" href="{{Data.modele.config.config.app.url.value}}/news.php?id={{Data.modele[key].id}}" target="_blank">voir en ligne</a>
+				</p>
 			</locked>
+			<p>
+				<span class="mini">Création : {{calendar(Data.modele[key].creationdate)}} par {{Data.modele.users[Data.modele[key].createdby].name}}, modification : {{calendar(Data.modele[key].modificationdate)}} par {{Data.modele.users[Data.modele[key].modifiedby].name}}.</span>
+				<span class="pull-right mini" ng-if="Data.modele[prevNextKey][3]">{{Data.modele[prevNextKey][2]}} de {{Data.modele[prevNextKey][3]}}</span>
+			</p>
+
 		</form>
 		<div class="news" id="news-container" ng-style="{'background-image':Data.modele[key].background_img ? 'url('+Data.modele[key].background_img+')' : 'none', 'background-position': 'top','background-repeat':'repeat-y', 'background-color': Data.modele[key].background_color}">
 			<style scoped ng-bind-html="trust(Data.modele.config.config.news.css.value)"></style>

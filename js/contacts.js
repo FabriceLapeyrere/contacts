@@ -1856,11 +1856,37 @@ app.controller('newsCtl', ['$scope', '$http', '$location', '$uibModal', 'Link', 
 		if (n!=o) Link.context([{type:'newss',params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre.news}}]);
 	});
 }]);
-app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', function ($timeout, $window, $scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data) {
+app.controller('modnewsCtl', ['$timeout', '$window', '$scope', '$http', '$location', '$routeParams', '$interval', '$sce', '$uibModal', 'FileUploader', 'Link', 'Data', 'hotkeys',	 function ($timeout, $window, $scope, $http, $location, $routeParams, $interval, $sce, $uibModal, FileUploader, Link, Data, hotkeys) {
 	$scope.mini={bool:false};
 	$scope.Data=Data;
 	$scope.key='news/'+$routeParams.id;
-	Link.context([{type:$scope.key},{type:'modeles'}]);
+	$scope.prevNextKey='news_prev_next/'+$routeParams.id;
+	Link.context([{type:$scope.key},{type:'modeles'},{type:$scope.prevNextKey,params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre.news}}]);
+	$scope.$watch('Data.modele["'+$scope.prevNextKey+'"]',function(n,o){
+		if (n) {
+			Link.context([{type:$scope.key},{type:'modeles'},{type:$scope.prevNextKey,params:{page:$scope.pageCourante.news,nb:$scope.itemsParPage,filtre:$scope.filtre.news}},
+				{type:'news/'+n[0]},
+				{type:'news/'+n[1]}
+			]);
+		}
+	});
+	hotkeys.bindTo($scope)
+	.add({
+		combo: 'x',
+		description: 'Newsletter suivante',
+		callback: function() {
+			var next=Data.modele[$scope.prevNextKey][1];
+			if (next>0) $location.path('/modnews/'+ next);
+		}
+	})
+	.add({
+		combo: 'q',
+		description: 'Newsletter précédente',
+		callback: function() {
+			var prev=Data.modele[$scope.prevNextKey][0];
+			if (prev>0) $location.path('/modnews/'+ prev);
+		}
+	})
 	$scope.showFichiers=false;
 	$scope.resizeNews=function(){
 		var scale=1,
