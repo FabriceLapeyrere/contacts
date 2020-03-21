@@ -51,7 +51,9 @@
         <div class="clearfix"></div>
         <div ng-if="instance.state=='open'">
             <p>
-                <button class="btn btn-primary" ng-click="save(currenthash)" ng-disabled="ko">Enregistrer</button>
+                <button class="btn btn-primary" ng-click="save(currenthash)" ng-disabled="ko=!canSave(currenthash)" ng-bind-html="trust(label(form.schema.texte_save || 'Enregistrer'))"></button>
+                <button class="btn btn-primary" ng-click="validate(currenthash)" ng-disabled="!canValidate(currenthash)" ng-bind-html="trust(label(form.schema.texte_validate || 'Valider'))"></button>
+                <button class="btn btn-default" ng-confirm-click="delFormInstance(currenthash)" ng-confirm-message="{{form.schema.texte_del_instance || 'Supprimer cette instance'}} ({{Data.modele[key][currenthash].collection[form.schema.champ_titre].valeur || 'sans nom'}}) ?"><span class="glyphicon glyphicon-trash cursor"></span> <span ng-bind-html="trust(label(form.schema.texte_del_instance || 'Supprimer cette instance'))"></span></button>
             </p>
         </div>
     </div>
