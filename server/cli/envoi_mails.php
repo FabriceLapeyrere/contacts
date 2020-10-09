@@ -104,7 +104,7 @@ if($envoi['statut']==1) {
     				'envoi'=>$id_envoi,
                     'email'=>$email
     			);
-    			$htmlr=replaceImgs($html, $base, $params, $use_redirect, $redirect_url);
+    			$htmlr=replaceImgs($htmlr, $base, $params, $use_redirect, $redirect_url);
     		}
 		    if (!in_array($email,$emails_ok)) {
 		        //lien de desinscription
