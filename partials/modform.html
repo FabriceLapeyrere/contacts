@@ -86,6 +86,10 @@
 				<p>&nbsp;</p>
 				<label>Message mail de confirmation envoyé</label>
 				<input class="form-control" placeholder="Message mail de confirmation envoyé" type="text" ng-model="Data.modele[key].schema.msg_confirm_sent"/>
+				<label>Expediteur</label>
+				<select class="form-control" ng-model="Data.modele[key].expediteur">
+					<option ng-repeat="e in Data.modele.config.config.mailing.expediteurs.value" value="{{e.email.value}}">{{e.nom.value}}</option>
+				</select>
 				<p>&nbsp;</p>
 			</uib-tab>
 			<uib-tab ng-repeat="p in Data.modele[key].schema.pages" ng-init="pageIndex=$index">

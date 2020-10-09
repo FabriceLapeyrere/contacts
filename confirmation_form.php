@@ -5,7 +5,41 @@ foreach (glob("server/*.php") as $filename)
     include $filename;
 }
 include 'conf/main.php';
+require 'server/lib/PHPMailer/PHPMailerAutoload.php';
 $C=Config::get();
+function send_mail($from,$to,$sujet,$body,$conf){
+    $exp=null;
+    foreach ($conf->mailing->expediteurs->value as $key => $value) {
+        if ($value->email->value==$from) $exp=$value;
+    }
+    if ($exp) {
+        $mail = new PHPMailer();
+        $mail->SetLanguage("fr","server/lib/PHPmailer/language/");
+        $mail->IsSMTP();
+        $mail->Host = $exp->smtp_host->value;
+        $mail->Port = $exp->smtp_port->value;
+        $mail->SMTPAuth = $exp->smtp_auth->value;
+        $mail->Username = $exp->smtp_username->value;
+        $mail->Password = $exp->smtp_pwd->value;
+        $mail->CharSet = "UTF-8";
+        $mail->Subject = $sujet;
+        $mail->From = $exp->email->value;
+        $mail->FromName = $exp->nom->value;
+        $mail->isHTML(false);
+        $mail->Body=$body;
+        $mail->AddAddress($to);
+        if (!$mail->Send())
+        {
+            error_log($mail->ErrorInfo."\n",3,"/tmp/fab.log");
+        }
+        else
+        {
+            error_log("OK\n",3,"/tmp/fab.log");
+        }
+    } else {
+        mail_utf8($to,$sujet,$body,'From: '.$conf->app->mails_notification_from->value);
+    }
+}
 function aj_contact($params)
 {
 	$c=(object) null;
@@ -115,8 +149,13 @@ email : {$params['donnees'][0]->value}
 
 ciao";
 				foreach(explode(",",$C->app->mails_notification->value) as $dest){
-					mail_utf8(trim($dest),"Inscription automatique au formulaire ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
-				}
+                    send_mail($form['expediteur'],
+                        trim($dest),
+                        "Inscription automatique au formulaire ".$form['nom'],
+                        $message,
+                        $C
+                    );
+                }
 				$id_cas=aj_contact($params);
                 $addParams=new stdClass;
                 $addParams->id_cas=$id_cas;
@@ -135,7 +174,12 @@ Voici le lien pour remplir le formulaire : ".$form['nom']." :
                 if ($mail_body!='') {
                     $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
                 }
-                mail_utf8($fichier[2],"Votre lien / ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
+                send_mail($form['expediteur'],
+                    $fichier[2],
+                    "Votre lien / ".$form['nom'],
+                    $message,
+                    $C
+                );
                 header('location:'.$C->app->url->value."/form/".$instance['hash']);
 			}
 		}

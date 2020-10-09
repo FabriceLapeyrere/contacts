@@ -566,3 +566,10 @@ var dirname=function(path) {
 
   return path.replace(/\\/g, '/').replace(/\/[^/]*\/?$/, '');
 }
+var expediteurs=function(expediteurs){
+    var tab=[];
+    expediteurs.map(function(e){
+        tab.push(e.email.value)
+    });
+    return tab;
+}

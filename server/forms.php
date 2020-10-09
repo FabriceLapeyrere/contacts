@@ -453,6 +453,7 @@
 			$db= new DB();
 			$update= $db->database->prepare('UPDATE forms SET
 				nom=?,
+				expediteur=?,
 				schema=?,
 				state=?,
 				from_date=?,
@@ -462,6 +463,7 @@
 				WHERE id=?');
 			$update->execute(array(
 				$params->form->nom,
+				$params->form->expediteur,
 				json_encode($params->form->schema),
 				$params->form->state,
 				$params->form->from_date,

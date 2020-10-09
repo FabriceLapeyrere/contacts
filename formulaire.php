@@ -4,8 +4,42 @@ foreach (glob("server/*.php") as $filename)
 {
     include $filename;
 }
+require 'server/lib/PHPMailer/PHPMailerAutoload.php';
 include 'conf/main.php';
 $C=Config::get();
+function send_mail($from,$to,$sujet,$body,$conf){
+    $exp=null;
+    foreach ($conf->mailing->expediteurs->value as $key => $value) {
+        if ($value->email->value==$from) $exp=$value;
+    }
+    if ($exp) {
+        $mail = new PHPMailer();
+        $mail->SetLanguage("fr","server/lib/PHPmailer/language/");
+        $mail->IsSMTP();
+        $mail->Host = $exp->smtp_host->value;
+        $mail->Port = $exp->smtp_port->value;
+        $mail->SMTPAuth = $exp->smtp_auth->value;
+        $mail->Username = $exp->smtp_username->value;
+        $mail->Password = $exp->smtp_pwd->value;
+        $mail->CharSet = "UTF-8";
+        $mail->Subject = $sujet;
+        $mail->From = $exp->email->value;
+        $mail->FromName = $exp->nom->value;
+        $mail->isHTML(false);
+        $mail->Body=$body;
+        $mail->AddAddress($to);
+        if (!$mail->Send())
+        {
+            error_log($mail->ErrorInfo."\n",3,"/tmp/fab.log");
+        }
+        else
+        {
+            error_log("OK\n",3,"/tmp/fab.log");
+        }
+    } else {
+        mail_utf8($to,$sujet,$body,'From: '.$conf->app->mails_notification_from->value);
+    }
+}
 function label($l) {
     $tab=explode('|',$l);
 	$res=trim($tab[0]);
@@ -101,7 +135,12 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
                         if ($mail_body!='') {
                             $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
                         }
-                        mail_utf8($_POST['email'],"Votre lien / ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
+                        send_mail($form['expediteur'],
+                            $_POST['email'],
+                            "Votre lien / ".$form['nom'],
+                            $message,
+                            $C
+                        );
                         $res=$msg_link_sent;
 					} else {
                         $params= new stdClass;
@@ -120,7 +159,12 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
                         if ($mail_body!='') {
                             $message=str_replace('##URL##',$C->app->url->value."/form/".$instance['hash'],$mail_body);
                         }
-                        mail_utf8($_POST['email'],"Votre lien / ".$form['nom'],$message,'From: '.$C->app->mails_notification_from->value);
+                        send_mail($form['expediteur'],
+                            $_POST['email'],
+                            "Votre lien / ".$form['nom'],
+                            $message,
+                            $C
+                        );
                         $res=$msg_link_sent;
 					}
 				} else {
@@ -139,9 +183,13 @@ if ($form['state']=='open' || $form['state']=='scheduled' && $form['from_date']<
 					if ($mail_body_confirm!='') {
                         $message=str_replace('##URL##',"{$C->app->url->value}/confirmation_form.php?cle=$cle",$mail_body_confirm);
                     }
-                    mail_utf8($_POST['email'],$form['nom'].", confirmation",$message,"From: {$C->app->mails_notification_from->value}");
-
-					$res=$msg_confirm_sent;
+                    send_mail($form['expediteur'],
+                        $_POST['email'],
+                        $form['nom'].", confirmation",
+                        $message,
+                        $C
+                    );
+                    $res=$msg_confirm_sent;
 				}
 			}
 			else $res=$msg_email_invalid;

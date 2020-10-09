@@ -446,6 +446,7 @@
 					'champs'=>array(
 						array('nom'=>'id','type'=>'INTEGER','defaut'=>'','options'=>'PRIMARY KEY AUTOINCREMENT'),
 						array('nom'=>'nom','type'=>'TEXT','defaut'=>'','options'=>''),
+						array('nom'=>'expediteur','type'=>'TEXT','defaut'=>'','options'=>''),
 						array('nom'=>'schema','type'=>'TEXT','defaut'=>'[]','options'=>''),
 						array('nom'=>'state','type'=>'string','defaut'=>'closed','options'=>''),
 						array('nom'=>'from_date','type'=>'string','defaut'=>'','options'=>''),
